@@ -1,0 +1,168 @@
+/* === Arrière-plan Matrix === */
+#matrixBackground {
+  opacity: 0.4; /* 0.3 = très discret, 1 = intense */
+  filter: blur(1px); /* flou léger pour casser la netteté */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* derrière le dashboard */
+  background: black;
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
+}
+
+/* === Overlay sombre pour le centre === */
+#matrixOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%);
+  pointer-events: none; /* Ne bloque pas les clics */
+  z-index: 0;
+}
+
+/* ===== STYLES GÉNÉRAUX ===== */
+body {
+  background: #030a07;
+  color: #b8ffe9;
+  font-family: monospace;
+  text-align: center;
+  padding: 30px;
+}
+
+/* ===== Dashboard principal ===== */
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  border: 2px solid #00ff9c;
+  border-radius: 8px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(3px);
+}
+
+/* ===== BOUTONS ===== */
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #00ff9c;
+  color: #000;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #63ffd4;
+}
+
+/* ===== BARRE DE PROGRESSION ===== */
+#progressContainer {
+  width: 100%;
+  background: rgba(0, 255, 156, 0.1);
+  border: 1px solid #00ff9c;
+  border-radius: 10px;
+  height: 25px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,255,156,0.3);
+  position: relative;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ff9c, #63ffd4);
+  transition: width 0.5s ease-out;
+  box-shadow: 0 0 15px #00ff9c;
+}
+
+/* Animation spéciale lors d'un milestone */
+.milestone-flash {
+  animation: flashGlow 1s ease-out;
+}
+
+@keyframes flashGlow {
+  0% { box-shadow: 0 0 10px #00ff9c; }
+  50% { box-shadow: 0 0 40px #00ff9c; }
+  100% { box-shadow: 0 0 10px #00ff9c; }
+}
+
+.flash-unlock {
+  animation: flashGreen 1s ease-in-out;
+}
+
+/* Texte clignotant */
+.high-intensity {
+  animation: pulseText 1s infinite;
+}
+
+/* ===== Leaderboard ===== */
+.feature-box {
+  margin: 30px auto;
+  padding: 20px;
+  max-width: 600px;
+  border: 2px solid #00ff9c;
+  border-radius: 10px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.feature-box h2 {
+  font-size: 1.5em;
+  color: #00ff9c;
+  margin-bottom: 10px;
+}
+
+.feature-box p {
+  color: #63ffd4;
+  font-size: 1em;
+  margin-bottom: 15px;
+}
+
+.feature-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+  background: #00ff9c;
+  color: #000;
+  transition: background 0.3s ease;
+}
+
+.feature-btn:hover {
+  background: #63ffd4;
+}
+
+/* État verrouillé */
+.locked {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.locked .feature-btn {
+  background: grey !important;
+  cursor: not-allowed;
+}
+
+/* ===== Animations ===== */
+@keyframes flashGreen {
+  0%   { box-shadow: 0 0 5px #00ff9c; }
+  50%  { box-shadow: 0 0 30px #00ff9c; }
+  100% { box-shadow: 0 0 5px #00ff9c; }
+}
+
+@keyframes pulseText {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
