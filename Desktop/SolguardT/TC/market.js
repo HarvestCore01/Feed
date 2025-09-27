@@ -14,7 +14,7 @@ let growthAcceleration = 1.05;    // +5% quand milestone atteint
 let milestone = 10000;           // Premier objectif
 
 // === LIFE BAR ===
-let lifeTime = 1800; // 30 minutes = 1800 secondes
+let lifeTime = 800; // 30 minutes = 1800 secondes
 const maxLifeTime = 1800;
 let lifeInterval = null;
 
@@ -25,7 +25,17 @@ let lifeInterval = null;
 export function feedLife(amount) {
   lifeTime = Math.min(lifeTime + amount * 60, maxLifeTime);
   updateLifeBar();
+  const dashboard = document.querySelector('.container');
+
+// Quand la vie est < 25%, le dashboard bat plus vite
+if (percent < 25) {
+  dashboard.classList.add('danger');
+} else {
+  dashboard.classList.remove('danger');
 }
+
+}
+
 
 
 export function sendSOL(currentUser) {

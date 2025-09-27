@@ -7,6 +7,7 @@ import { checkLeaderboardUnlock, updateLeaderboard } from './leaderboard.js';
 let currentUser = null;
 let leaderboardUnlocked = false; // ✅ Drapeau : Leaderboard initialement verrouillé
 
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Main.js chargé ✅");
 
@@ -103,6 +104,9 @@ const milestoneGoal = parseInt(milestoneGoalEl.textContent.replace(/\D/g, ''));
       } else {
         // Débloqué pour la première fois
         leaderboardUnlocked = true; // ✅ ON NE REVIENT PLUS EN ARRIÈRE
+        const leaderboardSection = document.getElementById('leaderboardSection');
+leaderboardSection.classList.add('unlocked');
+
         leaderboardSection.classList.remove('locked');
         leaderboardMessage.innerHTML = `🎉 Le leaderboard est maintenant disponible !`;
         openLeaderboardBtn.onclick = null;
