@@ -6,6 +6,7 @@
   <title>Core Feed Dashboard</title>
 
   
+  
 </head>
 <body>
     <link rel="stylesheet" href="styles.css">
@@ -15,6 +16,8 @@
     <h1>Core Feed Dashboard</h1>
     <p>Bienvenue sur ton projet Core Feed 🚀</p>
 
+
+    
     <!-- ===== MARKETCAP ===== -->
     <div>
       <h2>MarketCap : <span id="marketCap">0</span> SOL</h2>
@@ -54,10 +57,15 @@
     <div style="margin-top:20px;">
       <button id="sendSOL">Send SOL</button>
       <button id="burnCore">Burn Core Token</button>
-      <button id="createAccount">Create Account</button>
+      <!-- Bouton pour créer un compte (visible seulement si pas connecté) -->
+<button id="createAccount">Create Account</button>
+
+<!-- Bouton pour voir le profil (caché par défaut) -->
+<a id="viewProfile" href="profile.html" class="feature-btn" style="display:none;">Mon Profil</a>
       <button id="login">Login</button>
     </div>
 
+    
 <!-- Section Leaderboard toujours visible -->
 <div id="leaderboardSection" class="feature-box locked">
   <h2>Leaderboard</h2>
@@ -112,17 +120,6 @@
   </a>
 </div>
 
-
-    <!-- ===== INFOS DU JOUEUR CONNECTÉ ===== -->
-    <div id="userInfo" style="margin-top:20px; display:none; text-align:left;">
-      <h2>Mon profil</h2>
-      <p>Pseudo : <span id="userPseudo"></span></p>
-      <p>Niveau : <span id="userLevel"></span></p>
-      <p>Total Feed : <span id="userFeed"></span> CORE</p>
-      <p>Rank : <span id="userRank"></span></p>
-      <p>Manque pour passer au suivant : <span id="userNextDiff"></span> CORE</p>
-    </div>
-  </div>
 
   <!-- ===== SCRIPT PRINCIPAL ===== -->
   <script type="module" src="./main.js"></script>

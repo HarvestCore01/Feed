@@ -78,6 +78,103 @@ body {
   100% { box-shadow: 0 0 10px rgba(255, 77, 109, 0.6); transform: scale(1); }
 }
 
+/* === Profil Card === */
+.profile-card {
+  margin: 30px auto;
+  padding: 20px;
+  max-width: 500px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff9c;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 255, 156, 0.3);
+  animation: profilePulse 4s infinite ease-in-out;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet Matrix : lignes animées en fond */
+.profile-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(0,255,156,0.15), transparent);
+  animation: shineEffect 5s infinite;
+  z-index: 0;
+}
+
+@keyframes shineEffect {
+  0% { transform: translateX(-50%); }
+  50% { transform: translateX(50%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* === Titre du profil === */
+.profile-title {
+  font-size: 1.8rem;
+  color: #00ff9c;
+  text-shadow: 0 0 10px #00ff9c;
+  margin-bottom: 20px;
+  z-index: 1;
+  position: relative;
+}
+
+/* === Stats container === */
+.profile-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1;
+  position: relative;
+}
+
+/* === Une stat individuelle === */
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: rgba(0, 255, 156, 0.05);
+  border: 1px solid rgba(0, 255, 156, 0.2);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.stat:hover {
+  background: rgba(0, 255, 156, 0.15);
+  box-shadow: 0 0 10px rgba(0, 255, 156, 0.4);
+}
+
+/* Label */
+.stat .label {
+  color: #63ffd4;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Value */
+.stat .value {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1rem;
+  text-shadow: 0 0 5px #00ff9c;
+}
+
+.unit {
+  font-size: 0.8rem;
+  color: #63ffd4;
+  margin-left: 5px;
+}
+
+/* Animation de pulsation subtile */
+@keyframes profilePulse {
+  0% { box-shadow: 0 0 15px rgba(0, 255, 156, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 255, 156, 0.6); }
+  100% { box-shadow: 0 0 15px rgba(0, 255, 156, 0.3); }
+}
+
 
 /* ===== BOUTONS ===== */
 button {

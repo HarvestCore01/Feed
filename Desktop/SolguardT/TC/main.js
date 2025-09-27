@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Création de compte
   createAccountBtn.addEventListener('click', createAccount);
 
+
   // Login
   loginBtn.addEventListener('click', () => {
     const user = login();
@@ -38,7 +39,35 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem("currentUser", currentUser);
       updateLeaderboard(currentUser); // Mise à jour leaderboard dès connexion
     }
+
+    // Vérifie si un utilisateur est déjà connecté au chargement
+const savedUser = localStorage.getItem("currentUser");
+if (savedUser) {
+  // Masquer Create Account et afficher Mon Profil
+  document.getElementById('createAccount').style.display = 'none';
+  document.getElementById('viewProfile').style.display = 'inline-block';
+}
+
   });
+
+
+
+function updateProfileLevelColor(level) {
+  const profileTitle = document.querySelector('.profile-title');
+  if (!profileTitle) return;
+
+  if (level >= 10) {
+    profileTitle.style.color = "#ffdd00"; // Or
+    profileTitle.style.textShadow = "0 0 15px #ffdd00";
+  } else if (level >= 5) {
+    profileTitle.style.color = "#00ff9c"; // Vert Matrix
+    profileTitle.style.textShadow = "0 0 15px #00ff9c";
+  } else {
+    profileTitle.style.color = "#63ffd4"; // Vert clair
+    profileTitle.style.textShadow = "0 0 15px #63ffd4";
+  }
+}
+  // Met à jour la couleur du titre du profil toutes les 10 secondes
 
   // Envoi de SOL
   sendSolBtn.addEventListener('click', () => {

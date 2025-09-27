@@ -34,11 +34,30 @@ export function createAccount() {
   alert("✅ Compte créé avec succès !");
 }
 
-// Met à jour l'affichage du profil connecté
-export function updateUserInfo(currentUser) {
+export function updateUserInfo(username) {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
-  const user = users[currentUser];
+  const user = users[username];
   if (!user) return;
+
+  // Sécurité : vérifier si les éléments existent avant de les manipuler
+  const pseudoEl = document.getElementById("userPseudo");
+  const levelEl = document.getElementById("userLevel");
+  const feedEl = document.getElementById("userFeed");
+  const rankEl = document.getElementById("userRank");
+  const nextDiffEl = document.getElementById("userNextDiff");
+
+  if (!pseudoEl || !levelEl || !feedEl || !rankEl || !nextDiffEl) {
+    console.warn("updateUserInfo appelé mais les éléments du DOM n'existent pas encore.");
+    return;
+  }
+
+  // Mise à jour des infos
+  pseudoEl.textContent = username;
+  levelEl.textContent = user.level;
+  feedEl.textContent = user.feed;
+  rankEl.textContent = user.rank || "Non classé";
+  nextDiffEl.textContent = user.nextDiff || 0;
+
 
   // Calcul du niveau
   user.level = calculateLevel(user.feed);

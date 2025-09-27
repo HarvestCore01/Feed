@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Profil - Core Feed</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container profile-container">
+    <h1 class="profile-title">👤 Mon Profil</h1>
+
+    
+    <!-- Bloc profil stylisé -->
+    <div id="userInfo" class="profile-card">
+      <div class="profile-stats">
+        <div class="stat">
+          <span class="label">Pseudo</span>
+          <span class="value" id="userPseudo"></span>
+        </div>
+        <div class="stat">
+          <span class="label">Niveau</span>
+          <span class="value" id="userLevel"></span>
+        </div>
+        <div class="stat">
+          <span class="label">Total Feed</span>
+          <span class="value" id="userFeed"></span> <span class="unit">CORE</span>
+        </div>
+        <div class="stat">
+          <span class="label">Rank</span>
+          <span class="value" id="userRank"></span>
+        </div>
+        <div class="stat">
+          <span class="label">Manque pour passer au suivant</span>
+          <span class="value" id="userNextDiff"></span> <span class="unit">CORE</span>
+        </div>
+      </div>
+
+      <!-- Bouton retour vers dashboard -->
+      <div style="margin-top:20px;">
+        <a href="index.html" class="feature-btn">⬅ Retour au Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./profile.js"></script>
+</body>
+</html>
+
