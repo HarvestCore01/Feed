@@ -70,11 +70,21 @@
       50% { box-shadow: 0 0 40px #00ff9c; }
       100% { box-shadow: 0 0 10px #00ff9c; }
     }
+    .flash-unlock {
+     animation: flashGreen 1s ease-in-out;
+    }
+
 
     /* Texte clignotant */
     .high-intensity {
       animation: pulseText 1s infinite;
     }
+
+    @keyframes flashGreen {
+  0%   { box-shadow: 0 0 5px #00ff9c; }
+  50%  { box-shadow: 0 0 30px #00ff9c; }
+  100% { box-shadow: 0 0 5px #00ff9c; }
+}
 
     @keyframes pulseText {
       0% { opacity: 1; }
@@ -131,6 +141,46 @@
       <button id="createAccount">Create Account</button>
       <button id="login">Login</button>
     </div>
+
+    <!-- Leaderboard Section -->
+<div id="leaderboardSection" style="display:none; margin-top:30px;">
+  <h3 style="color:#00ff9c;">🏆 Classement Mondial</h3>
+  <p style="color:#63ffd4;">Top joueurs qui nourrissent l'IA</p>
+
+  <table id="leaderboardTable" style="width:100%; border-collapse:collapse; margin-top:10px;">
+    <thead>
+      <tr style="background:#063e2b; color:#00ff9c;">
+        <th style="padding:8px;">Rank</th>
+        <th style="padding:8px;">Pseudo</th>
+        <th style="padding:8px;">Feed Total (SOL)</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboardBody">
+      <!-- Rempli en JS -->
+    </tbody>
+  </table>
+
+  <!-- Info joueur -->
+  <p id="leaderboardInfo" style="margin-top:10px; color:#63ffd4; font-size:14px;">
+    Montez dans le classement en nourrissant l'IA !
+  </p>
+</div>
+
+<!-- Message dynamique d'ouverture -->
+<div id="leaderboardUnlockMessage" 
+     style="display:none; margin-top:15px; padding:10px; border:1px solid #00ff9c;
+            color:#00ff9c; font-weight:bold; text-shadow:0 0 10px #00ff9c;
+            background:rgba(0,255,156,0.1); border-radius:6px;">
+</div>
+
+<!-- Ajoute ce bouton en dessous de la barre ou d'une section -->
+<div id="leaderboardLink" style="display:none; margin-top:20px;">
+  <a href="leaderboard.html" 
+     style="padding:10px 20px; background:#00ff9c; color:#000; font-weight:bold; border-radius:4px; text-decoration:none;">
+    Voir le Leaderboard
+  </a>
+</div>
+
 
     <!-- ===== INFOS DU JOUEUR CONNECTÉ ===== -->
     <div id="userInfo" style="margin-top:20px; display:none; text-align:left;">
