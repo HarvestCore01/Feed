@@ -6,6 +6,17 @@
   <title>Core Feed Dashboard</title>
 
   <style>
+    /* === Arrière-plan Matrix === */
+#matrixBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* derrière le dashboard */
+  background: black;
+}
+
     /* ===== STYLES GÉNÉRAUX ===== */
     body {
       background: #030a07;
@@ -80,6 +91,60 @@
       animation: pulseText 1s infinite;
     }
 
+/* ===== Bloc principal du Leaderboard ===== */
+.feature-box {
+  margin: 30px auto;
+  padding: 20px;
+  max-width: 600px;
+  border: 2px solid #00ff9c;
+  border-radius: 10px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+/* Texte titre */
+.feature-box h2 {
+  font-size: 1.5em;
+  color: #00ff9c;
+  margin-bottom: 10px;
+}
+
+/* Texte description */
+.feature-box p {
+  color: #63ffd4;
+  font-size: 1em;
+  margin-bottom: 15px;
+}
+
+/* Bouton */
+.feature-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+  background: #00ff9c;
+  color: #000;
+  transition: background 0.3s ease;
+}
+
+.feature-btn:hover {
+  background: #63ffd4;
+}
+
+/* ===== État verrouillé ===== */
+.locked {
+  opacity: 0.4;
+  pointer-events: none; /* Désactive tout clic dans la section */
+}
+
+.locked .feature-btn {
+  background: grey !important;
+  cursor: not-allowed;
+}
+
+
     @keyframes flashGreen {
   0%   { box-shadow: 0 0 5px #00ff9c; }
   50%  { box-shadow: 0 0 30px #00ff9c; }
@@ -92,9 +157,12 @@
       100% { opacity: 1; }
     }
 
+    
+    
   </style>
 </head>
 <body>
+    <canvas id="matrixBackground"></canvas>
   <div class="container">
     <h1>Core Feed Dashboard</h1>
     <p>Bienvenue sur ton projet Core Feed 🚀</p>
@@ -114,7 +182,7 @@
 
       <!-- Objectif actuel -->
       <div style="margin-bottom:10px; font-weight:bold; color:#00ff9c; text-align:center;">
-        Objectif actuel : <span id="milestoneGoal">5000</span> SOL
+        Objectif actuel : <span id="milestoneGoal">10000</span> SOL
       </div>
 
       <!-- Barre de progression principale -->
@@ -142,8 +210,23 @@
       <button id="login">Login</button>
     </div>
 
+<!-- Section Leaderboard toujours visible -->
+<div id="leaderboardSection" class="feature-box locked">
+  <h2>Leaderboard</h2>
+  <p id="leaderboardMessage">
+    🔒 Débloquez le leaderboard en atteignant <span id="milestoneGoalDisplay">20 000</span> SOL de MarketCap.
+  </p>
+
+  <!-- Bouton visible mais inactif au début -->
+  <a href="leaderboard.html" id="openLeaderboardBtn" class="feature-btn disabled" onclick="return false;">
+    Ouvrir Leaderboard
+  </a>
+</div>
+
+
+
     <!-- Leaderboard Section -->
-<div id="leaderboardSection" style="display:none; margin-top:30px;">
+<div id="leaderboardTableSection" style="display:none; margin-top:30px;">
   <h3 style="color:#00ff9c;">🏆 Classement Mondial</h3>
   <p style="color:#63ffd4;">Top joueurs qui nourrissent l'IA</p>
 
@@ -195,5 +278,6 @@
 
   <!-- ===== SCRIPT PRINCIPAL ===== -->
   <script type="module" src="./main.js"></script>
+  <script src="./matrixBackground.js"></script>
 </body>
 </html>

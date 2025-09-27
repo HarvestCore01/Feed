@@ -11,7 +11,7 @@ const DEV_TAX = 0.05; // 5% pour le dev wallet
 // Croissance dynamique
 let baseGrowthRate = 1000;        // Croissance de base
 let growthAcceleration = 1.05;    // +5% quand milestone atteint
-let milestone = 5000;           // Premier objectif
+let milestone = 10000;           // Premier objectif
 
 // === LIFE BAR ===
 let lifeTime = 1800; // 30 minutes = 1800 secondes
