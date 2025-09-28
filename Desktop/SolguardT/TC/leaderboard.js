@@ -1,19 +1,22 @@
 // === leaderboard.js ===
 // Gestion du classement mondial
 
-// Valeur de déblocage modifiable
+// Seuil de déblocage du leaderboard
 const LEADERBOARD_UNLOCK_THRESHOLD = 10000; // Débloqué à 10 000 SOL
+let leaderboardUnlocked = false; // Empêche l'affichage multiple du message
 
-let leaderboardUnlocked = false; // Pour éviter que le message se répète
+/**
+ * Vérifie si le leaderboard doit être affiché ou non
+ * @param {number} marketCap - Capitalisation actuelle
+ */
 
-// Vérifie si le leaderboard doit être affiché
+
 export function checkLeaderboardUnlock(marketCap) {
   const section = document.getElementById("leaderboardSection");
   const flashMessage = document.getElementById("leaderboardUnlockMessage");
 
   if (!section || !flashMessage) return;
 
-  // Quand on dépasse le seuil
   if (marketCap >= LEADERBOARD_UNLOCK_THRESHOLD) {
     if (!leaderboardUnlocked) {
       leaderboardUnlocked = true;
@@ -21,17 +24,18 @@ export function checkLeaderboardUnlock(marketCap) {
       // Affiche la section
       section.style.display = "block";
 
-      // Animation flash
+      // Animation flash lors du déblocage
       section.classList.add("flash-unlock");
 
       // Message dynamique
       flashMessage.textContent = "🌐 Le classement mondial est maintenant ouvert !";
       flashMessage.style.display = "block";
 
+      // Masque le message après 3 secondes
       setTimeout(() => {
         flashMessage.style.display = "none";
         section.classList.remove("flash-unlock");
-      }, 3000); // Le message disparaît après 3 secondes
+      }, 3000);
     }
   } else {
     section.style.display = "none";
@@ -39,14 +43,17 @@ export function checkLeaderboardUnlock(marketCap) {
   }
 }
 
-// Construit le tableau dynamique
+/**
+ * Met à jour l'affichage du leaderboard
+ * @param {string} currentUser - Nom de l'utilisateur actuellement connecté
+ */
 export function updateLeaderboard(currentUser) {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const leaderboardBody = document.getElementById("leaderboardBody");
 
   if (!leaderboardBody) return;
 
-  // Transforme l'objet en tableau et trie par feed décroissant
+  // Trie les joueurs par feed décroissant
   const sortedUsers = Object.entries(users)
     .map(([name, data]) => ({
       username: name,
@@ -59,26 +66,55 @@ export function updateLeaderboard(currentUser) {
   sortedUsers.forEach((user, index) => {
     const tr = document.createElement("tr");
 
-    // Surligne le joueur actuel
+    // ======= Gestion des rangs prestige =======
+    let rankTitle = "";
+    let rankClass = "";
+
+    if (index < 10) {
+      rankTitle = "Architecte du Core";
+      rankClass = "rank-architecte";
+    } else if (index < 100) {
+      rankTitle = "Élu";
+      rankClass = "rank-elu";
+    } else {
+      rankTitle = "Feedeur";
+      rankClass = "rank-feedeur";
+    }
+
+    // ======= Glow spécial pour le top 3 =======
+    if (index === 0) tr.classList.add("top1");
+    else if (index === 1) tr.classList.add("top2");
+    else if (index === 2) tr.classList.add("top3");
+
+    // Met en évidence l'utilisateur actuel
     if (user.username === currentUser) {
       tr.style.backgroundColor = "rgba(0, 255, 156, 0.2)";
     }
 
+    // Contenu du tableau
     tr.innerHTML = `
       <td style="padding:6px; text-align:center;">${index + 1}</td>
-      <td style="padding:6px;">${user.username}</td>
-      <td style="padding:6px; text-align:right;">${user.feed.toFixed(2)}</td>
+      <td style="padding:6px;">
+        ${user.username}
+        <span class="rank-title ${rankClass}" style="margin-left:8px;">
+          ${rankTitle}
+        </span>
+      </td>
+      <td style="padding:6px; text-align:right;">
+        ${user.feed.toFixed(2)}
+      </td>
     `;
 
     leaderboardBody.appendChild(tr);
   });
 
-  // Affiche la position du joueur
+  // ======= Affiche la position du joueur actuel =======
   const rank = sortedUsers.findIndex(u => u.username === currentUser) + 1;
   const leaderboardInfo = document.getElementById("leaderboardInfo");
-  if (rank > 0) {
-    leaderboardInfo.textContent = `Votre position : #${rank} - Continuez à feed pour grimper !`;
-  } else {
-    leaderboardInfo.textContent = "Connectez-vous pour voir votre position dans le classement.";
+
+  if (leaderboardInfo) {
+    leaderboardInfo.textContent = rank > 0
+      ? `Votre position : #${rank} - Continuez à feed pour grimper !`
+      : "Connectez-vous pour voir votre position dans le classement.";
   }
 }

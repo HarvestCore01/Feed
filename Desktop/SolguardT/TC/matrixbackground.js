@@ -1,13 +1,15 @@
 console.log("Matrix background script loaded ✅");
 
-const canvas = document.getElementById("matrixBackground");
-if (!canvas) {
-  console.error("❌ Canvas 'matrixBackground' introuvable !");
-} else {
-  console.log("✅ Canvas trouvé, initialisation du fond Matrix...");
-}
+const canvas = document.getElementById('matrixBackground');
+const ctx = canvas.getContext('2d');
 
-const ctx = canvas ? canvas.getContext("2d") : null;
+// Réduit la résolution à 50%
+canvas.width = window.innerWidth / 2;
+canvas.height = window.innerHeight / 2;
+
+// Et tu l'agrandis en CSS :
+canvas.style.transform = "scale(2)";
+canvas.style.transformOrigin = "top left";
 
 function initCanvas() {
   if (!canvas) return;
@@ -56,9 +58,21 @@ ctx.fillStyle = gradient;
   }
 }
 
+let matrixInterval;
+
 if (canvas) {
   console.log("🚀 Lancement de l'animation Matrix...");
-  setInterval(drawMatrix, 50);
+  
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      clearInterval(matrixInterval); // stoppe l'animation quand onglet inactif
+    } else {
+      matrixInterval = setInterval(drawMatrix, 120); // reprend à 30 FPS
+    }
+  });
+
+  // démarrage initial
+  // matrixInterval = setInterval(drawMatrix, 120);
 }
 
 window.addEventListener("resize", () => {

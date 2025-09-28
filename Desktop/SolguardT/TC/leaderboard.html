@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leaderboard</title>
   <style>
+    /* ======== Style Global ======== */
     body {
       background: #030a07;
       color: #b8ffe9;
       font-family: monospace;
       text-align: center;
       padding: 30px;
+      margin: 0;
     }
 
     .container {
@@ -31,12 +33,14 @@
       font-weight: bold;
       border-radius: 4px;
       text-decoration: none;
+      transition: background 0.3s ease;
     }
 
     a:hover {
       background: #63ffd4;
     }
 
+    /* ======== Table ======== */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -52,16 +56,44 @@
       background: #063e2b;
       color: #00ff9c;
     }
+
+    /* ======== Locked Leaderboard ======== */
     .locked {
-  opacity: 0.5;
-  pointer-events: none; /* Empêche les clics */
-}
+      opacity: 0.5;
+      pointer-events: none; /* Empêche les clics */
+    }
 
-.locked button {
-  background: grey !important;
-  cursor: not-allowed;
-}
+    .locked button {
+      background: grey !important;
+      cursor: not-allowed;
+    }
 
+    /* ======== Rangs Premium ======== */
+    .rank-architecte {
+      color: gold;
+      font-weight: bold;
+    }
+
+    .rank-elu {
+      color: #63ffd4;
+    }
+
+    .rank-feedeur {
+      color: #ccc;
+    }
+
+    /* ======== Top 3 Glow ======== */
+    .top1 {
+      background: rgba(255, 215, 0, 0.2);
+    }
+
+    .top2 {
+      background: rgba(192, 192, 192, 0.2);
+    }
+
+    .top3 {
+      background: rgba(205, 127, 50, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -69,22 +101,43 @@
     <h1>🏆 Classement Mondial</h1>
     <p>Top joueurs qui nourrissent l'IA</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Pseudo</th>
-          <th>Feed Total (SOL)</th>
-        </tr>
-      </thead>
-      <tbody id="leaderboardBody">
-        <!-- Rempli en JS -->
-      </tbody>
-    </table>
+    <!-- Section du leaderboard -->
+    <section id="leaderboardSection">
+      <div id="leaderboardUnlockMessage"></div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Pseudo</th>
+            <th>Feed Total (SOL)</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+          <!-- Contenu généré en JS -->
+        </tbody>
+      </table>
+
+      <!-- Affiche la position du joueur actuel -->
+      <p id="leaderboardInfo" style="margin-top:15px; color:#63ffd4;"></p>
+    </section>
 
     <a href="index.html">⬅ Retour au Dashboard</a>
   </div>
 
-  <script type="module" src="./leaderboard.js"></script>
+  <!-- Important : script type module -->
+  <script type="module">
+    import { updateLeaderboard } from './leaderboard.js';
+
+    // Récupère l'utilisateur connecté depuis localStorage
+    const currentUser = localStorage.getItem("currentUser") || null;
+    
+    console.log("DEBUG → currentUser sur leaderboard.html :", currentUser);
+
+    // Met à jour le leaderboard dès que la page est chargée
+    document.addEventListener("DOMContentLoaded", () => {
+      updateLeaderboard(currentUser);
+    });
+  </script>
 </body>
 </html>

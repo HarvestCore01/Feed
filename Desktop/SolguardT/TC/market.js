@@ -92,6 +92,8 @@ Taxe 5% : ${tax} CORE envoyée au dev wallet.`);
   window.open("https://phantom.app/", "_blank");
 }
 
+let lastUpdate = 0;
+const UPDATE_INTERVAL = 2000; // rafraîchit l'affichage toutes les 2 seconde
 // =======================
 // Augmentation automatique du MarketCap
 export function autoIncreaseMarketCap(updateDisplay) {
@@ -109,8 +111,13 @@ export function autoIncreaseMarketCap(updateDisplay) {
       triggerMilestoneEffect(); // effet visuel
     }
 
-    updateDisplay();
-  }, 1000);
+   // Rafraîchit l'affichage seulement si 2s écoulées
+    const now = Date.now();
+    if (now - lastUpdate >= UPDATE_INTERVAL) {
+      updateDisplay();
+      lastUpdate = now;
+    }
+  }, 2000); // calcul rapide mais affichage limité
 }
 
 // =======================

@@ -1,13 +1,14 @@
 /* === Arrière-plan Matrix === */
 #matrixBackground {
   opacity: 0.4; /* 0.3 = très discret, 1 = intense */
-  filter: blur(1px); /* flou léger pour casser la netteté */
+  /*filter: blur(1px); /* flou léger pour casser la netteté */
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: -1; /* derrière le dashboard */
+  will-change: transform, opacity;
   background: black;
   mask-image: radial-gradient(circle at center, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
   -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
@@ -709,4 +710,156 @@ button:hover {
 @keyframes rotateEnergy {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.ia-final::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30%;
+  height: 30%;
+  background: radial-gradient(circle, #00ffd5 0%, #004040 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: corePulse 2s infinite ease-in-out;
+}
+
+@keyframes corePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+}
+.ia-final .ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(0,217,255,0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ringRotate 10s linear infinite;
+}
+
+.ia-final .ring:nth-child(1) {
+  width: 90%;
+  height: 90%;
+  animation-duration: 12s;
+}
+.ia-final .ring:nth-child(2) {
+  width: 120%;
+  height: 120%;
+  animation-duration: 18s;
+}
+
+@keyframes ringRotate {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.ia-final {
+  animation: ia-float 3s ease-in-out infinite, colorShift 6s linear infinite;
+}
+
+@keyframes colorShift {
+  0% { box-shadow: 0 0 20px #00d9ff; background: radial-gradient(circle, #00d9ff, rgba(0,0,0,0.1)); }
+  50% { box-shadow: 0 0 25px #ff00d4; background: radial-gradient(circle, #ff00d4, rgba(0,0,0,0.1)); }
+  100% { box-shadow: 0 0 20px #00d9ff; background: radial-gradient(circle, #00d9ff, rgba(0,0,0,0.1)); }
+}
+
+/* Top 3 dynamiques */
+.leaderboard-row.top1 td {
+  background: rgba(255, 215, 0, 0.2);
+  text-shadow: 0 0 10px gold;
+}
+.leaderboard-row.top2 td {
+  background: rgba(192, 192, 192, 0.2);
+  text-shadow: 0 0 8px silver;
+}
+.leaderboard-row.top3 td {
+  background: rgba(205, 127, 50, 0.2);
+  text-shadow: 0 0 6px #cd7f32;
+}
+
+/* Auréoles lumineuses */
+.top-avatar {
+  border-radius: 50%;
+  border: 2px solid #00ff9c;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 15px #00ff9c;
+  transition: transform 0.3s ease;
+}
+.top-avatar:hover {
+  transform: scale(1.2);
+}
+
+/* Rang prestigieux */
+.rank-title {
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.rank-architecte {
+  color: #ffd700;
+  text-shadow: 0 0 10px gold;
+}
+
+.rank-elu {
+  color: #63ffd4;
+  text-shadow: 0 0 8px #63ffd4;
+}
+
+.rank-feedeur {
+  color: #aaa;
+  text-shadow: 0 0 5px #555;
+}
+/* Top 3 dynamiques */
+.leaderboard-row.top1 td {
+  background: rgba(255, 215, 0, 0.2);
+  text-shadow: 0 0 10px gold;
+}
+.leaderboard-row.top2 td {
+  background: rgba(192, 192, 192, 0.2);
+  text-shadow: 0 0 8px silver;
+}
+.leaderboard-row.top3 td {
+  background: rgba(205, 127, 50, 0.2);
+  text-shadow: 0 0 6px #cd7f32;
+}
+
+/* Auréoles lumineuses */
+.top-avatar {
+  border-radius: 50%;
+  border: 2px solid #00ff9c;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 15px #00ff9c;
+  transition: transform 0.3s ease;
+}
+.top-avatar:hover {
+  transform: scale(1.2);
+}
+
+/* Rang prestigieux */
+.rank-title {
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.rank-architecte {
+  color: #ffd700;
+  text-shadow: 0 0 10px gold;
+}
+
+.rank-elu {
+  color: #63ffd4;
+  text-shadow: 0 0 8px #63ffd4;
+}
+
+.rank-feedeur {
+  color: #aaa;
+  text-shadow: 0 0 5px #555;
 }
