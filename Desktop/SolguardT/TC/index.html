@@ -6,6 +6,7 @@
   <title>Core Feed Dashboard</title>
 
 </head>
+
 <body>
 
     <!-- Intro terminal -->
@@ -19,7 +20,6 @@
   <!-- Ton contenu habituel du dashboard ici -->
 </div>
 
-
     <link rel="stylesheet" href="styles.css">
     <canvas id="matrixBackground"></canvas>
     <div id="matrixOverlay"></div>
@@ -28,7 +28,6 @@
     <p>Bienvenue sur ton projet Core Feed 🚀</p>
 
 
-    
     <!-- ===== MARKETCAP ===== -->
     <div>
       <h2>MarketCap : <span id="marketCap">0</span> SOL</h2>
@@ -47,11 +46,22 @@
         Objectif actuel : <span id="milestoneGoal">10000</span> SOL
       </div>
 
-      <!-- Barre de progression principale -->
-      <div id="progressContainer">
-        <div id="progressBar"></div>
-      </div>
+        <!-- Barre de progression avec œuf -->  
+ <div class="progressWrap">
+  <div id="progressContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <!-- œuf, sibling de la barre (plus dans le conteneur qui clippe) -->
+  <div id="ai-hologram">
+    <div class="egg">
+      <span class="scanline"></span>
+      <span class="core"></span>
     </div>
+  </div>
+</div>
+
+
 
     <!-- ===== LIFE BAR (Énergie IA) ===== -->
     <div style="margin-top:30px; max-width:600px; margin-left:auto; margin-right:auto;">

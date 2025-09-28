@@ -18,6 +18,32 @@ let bootPlayed = false; // Pour éviter de le rejouer plusieurs fois
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Main.js chargé ✅");
 
+
+  function updateEggIntensity(marketCap) {
+  const egg = document.getElementById('ai-hologram');
+  if (!egg) return;
+
+  // Intensité logarithmique pour une montée progressive
+  const intensity = Math.min(Math.log10(marketCap + 1) / 4, 1); 
+  egg.style.setProperty('--intensity', intensity.toFixed(3));
+
+  // Vitesse d'agitation qui s'accélère
+  egg.style.animationDuration = `${2.5 - intensity * 1.5}s`;
+}
+
+
+
+  // Fonction pour jouer le son de milestone
+function playMilestoneSound() {
+  const audio = new Audio('./sounds/milestone.mp3');
+  audio.volume = 0.25; // un peu plus fort que le bip
+  audio.play().catch(err => console.warn("Lecture bloquée :", err));
+}
+
+const milestones = [9000, 20000, 40000]; // tu peux en ajouter d'autres
+let lastTriggeredMilestone = 0;
+
+  
    // ==========================
   // Animation d'entrée du dashboard
   // ==========================
@@ -39,6 +65,36 @@ function playBootSound() {
     });
   }
 }
+// Fonction pour l'effet flash à l'éclosion
+function hatchEgg() {
+  const flash = document.createElement('div');
+  flash.style.position = 'fixed';
+  flash.style.top = 0;
+  flash.style.left = 0;
+  flash.style.width = '100%';
+  flash.style.height = '100%';
+  flash.style.background = 'rgba(0,217,255,0.8)';
+  flash.style.zIndex = 9999;
+  flash.style.transition = 'opacity 0.6s ease-out';
+  document.body.appendChild(flash);
+
+  setTimeout(() => flash.style.opacity = 0, 50);
+  setTimeout(() => flash.remove(), 650);
+}
+
+
+// Fonction Notif Marketcap
+const beepAudio = new Audio('./sounds/beep.mp3');
+beepAudio.volume = 0.05; // ajustable, reste subtil
+
+function playBeep() {
+  const audio = new Audio('./sounds/beep.mp3');
+  audio.volume = 0.05;
+  audio.playbackRate = 0.9 + Math.random() * 0.2; // pitch varie entre 0.9 et 1.1
+  audio.play();
+}
+
+
 
 // Appel au chargement initial
 playBootSound();
@@ -98,24 +154,7 @@ if (savedUser) {
 
   });
 
-
-
-function updateProfileLevelColor(level) {
-  const profileTitle = document.querySelector('.profile-title');
-  if (!profileTitle) return;
-
-  if (level >= 10) {
-    profileTitle.style.color = "#ffdd00"; // Or
-    profileTitle.style.textShadow = "0 0 15px #ffdd00";
-  } else if (level >= 5) {
-    profileTitle.style.color = "#00ff9c"; // Vert Matrix
-    profileTitle.style.textShadow = "0 0 15px #00ff9c";
-  } else {
-    profileTitle.style.color = "#63ffd4"; // Vert clair
-    profileTitle.style.textShadow = "0 0 15px #63ffd4";
-  }
-}
-  // Met à jour la couleur du titre du profil toutes les 10 secondes
+  
 
   // Envoi de SOL
   sendSolBtn.addEventListener('click', () => {
@@ -148,6 +187,9 @@ function updateProfileLevelColor(level) {
     updateUserInfo(currentUser);
   }
 
+
+    let lastMarketCap = 0;
+   const marketCapStep = 5000; // déclenche le son tous les 5K SOL
   // ==========================
   // Leaderboard LOCK logique
   // ==========================
@@ -155,11 +197,43 @@ function updateProfileLevelColor(level) {
     updateDisplay();
      // ✅ Ajout ici : anime le MarketCap
   smoothUpdateMarketCap(marketCap);
+ updateEggIntensity(marketCap);
+
+  // === Vérifie si l'œuf doit éclore ===
+  if (marketCap >= 1000000 && !window.eggHatched) {
+    const aiHologram = document.getElementById('ai-hologram');
+    if (aiHologram) {
+      aiHologram.classList.add('hatch');
+      hatchEgg();
+      console.log("🥚 L'œuf éclot !");
+    }
+    window.eggHatched = true; // évite de rejouer l'animation
+  }
+
 
     const leaderboardSection = document.getElementById('leaderboardSection');
     const leaderboardMessage = document.getElementById('leaderboardMessage');
     const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');
     const milestoneGoalEl = document.getElementById('milestoneGoal');
+
+ 
+// Après mise à jour du MarketCap
+
+if (marketCap - lastMarketCap >= marketCapStep) {
+  playBeep();
+  lastMarketCap = marketCap; // Réinitialise le seuil
+}
+
+// Vérifie si un milestone majeur est franchi
+for (let milestone of milestones) {
+  if (marketCap >= milestone && lastTriggeredMilestone < milestone) {
+    playMilestoneSound();  // 🔊 son spécial
+    lastTriggeredMilestone = milestone; // évite de rejouer en boucle
+    console.log(`🎉 Milestone atteint : ${milestone} SOL`);
+  }
+}
+
+
 
     // Vérification sécurisée du milestoneGoal
     if (!milestoneGoalEl) {
