@@ -609,39 +609,104 @@ button:hover {
   transition: all 1s ease-out;
 }
 
-/* Phase 1 : Tremblement */
-.hatch .egg {
-  animation: egg-shake 0.15s infinite;
+/* 0) État de base des éléments de l'éclosion */
+#ai-hologram .crack {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 4px;
+  height: 0;                   /* invisible au départ */
+  background: #00d9ff;         /* change la couleur ici si besoin */
+  box-shadow: 0 0 10px #00d9ff;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: height 0.8s ease-in-out, opacity 0.4s ease-in-out;
+  z-index: 2;
+  will-change: height, opacity;
 }
 
-@keyframes egg-shake {
-  0%,100% { transform: translateX(0); }
-  25% { transform: translateX(-3px); }
-  75% { transform: translateX(3px); }
+#ai-hologram .ia-entity {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00d9ff 0%, #9d00ff 70%); /* halo bleu-violet */
+  transform: translate(-50%, -50%) scale(.4);
+  opacity: 0;
+  filter: drop-shadow(0 0 20px #00d9ff) drop-shadow(0 0 35px #9d00ff);
+  transition: transform 1.0s ease-out, opacity 0.8s ease-out, width 0.6s, height 0.6s;
+  z-index: 3;
+  will-change: transform, opacity, width, height;
 }
 
-/* Phase 2 : Fissure qui s'ouvre */
-.hatch .crack {
+/* 1) Quand on ajoute .hatch sur #ai-hologram, on coupe les animations de repos */
+#ai-hologram.hatch .core,
+#ai-hologram.hatch .scanline {
+  animation: none !important;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+/* 2) La fissure devient visible et s’ouvre */
+#ai-hologram.hatch .crack {
   opacity: 1;
   height: 80%;
-  transition: all 0.8s ease-in-out;
 }
 
-/* Phase 3 : Explosion */
-.hatch .egg {
-  animation: egg-explode 1.5s ease-out forwards;
+/* 3) L’œuf explose (remplace egg-breathe). On utilise l’ID + classe pour battre la spécificité. */
+#ai-hologram.hatch .egg {
+  animation: egg-explode 1.4s ease-out forwards;  /* remplace l'animation idle */
+  will-change: transform, opacity;
 }
 
-@keyframes egg-explode {
-  0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(2); }
-}
-
-/* Phase 4 : IA apparaît */
-.hatch .ia-entity {
+/* 4) L’entité IA apparaît après le début de l’explosion */
+#ai-hologram.hatch .ia-entity {
   opacity: 1;
   width: 80px;
   height: 80px;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) scale(1.15);
+  transition-delay: 0.4s; /* petit décalage pour que ça apparaisse après la fissure */
+}
+
+/* Keyframes d'explosion */
+@keyframes egg-explode {
+  0%   { opacity: 1; transform: scale(1); }
+  55%  { opacity: .9; transform: scale(1.25); }
+  100% { opacity: 0; transform: scale(2.1); }
+}
+
+/* === IA stable après l'éclosion === */
+.ia-final {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,217,255,0.7), rgba(0,0,0,0.1));
+  box-shadow: 0 0 25px rgba(0,217,255,0.9);
+  animation: ia-float 3s ease-in-out infinite;
+}
+
+/* L'IA "respire" légèrement */
+@keyframes ia-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.05); }
+}
+
+/* Aura d'énergie tournante */
+.ia-final .energy {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,217,255,0.3), transparent 70%);
+  animation: rotateEnergy 6s linear infinite;
+}
+
+@keyframes rotateEnergy {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

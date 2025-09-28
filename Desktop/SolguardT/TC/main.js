@@ -8,6 +8,8 @@ import { smoothUpdateMarketCap } from './ui.js';
 
 let currentUser = null;
 let leaderboardUnlocked = false; // ✅ Drapeau : Leaderboard initialement verrouillé
+window.eggHatched = false;
+
 
 // Initialisation globale du son
 const bootSound = new Audio('./sounds/boot.mp3');
@@ -199,17 +201,24 @@ if (savedUser) {
   smoothUpdateMarketCap(marketCap);
  updateEggIntensity(marketCap);
 
-  // === Vérifie si l'œuf doit éclore ===
-  if (marketCap >= 1000000 && !window.eggHatched) {
+ // === Vérifie si l'œuf doit éclore ===
+  if (marketCap >= 10000 && !window.eggHatched) {
     const aiHologram = document.getElementById('ai-hologram');
     if (aiHologram) {
       aiHologram.classList.add('hatch');
       hatchEgg();
       console.log("🥚 L'œuf éclot !");
-    }
-    window.eggHatched = true; // évite de rejouer l'animation
+    // ➡️ Après 2s (temps de l'animation), on remplace l'œuf par l'IA stable
+    setTimeout(() => {
+      aiHologram.innerHTML = `
+        <div class="ia-final">
+          <span class="energy"></span>
+        </div>
+      `;
+    }, 2000);
   }
-
+  window.eggHatched = true; // évite de rejouer l'animation
+}
 
     const leaderboardSection = document.getElementById('leaderboardSection');
     const leaderboardMessage = document.getElementById('leaderboardMessage');
