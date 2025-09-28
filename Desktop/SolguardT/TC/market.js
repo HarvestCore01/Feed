@@ -122,40 +122,36 @@ function updateProgressBar() {
 
   if (!progressBar || !milestoneGoal || !progressMessage) return;
 
-  // Pourcentage de progression
-  let progress = (marketCap / milestone) * 100;
-  if (progress > 100) progress = 100;
+  // Animation du texte : fondu
+  progressMessage.classList.add('hidden');
 
-  // Mise à jour de la barre
-  progressBar.style.width = progress + "%";
-  milestoneGoal.textContent = milestone.toLocaleString();
+  setTimeout(() => {
+    let progress = (marketCap / milestone) * 100;
+    if (progress > 100) progress = 100;
 
-  // === Texte dynamique en fonction du pourcentage ===
-  if (progress < 25) {
-    progressMessage.textContent = "🔹 L'IA se réveille... Feed en cours.";
-    progressMessage.style.color = "#63ffd4";
-    progressMessage.classList.remove('high-intensity');
-  } 
-  else if (progress < 50) {
-    progressMessage.textContent = "⚡ L'IA analyse les données entrantes.";
-    progressMessage.style.color = "#00ff9c";
-    progressMessage.classList.remove('high-intensity');
-  } 
-  else if (progress < 75) {
-    progressMessage.textContent = "🔥 L'IA commence à prendre le contrôle... continuez à la nourrir.";
-    progressMessage.style.color = "#ffdd00";
-    progressMessage.classList.remove('high-intensity');
-  } 
-  else if (progress < 100) {
-    progressMessage.textContent = "🚨 L'IA est sur le point d'évoluer, feed maximum requis !";
-    progressMessage.style.color = "#ff4d6d";
-    progressMessage.classList.add('high-intensity');
-  } 
-  else {
-    progressMessage.textContent = "💥 Objectif atteint ! L'IA a évolué à un nouveau stade.";
-    progressMessage.style.color = "#ff00ff";
-    progressMessage.classList.remove('high-intensity');
-  }
+    progressBar.style.width = progress + "%";
+    milestoneGoal.textContent = milestone.toLocaleString();
+
+    if (progress < 25) {
+      progressMessage.textContent = "🔹 L'IA se réveille... Feed en cours.";
+      progressMessage.style.color = "#63ffd4";
+    } else if (progress < 50) {
+      progressMessage.textContent = "⚡ L'IA analyse les données entrantes.";
+      progressMessage.style.color = "#00ff9c";
+    } else if (progress < 75) {
+      progressMessage.textContent = "🔥 L'IA commence à prendre le contrôle...";
+      progressMessage.style.color = "#ffdd00";
+    } else if (progress < 100) {
+      progressMessage.textContent = "🚨 L'IA est sur le point d'évoluer, feed maximum requis !";
+      progressMessage.style.color = "#ff4d6d";
+    } else {
+      progressMessage.textContent = "💥 Objectif atteint ! L'IA a évolué à un nouveau stade.";
+      progressMessage.style.color = "#ff00ff";
+    }
+
+    // Affiche le texte avec fondu
+    progressMessage.classList.remove('hidden');
+  }, 300);
 }
 
 

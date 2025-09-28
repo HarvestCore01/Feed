@@ -58,7 +58,7 @@ ctx.fillStyle = gradient;
 
 if (canvas) {
   console.log("🚀 Lancement de l'animation Matrix...");
-  setInterval(drawMatrix, 60);
+  setInterval(drawMatrix, 50);
 }
 
 window.addEventListener("resize", () => {

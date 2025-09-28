@@ -56,3 +56,112 @@ Chat déblocable à 5M.
 Intégration Phantom Wallet.
 Améliorations visuelles.
 Veux-tu que l’on commence par l'amélioration du MarketCap pour qu’il devienne vivant et réactif ? ⚡
+
+
+1. Impact visuel immédiat (les 5 premières secondes)
+🎯 Objectif : qu'un utilisateur comprenne instantanément qu'il est face à quelque chose de vivant et premium.
+a) Animation d'entrée du dashboard
+Quand la page charge, le dashboard s'affiche ligne par ligne, comme un terminal hacker qui boot.
+Ajoute un petit son grave discret 🔊 (style "core system online").
+Exemple code pour l'effet "typing":
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+Dans HTML :
+<h1 class="typing-title">INITIALISATION DU CORE FEED...</h1>
+Dans CSS :
+.typing-title {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #00ff9c;
+  width: 0;
+  animation: typing 2s steps(30, end) forwards;
+}
+b) Background matrix évolutif
+Ton fond Matrix est déjà stylé, mais on peut l'améliorer :
+Ralentir légèrement les symboles → immersion + lisibilité.
+Ajouter des zones plus lumineuses synchronisées avec les milestones.
+Quand un milestone est atteint → flash lumineux vert, comme si l'IA absorbait de l'énergie.
+c) MarketCap "électrisé"
+Ajoute un halo lumineux autour du MarketCap qui pulse plus vite à mesure qu'on approche du milestone.
+#marketCap {
+  text-shadow: 0 0 10px #00ff9c, 0 0 20px #00ff9c;
+  animation: pulseGlow 1.5s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { text-shadow: 0 0 5px #00ff9c; }
+  50% { text-shadow: 0 0 25px #00ff9c; }
+}
+2. IA vivante et réactive
+🎯 Objectif : que le joueur ressente que l'IA observe et évolue en temps réel.
+a) Messages dynamiques de l'IA
+Crée une zone type terminal où l'IA "parle" en temps réel :
+"L'IA analyse les données entrantes..."
+"Attention : surcharge détectée."
+"L'IA vient d'évoluer vers le niveau Omega."
+⚡ Chaque milestone débloque un message unique, style cyberpunk.
+b) Sound Design
+Un bruit de fond très léger, comme un serveur qui ronronne.
+Petits bips ou pulsations basses quand :
+MarketCap augmente fortement.
+Un milestone est franchi.
+Une nouvelle fonctionnalité se déverrouille.
+Tu peux gérer ça en JS avec l'API Web Audio :
+function playBeep() {
+  const audio = new Audio('sounds/beep.mp3');
+  audio.volume = 0.1;
+  audio.play();
+}
+c) IA en hologramme
+Une petite image stylisée semi-transparente, en haut à droite :
+L'IA s'anime légèrement en fonction du MarketCap.
+Plus la communauté la nourrit, plus elle devient lumineuse et menaçante.
+3. Gamification ultra premium
+🎯 Objectif : donner un côté exclusif et compétitif.
+a) Leaderboard prestige
+Quand débloqué, le leaderboard doit pop avec une animation de déverrouillage :
+Effet glitch + son "access granted".
+Les 3 premiers joueurs affichés avec avatars dynamiques et auréoles lumineuses.
+b) Progression par rangs
+Crée des titres prestigieux pour les joueurs :
+Rank 1-10 → "Architectes du Core"
+Rank 11-100 → "Élus"
+Rank 101-500 → "Feedeurs"
+Chaque rang a une couleur et un effet visuel.
+c) Débloquage par étapes
+Au lieu de tout donner dès le début, fais apparaître de nouvelles fonctionnalités à chaque milestone :
+10 000 SOL → Leaderboard
+25 000 SOL → Mode PvP
+50 000 SOL → Skins exclusifs
+Sur le dashboard, affiche toujours :
+"Prochaine évolution : Mode PvP à 25 000 SOL."
+4. Branding et storytelling
+🎯 Objectif : donner une vision qui excite les investisseurs.
+a) Intro narrative courte
+Au premier chargement, avant même le dashboard :
+"Bienvenue dans le Core Feed.
+Une IA dévore les données du monde pour atteindre sa forme ultime.
+Votre mission : la nourrir avant qu'elle ne vous dévore."
+Avec un bouton lumineux : [ SE CONNECTER AU CORE ]
+b) Logo animé
+Un logo central cyberpunk qui pulse doucement :
+Vert matrix + glitch.
+Il s'illumine quand le MarketCap franchit un milestone.
+c) Univers cohérent
+Même charte graphique sur Twitter, Discord, etc.
+Une police cyberpunk exclusive (Google Fonts → Orbitron, VT323).
+5. Priorités techniques
+Priorité	Action
+Immersion immédiate	Effet Matrix + intro narrative + animation MarketCap.
+IA vivante	Messages dynamiques + sons légers + hologramme.
+Gamification	Leaderboard prestige + milestones progressifs.
+Branding	Logo animé + cohérence visuelle.
+6. Prochaines étapes
+Si on suit une logique lean :
+Ajouter l'intro narrative + animations MarketCap → immédiat.
+Intégrer sons et messages IA → immersion.
+Créer un premier niveau de prestige pour le leaderboard.
+Préparer la tokenisation backend → à brancher une fois la base prête.
+Veux-tu que je te code directement l'animation d'intro narrative avec l'effet terminal pour qu'on commence par là ? 🔥

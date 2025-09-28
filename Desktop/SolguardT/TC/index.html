@@ -5,10 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Core Feed Dashboard</title>
 
-  
-  
 </head>
 <body>
+
+    <!-- Intro terminal -->
+<div id="intro-screen">
+  <h1 class="typing-title">INITIALISATION DU CORE FEED...</h1>
+</div>
+<div id="flash-overlay"></div>
+
+<!-- Dashboard (caché au début) -->
+<div id="dashboard" style="display: none;">
+  <!-- Ton contenu habituel du dashboard ici -->
+</div>
+
+
     <link rel="stylesheet" href="styles.css">
     <canvas id="matrixBackground"></canvas>
     <div id="matrixOverlay"></div>
@@ -65,7 +76,6 @@
       <button id="login">Login</button>
     </div>
 
-    
 <!-- Section Leaderboard toujours visible -->
 <div id="leaderboardSection" class="feature-box locked">
   <h2>Leaderboard</h2>

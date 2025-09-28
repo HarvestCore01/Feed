@@ -3,14 +3,62 @@ import { createAccount, login, updateUserInfo } from './account.js';
 import { sendSOL, burnTokens, autoIncreaseMarketCap, startLifeTimer, marketCap } from './market.js';
 import { updateDisplay } from './ui.js';
 import { checkLeaderboardUnlock, updateLeaderboard } from './leaderboard.js';
+import { smoothUpdateMarketCap } from './ui.js';
+
 
 let currentUser = null;
 let leaderboardUnlocked = false; // ✅ Drapeau : Leaderboard initialement verrouillé
+
+// Initialisation globale du son
+const bootSound = new Audio('./sounds/boot.mp3');
+bootSound.volume = 0.2;
+let bootPlayed = false; // Pour éviter de le rejouer plusieurs fois
 
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Main.js chargé ✅");
 
+   // ==========================
+  // Animation d'entrée du dashboard
+  // ==========================
+  const intro = document.getElementById('intro-screen');
+  const dashboard = document.getElementById('dashboard');
+
+ // Fonction pour jouer le son une seule fois
+function playBootSound() {
+  if (!bootPlayed) {
+    bootSound.play().then(() => {
+      bootPlayed = true;
+      console.log("🔊 Son de boot joué avec succès !");
+    }).catch(() => {
+      console.warn("⚠️ Lecture auto bloquée, attente d'un clic utilisateur...");
+      document.body.addEventListener('click', () => {
+        bootSound.play();
+        bootPlayed = true;
+      }, { once: true });
+    });
+  }
+}
+
+// Appel au chargement initial
+playBootSound();
+
+  // Après 2,5 sec → on cache l'intro et on affiche le dashboard
+  setTimeout(() => {
+  // Ajoute la classe qui déclenche l'effet
+  intro.classList.add('fade-out');
+
+
+  // Attend la fin de la transition avant de cacher l'élément
+  setTimeout(() => {
+    intro.style.display = 'none';
+    dashboard.style.display = 'block';
+    // Déclenche l'apparition du dashboard
+    setTimeout(() => {
+      dashboard.classList.add('visible');
+    }, 50); // petit délai pour que la transition soit visible
+  }, 800); // 800ms = même durée que la transition CSS
+}, 2500); // L'écran d'intro reste visible 2.5s avant le fondu
   // ==========================
   // Gestion du Timer de Vie
   // ==========================
@@ -105,6 +153,8 @@ function updateProfileLevelColor(level) {
   // ==========================
   autoIncreaseMarketCap(() => {
     updateDisplay();
+     // ✅ Ajout ici : anime le MarketCap
+  smoothUpdateMarketCap(marketCap);
 
     const leaderboardSection = document.getElementById('leaderboardSection');
     const leaderboardMessage = document.getElementById('leaderboardMessage');
