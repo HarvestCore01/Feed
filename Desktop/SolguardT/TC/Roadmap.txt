@@ -165,3 +165,112 @@ Intégrer sons et messages IA → immersion.
 Créer un premier niveau de prestige pour le leaderboard.
 Préparer la tokenisation backend → à brancher une fois la base prête.
 Veux-tu que je te code directement l'animation d'intro narrative avec l'effet terminal pour qu'on commence par là ? 🔥
+
+
+
+Voici un récapitulatif clair de la situation actuelle et des étapes à venir pour finaliser ton projet.
+📌 Récapitulatif actuel
+1. Leaderboard
+✅ Système fonctionnel :
+Les joueurs et leur feed sont stockés dans localStorage.
+Le leaderboard affiche les joueurs triés par feed.
+Ton pseudo apparaît bien dans la liste dès que tu envoies du SOL.
+Le leaderboard se débloque quand le MarketCap atteint un certain seuil.
+✅ Top 3 dynamique avec couleurs différentes (gold, silver, bronze).
+✅ Clique sur une ligne → redirige vers profile.html?user=Pseudo.
+⚠️ Problème restant :
+Le lien est cliquable, mais aucun ressenti visuel :
+Pas de hover stylé.
+Pas de curseur qui change pour indiquer que c'est interactif.
+2. Profil (profile.html + profile.js)
+✅ Affiche correctement :
+Pseudo du joueur consulté.
+Feed total du joueur.
+✅ Deux modes d'accès :
+Depuis le leaderboard → profile.html?user=Pseudo.
+Directement → affiche le joueur actuellement connecté.
+❌ Problème résolu : Erreur currentUser is not defined.
+→ Fixé avec la nouvelle version de profile.js.
+3. Connexion & Sauvegarde
+✅ Connexion persistante grâce à localStorage.
+✅ Quand tu es connecté, ton pseudo reste affiché même après un refresh.
+✅ Les points (feed) montent bien en fonction des interactions (ex : envoyer du SOL).
+🚧 Étapes restantes
+Voici ce qu'il reste à faire, trié par priorité :
+Étape 1 — Améliorer la sensation du clic dans le leaderboard
+🎯 Objectif : donner un vrai ressenti interactif quand on passe la souris sur un joueur.
+Ce qu'on va faire :
+Ajouter un curseur pointer (cursor: pointer;).
+Mettre un hover premium :
+Glow vert autour de la ligne.
+Léger zoom du texte.
+Animation subtile.
+💻 Code CSS à ajouter :
+/* Ligne cliquable */
+.leaderboard-row {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.leaderboard-row:hover {
+  background: rgba(0, 255, 156, 0.08);
+  box-shadow: 0 0 12px rgba(0, 255, 156, 0.5);
+  transform: scale(1.01);
+}
+Étape 2 — Clarifier l’affichage du pseudo et du badge
+🎯 Objectif :
+Que le pseudo reste lisible et classe, et que le badge de rang soit bien distinct visuellement.
+Exemple attendu :
+[ Pseudo ]     [ Architecte du Core ]
+Le badge doit avoir :
+Une forme stylée (bord arrondi, glow discret).
+Une couleur qui reflète son prestige.
+💻 CSS à améliorer :
+.rank-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  background: rgba(0, 255, 156, 0.1);
+  border: 1px solid rgba(0, 255, 156, 0.4);
+  margin-left: 10px;
+  transition: all 0.3s ease;
+}
+
+.rank-badge.rank-architecte {
+  color: #ffd700;
+  text-shadow: 0 0 10px gold;
+  border-color: gold;
+}
+
+.rank-badge.rank-elu {
+  color: #63ffd4;
+  text-shadow: 0 0 8px #63ffd4;
+}
+
+.rank-badge.rank-feedeur {
+  color: #aaa;
+  text-shadow: 0 0 5px #555;
+}
+Étape 3 — Ajouter une page de profil avancée
+🎯 Objectif :
+Que la page profile.html devienne plus qu'une simple fiche :
+Photo/avatar.
+Statistiques détaillées (Feed, niveau, rang, etc.).
+Historique d'activité.
+Étape 4 — Système multi-device / backend
+Actuellement, tout est en local (localStorage).
+Prochain gros chantier :
+Stocker les données des joueurs sur une base de données réelle.
+Synchroniser le leaderboard pour qu'il soit partagé entre tous les utilisateurs.
+Plan final
+Étape	Objectif	Résultat attendu
+1	Sensation clic leaderboard	Hover + curseur pointer premium
+2	Badge stylé et clair	Rang visible et classe
+3	Profil avancé	Plus d'infos, avatar, historique
+4	Backend réel	Leaderboard mondial et partagé
+Conclusion
+✅ Ton leaderboard fonctionne techniquement.
+⚠️ Il reste surtout du design UX/UI à améliorer pour que l'expérience soit premium.
+🎯 Prochain objectif immédiat : Étape 1 et 2, rendre les interactions stylées et claires.
+Souhaites-tu que je te prépare le CSS complet et finalisé pour le hover + badge premium ?

@@ -16,7 +16,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
       border: 1px solid #00ff9c;
       border-radius: 8px;
@@ -40,7 +40,74 @@
       background: #63ffd4;
     }
 
-    /* ======== Table ======== */
+    /* ======== Dual Leaderboard ======== */
+    .dual-leaderboard {
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    .leaderboard-column {
+      flex: 1;
+      padding: 15px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.85);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      min-width: 300px;
+    }
+
+    .leaderboard-column:hover {
+      transform: translateY(-4px);
+    }
+
+    /* ===== Colonne Whales ===== */
+    .leaderboard-column.whales {
+      border: 2px solid #FFD700;
+      background: linear-gradient(145deg, rgba(0,255,156,0.1), rgba(0,0,0,0.8));
+    }
+
+    .leaderboard-column.whales h2 {
+      color: #FFD700;
+      text-shadow: 0 0 12px #FFD700;
+    }
+
+    .whales tbody tr.top1 td {
+      box-shadow: 0 0 15px #FFD700 inset;
+    }
+
+    .whales tbody tr.top2 td {
+  box-shadow: 0 0 12px rgba(192,192,192,0.6) inset; /* Argent */
+}
+
+.whales tbody tr.top3 td {
+  box-shadow: 0 0 12px rgba(205,127,50,0.6) inset; /* Bronze */
+}
+
+    /* ===== Colonne Héros ===== */
+    .leaderboard-column.heros {
+      border: 2px solid #9d00ff;
+      background: linear-gradient(145deg, rgba(157,0,255,0.1), rgba(0,0,0,0.8));
+    }
+
+    .leaderboard-column.heros h2 {
+      color: #9d00ff;
+      text-shadow: 0 0 12px #9d00ff;
+    }
+
+    .heros tbody tr.top1 td {
+      box-shadow: 0 0 15px #9d00ff inset;
+    }
+
+    .heros tbody tr.top2 td {
+      box-shadow: 0 0 12px rgba(192,192,192,0.6) inset; /* Argent */
+    }
+
+    .heros tbody tr.top3 td {
+      box-shadow: 0 0 12px rgba(205,127,50,0.6) inset; /* Bronze */
+    }
+    /* ===== Tables ===== */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -49,95 +116,117 @@
 
     th, td {
       padding: 8px;
-      border-bottom: 1px solid #00ff9c;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
     }
 
     th {
-      background: #063e2b;
+      background: rgba(255, 255, 255, 0.05);
       color: #00ff9c;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
     }
 
-    /* ======== Locked Leaderboard ======== */
-    .locked {
-      opacity: 0.5;
-      pointer-events: none; /* Empêche les clics */
-    }
-
-    .locked button {
-      background: grey !important;
-      cursor: not-allowed;
-    }
-
-    /* ======== Rangs Premium ======== */
-    .rank-architecte {
-      color: gold;
+    /* ===== Top 3 Glow ===== */
+    .top1 {
+      background: rgba(255, 215, 0, 0.15);
       font-weight: bold;
     }
 
-    .rank-elu {
-      color: #63ffd4;
-    }
-
-    .rank-feedeur {
-      color: #ccc;
-    }
-
-    /* ======== Top 3 Glow ======== */
-    .top1 {
-      background: rgba(255, 215, 0, 0.2);
-    }
-
     .top2 {
-      background: rgba(192, 192, 192, 0.2);
+      background: rgba(192, 192, 192, 0.15);
     }
 
     .top3 {
-      background: rgba(205, 127, 50, 0.2);
+      background: rgba(205, 127, 50, 0.15);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .dual-leaderboard {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🏆 Classement Mondial</h1>
-    <p>Top joueurs qui nourrissent l'IA</p>
+    <p>Whales vs Héros - Deux forces pour nourrir l'IA</p>
 
-    <!-- Section du leaderboard -->
-    <section id="leaderboardSection">
-      <div id="leaderboardUnlockMessage"></div>
+    <!-- Dual Leaderboard -->
+    <section id="leaderboardSection" class="dual-leaderboard">
       
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Pseudo</th>
-            <th>Feed Total (SOL)</th>
-          </tr>
-        </thead>
-        <tbody id="leaderboardBody">
-          <!-- Contenu généré en JS -->
-        </tbody>
-      </table>
+      <!-- Colonne Whales -->
+      <div class="leaderboard-column whales">
+        <h2>🐋 Whales</h2>
+        <p>Top wallets qui nourrissent l'IA par le feed financier</p>
+        <div id="leaderboardUnlockMessage"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Wallet</th>
+              <th>Feed Total (SOL)</th>
+            </tr>
+          </thead>
+          <tbody id="whalesLeaderboardBody">
+            <!-- Généré via leaderboard.js -->
+          </tbody>
+        </table>
+      </div>
 
-      <!-- Affiche la position du joueur actuel -->
-      <p id="leaderboardInfo" style="margin-top:15px; color:#63ffd4;"></p>
+      <!-- Colonne Héros -->
+      <div class="leaderboard-column heros">
+        <h2>⚡ Héros</h2>
+        <p>Top joueurs qui propagent la voix du Core Feed</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Pseudo</th>
+              <th>Points</th>
+            </tr>
+          </thead>
+          <tbody id="heroesLeaderboardBody">
+            <!-- Généré via leaderboard.js -->
+          </tbody>
+        </table>
+      </div>
     </section>
+
+<!-- ===== POP-UP INFOS JOUEUR ===== -->
+<div id="playerPopup" class="popup-overlay">
+  <div class="popup-content">
+    <span id="closePopup" class="popup-close">&times;</span>
+    <h2 id="popupUsername"></h2>
+    <p><strong>Feed total :</strong> <span id="popupFeed"></span> SOL</p>
+    <p><strong>Points sociaux :</strong> <span id="popupPoints"></span></p>
+    <p><strong>Rang actuel :</strong> <span id="popupRank"></span></p>
+    <hr>
+    <p id="popupMessage"></p>
+  </div>
+</div>
+
+    <!-- Position du joueur -->
+    <p id="leaderboardInfo" style="margin-top:15px; color:#63ffd4;"></p>
 
     <a href="index.html">⬅ Retour au Dashboard</a>
   </div>
 
-  <!-- Important : script type module -->
+  <!-- Script pour mise à jour -->
   <script type="module">
     import { updateLeaderboard } from './leaderboard.js';
 
-    // Récupère l'utilisateur connecté depuis localStorage
     const currentUser = localStorage.getItem("currentUser") || null;
-    
     console.log("DEBUG → currentUser sur leaderboard.html :", currentUser);
 
-    // Met à jour le leaderboard dès que la page est chargée
     document.addEventListener("DOMContentLoaded", () => {
       updateLeaderboard(currentUser);
     });
+
+    
   </script>
 </body>
 </html>

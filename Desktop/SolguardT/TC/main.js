@@ -2,7 +2,7 @@
 import { createAccount, login, updateUserInfo } from './account.js';
 import { sendSOL, burnTokens, autoIncreaseMarketCap, startLifeTimer, marketCap } from './market.js';
 import { updateDisplay, smoothUpdateMarketCap } from './ui.js';
-import { checkLeaderboardUnlock, updateLeaderboard } from './leaderboard.js';
+import { updateLeaderboard } from './leaderboard.js';
 
 let currentUser = null;
 let leaderboardUnlocked = false;

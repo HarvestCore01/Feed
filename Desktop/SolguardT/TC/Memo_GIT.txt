@@ -38,6 +38,8 @@ git branch
 # git checkout master
 # git merge TEST-feature
 
+2. Revenir à ce commit
+Utilise git reset --hard pour remettre tout ton projet exactement comme au commit 7664abb :
 
 git checkout master → revenir au présent.
 ---------------------------------------
