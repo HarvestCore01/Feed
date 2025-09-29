@@ -1,3 +1,9 @@
+// === leaderboard.js ===
+// Gestion complète du classement Whales & Héros avec système de pop-up
+
+// =============================================================
+// 1. Fonction principale : mise à jour des deux classements
+// =============================================================
 export function updateLeaderboard(currentUser) {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const whalesBody = document.getElementById("whalesLeaderboardBody");
@@ -5,7 +11,7 @@ export function updateLeaderboard(currentUser) {
 
   if (!whalesBody || !heroesBody) return;
 
-  // ====== CLASSEMENT WHALES (Feed en SOL) ======
+  // ====== CLASSEMENT WHALES (basé sur le Feed en SOL) ======
   const whalesSorted = Object.entries(users)
     .map(([name, data]) => ({
       username: name,
@@ -16,7 +22,7 @@ export function updateLeaderboard(currentUser) {
 
   renderTable(whalesSorted, whalesBody, currentUser, "feed");
 
-  // ====== CLASSEMENT HÉROS (Points sociaux) ======
+  // ====== CLASSEMENT HÉROS (basé sur les Points sociaux) ======
   const heroesSorted = Object.entries(users)
     .map(([name, data]) => ({
       username: name,
@@ -27,7 +33,7 @@ export function updateLeaderboard(currentUser) {
 
   renderTable(heroesSorted, heroesBody, currentUser, "points");
 
-  // ======= Affiche la position du joueur actuel =======
+  // ====== Affiche la position du joueur actuel ======
   const rankWhales = whalesSorted.findIndex(u => u.username === currentUser) + 1;
   const rankHeroes = heroesSorted.findIndex(u => u.username === currentUser) + 1;
   const leaderboardInfo = document.getElementById("leaderboardInfo");
@@ -37,21 +43,18 @@ export function updateLeaderboard(currentUser) {
       ? `Votre position : 🐋 #${rankWhales || "-"} | ⚡ #${rankHeroes || "-" }`
       : "Connectez-vous pour voir votre position dans le classement.";
   }
-
-  // Initialise le gestionnaire du popup
-  initPopup(users, whalesSorted, heroesSorted);
 }
 
-/**
- * Génère un tableau dynamique
- */
+// =============================================================
+// 2. Fonction pour générer le contenu d'un tableau dynamique
+// =============================================================
 function renderTable(sortedList, tbody, currentUser, key) {
   tbody.innerHTML = "";
 
   sortedList.forEach((user, index) => {
     const tr = document.createElement("tr");
 
-    // Classe prestige
+    // ===== Classe prestige =====
     let rankTitle = "";
     let rankClass = "";
     if (index < 10) {
@@ -65,17 +68,17 @@ function renderTable(sortedList, tbody, currentUser, key) {
       rankClass = "rank-feedeur";
     }
 
-    // Glow top 3
+    // ===== Glow spécial pour le top 3 =====
     if (index === 0) tr.classList.add("top1");
     else if (index === 1) tr.classList.add("top2");
     else if (index === 2) tr.classList.add("top3");
 
-    // Mise en avant du joueur actuel
+    // ===== Mise en évidence du joueur actuel =====
     if (user.username === currentUser) {
       tr.style.backgroundColor = "rgba(0, 255, 156, 0.2)";
     }
 
-    // Ligne
+    // ===== Contenu de la ligne =====
     tr.innerHTML = `
       <td style="padding:6px; text-align:center;">${index + 1}</td>
       <td style="padding:6px;">
@@ -85,54 +88,79 @@ function renderTable(sortedList, tbody, currentUser, key) {
       <td style="padding:6px; text-align:right;">${(user[key] || 0).toFixed(2)}</td>
     `;
 
-    // ✅ Ouverture du popup au clic
+    // ===== Récupération des infos pour le pop-up =====
     tr.classList.add("leaderboard-row");
     tr.dataset.username = user.username;
+    tr.dataset.feed = user.feed;
+    tr.dataset.points = user.points;
+    tr.dataset.rank = index + 1;
+
+    // Ouvre le pop-up au clic
     tr.addEventListener("click", () => {
-      openPlayerPopup(user.username, user.feed, user.points, index + 1);
+      openPlayerPopup({
+        username: user.username,
+        feed: user.feed,
+        points: user.points,
+        rank: index + 1
+      });
     });
 
     tbody.appendChild(tr);
   });
 }
 
-/**
- * Ouvre le pop-up avec les infos du joueur
- */
-function openPlayerPopup(username, feed, points, rank) {
+// =============================================================
+// 3. Fonction pour ouvrir le pop-up d'un joueur
+// =============================================================
+function openPlayerPopup(user) {
   const popup = document.getElementById("playerPopup");
-  document.getElementById("popupUsername").textContent = username;
-  document.getElementById("popupFeed").textContent = feed.toFixed(2);
-  document.getElementById("popupPoints").textContent = points.toFixed(0);
-  document.getElementById("popupRank").textContent = "#" + rank;
+  if (!popup) {
+    console.error("❌ #playerPopup introuvable dans le DOM");
+    return;
+  }
+
+  // Remplir les infos du joueur
+  document.getElementById("popupUsername").textContent = user.username;
+  document.getElementById("popupFeed").textContent = user.feed.toFixed(2);
+  document.getElementById("popupPoints").textContent = user.points || 0;
+  document.getElementById("popupRank").textContent = user.rank || "-";
 
   // Message dynamique
-  const message = feed > points
-    ? "Cette Whale domine par sa puissance financière."
-    : "Ce héros se distingue par son engagement social.";
-  document.getElementById("popupMessage").textContent = message;
+  if (user.feed > 50000) {
+    document.getElementById("popupMessage").textContent =
+      "Cette Whale domine par sa puissance financière.";
+  } else if (user.points > 100) {
+    document.getElementById("popupMessage").textContent =
+      "Un héros qui propage la voix du Core Feed.";
+  } else {
+    document.getElementById("popupMessage").textContent =
+      "Ce joueur est encore discret, mais il a du potentiel.";
+  }
 
+  // ✅ Active le popup
   popup.classList.add("active");
+  document.body.style.overflow = "hidden"; // Empêche le scroll arrière-plan
 }
 
-/**
- * Initialise le pop-up et gère sa fermeture
- */
-function initPopup() {
+function closePlayerPopup() {
   const popup = document.getElementById("playerPopup");
-  const closePopup = document.getElementById("closePopup");
+  popup.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
 
-  if (!popup || !closePopup) return;
+// Fermeture avec la croix ou le bouton
+document.addEventListener("DOMContentLoaded", () => {
+  const closePopupEl = document.getElementById("closePopup");
+  const closePopupBtnEl = document.getElementById("closePopupBtn");
 
-  // Fermer au clic sur le bouton X
-  closePopup.addEventListener("click", () => {
-    popup.classList.remove("active");
-  });
+  if (closePopupEl) closePopupEl.addEventListener("click", closePlayerPopup);
+  if (closePopupBtnEl) closePopupBtnEl.addEventListener("click", closePlayerPopup);
 
-  // Fermer au clic à l'extérieur du contenu
+  // Fermeture en cliquant sur le fond noir
+  const popup = document.getElementById("playerPopup");
   popup.addEventListener("click", (e) => {
-    if (e.target === popup) {
-      popup.classList.remove("active");
+    if (e.target.id === "playerPopup") {
+      closePlayerPopup();
     }
   });
-}
+});

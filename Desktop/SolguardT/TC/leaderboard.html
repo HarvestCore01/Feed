@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <link rel="stylesheet" href="styles.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leaderboard</title>
   <style>
+    
     /* ======== Style Global ======== */
     body {
       background: #030a07;
@@ -151,6 +153,7 @@
   </style>
 </head>
 <body>
+    
   <div class="container">
     <h1>🏆 Classement Mondial</h1>
     <p>Whales vs Héros - Deux forces pour nourrir l'IA</p>
@@ -196,24 +199,26 @@
       </div>
     </section>
 
-<!-- ===== POP-UP INFOS JOUEUR ===== -->
-<div id="playerPopup" class="popup-overlay">
-  <div class="popup-content">
-    <span id="closePopup" class="popup-close">&times;</span>
-    <h2 id="popupUsername"></h2>
-    <p><strong>Feed total :</strong> <span id="popupFeed"></span> SOL</p>
-    <p><strong>Points sociaux :</strong> <span id="popupPoints"></span></p>
-    <p><strong>Rang actuel :</strong> <span id="popupRank"></span></p>
-    <hr>
-    <p id="popupMessage"></p>
-  </div>
-</div>
 
     <!-- Position du joueur -->
     <p id="leaderboardInfo" style="margin-top:15px; color:#63ffd4;"></p>
 
     <a href="index.html">⬅ Retour au Dashboard</a>
   </div>
+
+<!-- ===== POP-UP DYNAMIQUE ===== -->
+<div id="playerPopup" class="popup-overlay">
+  <div class="popup-content">
+    <span id="closePopup" class="popup-close">&times;</span>
+    <h2 id="popupUsername">Pseudo</h2>
+    <p><strong>Feed total :</strong> <span id="popupFeed">0</span> SOL</p>
+    <p><strong>Points sociaux :</strong> <span id="popupPoints">0</span></p>
+    <p><strong>Rang actuel :</strong> <span id="popupRank">-</span></p>
+    <hr>
+    <p id="popupMessage">Ce joueur est encore discret, mais il a du potentiel.</p>
+    <button id="closePopupBtn" class="popup-button">Fermer</button>
+  </div>
+</div>
 
   <!-- Script pour mise à jour -->
   <script type="module">
