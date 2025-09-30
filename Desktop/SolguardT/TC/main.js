@@ -17,6 +17,8 @@ let bootPlayed = false;
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Main.js chargé ✅");
 
+  
+
   const savedUser = localStorage.getItem("currentUser");
   if (savedUser) {
     currentUser = savedUser;
@@ -98,25 +100,50 @@ document.addEventListener('DOMContentLoaded', () => {
   startLifeTimer(updateDisplay);
 
   // === Boutons ===
-  const createAccountBtn = document.getElementById('createAccount');
-  const loginBtn = document.getElementById('login');
-  const sendSolBtn = document.getElementById('sendSOL');
-  const burnCoreBtn = document.getElementById('burnCore');
+const createAccountBtn = document.getElementById('createAccount');
+const loginBtn = document.getElementById('login');
+const sendSolBtn = document.getElementById('sendSOL');
+const burnCoreBtn = document.getElementById('burnCore');
 
-  createAccountBtn.addEventListener('click', createAccount);
+createAccountBtn.addEventListener('click', createAccount);
 
-  loginBtn.addEventListener('click', () => {
-    const user = login();
-    if (user) {
-      currentUser = user;
-      localStorage.setItem("currentUser", currentUser);
-      updateUserInfo(currentUser);
-      updateLeaderboard(currentUser);
-      document.getElementById('createAccount').style.display = 'none';
-      document.getElementById('viewProfile').style.display = 'inline-block';
-      alert(`Bienvenue ${currentUser} !`);
-    }
-  });
+// === Nouveau système de pop-up login ===
+const loginModal = document.getElementById("loginModal");
+const closeBtn = document.getElementById("closeLoginModal");
+const confirmBtn = document.getElementById("confirmLoginBtn");
+
+// Ouvrir le modal quand on clique sur "Login"
+loginBtn.addEventListener("click", () => {
+  loginModal.classList.add("active");
+});
+
+// Fermer le modal avec la croix
+closeBtn.addEventListener("click", () => {
+  loginModal.classList.remove("active");
+});
+
+// Valider le pseudo
+confirmBtn.addEventListener("click", () => {
+  const username = document.getElementById("loginUsername").value.trim();
+
+  if (username !== "") {
+    currentUser = username;
+    localStorage.setItem("currentUser", currentUser);
+
+    updateUserInfo(currentUser);
+    updateLeaderboard(currentUser);
+
+    // Masquer le bouton "Créer un compte", afficher "Profil"
+    document.getElementById('createAccount').style.display = 'none';
+    document.getElementById('viewProfile').style.display = 'inline-block';
+
+    loginModal.classList.remove("active");
+    alert(`Bienvenue ${currentUser} !`);
+  } else {
+    alert("🚫 Le pseudo ne peut pas être vide !");
+  }
+});
+
 
   // === Envoi de SOL + Leaderboard ===
   sendSolBtn.addEventListener('click', () => {

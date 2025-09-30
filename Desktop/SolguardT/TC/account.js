@@ -3,7 +3,8 @@ import { calculateLevel } from './level.js';
 
 // Login utilisateur
 export function login() {
-  const username = prompt("Entrez votre pseudo :");
+  document.getElementById("loginModal").classList.add("active");
+  const username = document.getElementById("loginUsername").value;
   const password = prompt("Entrez votre mot de passe :");
 
   let users = JSON.parse(localStorage.getItem("users") || "{}");
