@@ -765,19 +765,7 @@ button:hover {
   100% { box-shadow: 0 0 20px #00d9ff; background: radial-gradient(circle, #00d9ff, rgba(0,0,0,0.1)); }
 }
 
-/* Top 3 dynamiques */
-.leaderboard-row.top1 td {
-  background: rgba(255, 215, 0, 0.2);
-  text-shadow: 0 0 10px gold;
-}
-.leaderboard-row.top2 td {
-  background: rgba(192, 192, 192, 0.2);
-  text-shadow: 0 0 8px silver;
-}
-.leaderboard-row.top3 td {
-  background: rgba(205, 127, 50, 0.2);
-  text-shadow: 0 0 6px #cd7f32;
-}
+
 
 /* Auréoles lumineuses */
 .top-avatar {
@@ -792,54 +780,6 @@ button:hover {
   transform: scale(1.2);
 }
 
-/* Rang prestigieux */
-.rank-title {
-  font-weight: bold;
-  padding: 3px 6px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.rank-architecte {
-  color: #ffd700;
-  text-shadow: 0 0 10px gold;
-}
-
-.rank-elu {
-  color: #63ffd4;
-  text-shadow: 0 0 8px #63ffd4;
-}
-
-.rank-feedeur {
-  color: #aaa;
-  text-shadow: 0 0 5px #555;
-}
-/* Top 3 dynamiques */
-.leaderboard-row.top1 td {
-  background: rgba(255, 215, 0, 0.2);
-  text-shadow: 0 0 10px gold;
-}
-.leaderboard-row.top2 td {
-  background: rgba(192, 192, 192, 0.2);
-  text-shadow: 0 0 8px silver;
-}
-.leaderboard-row.top3 td {
-  background: rgba(205, 127, 50, 0.2);
-  text-shadow: 0 0 6px #cd7f32;
-}
-
-/* Auréoles lumineuses */
-.top-avatar {
-  border-radius: 50%;
-  border: 2px solid #00ff9c;
-  width: 40px;
-  height: 40px;
-  box-shadow: 0 0 15px #00ff9c;
-  transition: transform 0.3s ease;
-}
-.top-avatar:hover {
-  transform: scale(1.2);
-}
 
 /* Rang prestigieux */
 .rank-title {
@@ -900,29 +840,7 @@ button:hover {
   50% { box-shadow: 0 0 15px gold; }
 }
 
-/* ===== Ligne cliquable du leaderboard ===== */
-.leaderboard-row {
-  cursor: pointer;
-  transition: 
-    background 0.3s ease,
-    transform 0.2s ease,
-    box-shadow 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
 
-.leaderboard-row:hover {
-  background: rgba(0, 255, 156, 0.08) !important;
-  transform: translateY(-2px); /* léger effet de flottement */
-  box-shadow: 0 0 12px rgba(0, 255, 156, 0.35);
-  z-index: 2;
-}
-
-/* Effet lumineux subtil lors du clic */
-.leaderboard-row:active {
-  transform: translateY(0px) scale(0.98);
-  box-shadow: 0 0 20px rgba(0, 255, 156, 0.5);
-}
 
 /* ===== Ligne cliquable du leaderboard ===== */
 .leaderboard-row {
@@ -935,25 +853,6 @@ button:hover {
   z-index: 1;
 }
 
-.leaderboard-row:hover {
-  background: rgba(0, 255, 156, 0.08) !important;
-  transform: translateY(-2px); /* léger effet de flottement */
-  box-shadow: 0 0 12px rgba(0, 255, 156, 0.35);
-  z-index: 2;
-}
-
-/* Effet lumineux subtil lors du clic */
-.leaderboard-row:active {
-  transform: translateY(0px) scale(0.98);
-  box-shadow: 0 0 20px rgba(0, 255, 156, 0.5);
-}
-
-/* Curseur qui change au survol */
-.leaderboard-row:hover td {
-  color: #00ff9c;
-  text-shadow: 0 0 5px #00ff9c;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
-}
 
 /* Bonus :*
 
@@ -981,23 +880,20 @@ button:hover {
 
 /* ===== Colonne Whales ===== */
 .leaderboard-column.whales {
-  border: 2px solid #00ff9c;
-  background: linear-gradient(145deg, rgba(0,255,156,0.1), rgba(0,0,0,0.8));
+  border: 2px solid #FFD700;;
+  background: transparent;
 }
 
 .leaderboard-column.whales h2 {
-  color: #00ff9c;
-  text-shadow: 0 0 12px #00ff9c;
+  color: #FFD700;;
+  text-shadow: 0 0 12px#FFD700;;
 }
 
-.whales tbody tr.top1 td {
-  box-shadow: 0 0 15px #00ff9c inset;
-}
 
 /* ===== Colonne Héros ===== */
 .leaderboard-column.heros {
   border: 2px solid #9d00ff;
-  background: linear-gradient(145deg, rgba(157,0,255,0.1), rgba(0,0,0,0.8));
+  background: transparent;
 }
 
 .leaderboard-column.heros h2 {
@@ -1005,9 +901,6 @@ button:hover {
   text-shadow: 0 0 12px #9d00ff;
 }
 
-.heros tbody tr.top1 td {
-  box-shadow: 0 0 15px #9d00ff inset;
-}
 
 /* ===== Style des tableaux ===== */
 .leaderboard-column table {
@@ -1122,3 +1015,19 @@ button:hover {
 .popup-button:hover {
   background: #63ffd4;
 }
+
+
+/* Hover Whale */
+.whales tbody tr:hover td {
+  background-color: rgba(255, 215, 0, 0.05);
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover Héros */
+.heros tbody tr:hover td {
+  background-color: rgba(157, 0, 255, 0.05);
+  box-shadow: 0 0 6px rgba(157, 0, 255, 0.5);
+  transition: all 0.2s ease-in-out;
+}
+
