@@ -1,9 +1,14 @@
 // === main.js ===
-import { createAccount, login, updateUserInfo } from './account.js';
+// 🔹 Import des modules
+import { createAccount, updateUserInfo, signIn } from './account.js';
 import { sendSOL, burnTokens, autoIncreaseMarketCap, startLifeTimer, marketCap } from './market.js';
 import { updateDisplay, smoothUpdateMarketCap } from './ui.js';
 import { updateLeaderboard } from './leaderboard.js';
+import { auth } from "./firebase-init.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
+
+// === Variables globales ===
 let currentUser = null;
 let leaderboardUnlocked = false;
 window.eggHatched = false;
@@ -13,22 +18,38 @@ const bootSound = new Audio('./sounds/boot.mp3');
 bootSound.volume = 0.2;
 let bootPlayed = false;
 
-// === Vérifie si un utilisateur est déjà connecté au chargement ===
+// =============================================================
+// 1. Initialisation de la page
+// =============================================================
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Main.js chargé ✅");
 
-  
-
-  const savedUser = localStorage.getItem("currentUser");
-  if (savedUser) {
-    currentUser = savedUser;
+// 🔹 Vérifie l'état de connexion Firebase
+onAuthStateChanged(auth, (user) => {
+  if (user && user.emailVerified) {
+    currentUser = user.uid;
     updateUserInfo(currentUser);
+
     document.getElementById('createAccount').style.display = 'none';
     document.getElementById('viewProfile').style.display = 'inline-block';
-    console.log("Reconnecté automatiquement :", currentUser);
-  }
 
-  // === Fonctions locales ===
+    console.log("Reconnecté automatiquement via Firebase :", currentUser);
+  } else {
+    // Nettoyage si pas connecté
+    localStorage.removeItem("currentUser");
+    currentUser = null;
+
+    document.getElementById('createAccount').style.display = 'inline-block';
+    document.getElementById('viewProfile').style.display = 'none';
+
+    console.log("Aucun utilisateur connecté.");
+  }
+});
+
+  // =============================================================
+  // 2. Fonctions locales (sons, animations, intensité, etc.)
+  // =============================================================
+
   function updateEggIntensity(marketCap) {
     const egg = document.getElementById('ai-hologram');
     if (!egg) return;
@@ -80,10 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
     audio.play();
   }
 
-  // === Lancement initial ===
+  // =============================================================
+  // 3. Lancement initial et animation d’entrée
+  // =============================================================
   playBootSound();
 
-  // Animation d'entrée
   const intro = document.getElementById('intro-screen');
   const dashboard = document.getElementById('dashboard');
 
@@ -96,70 +118,127 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 800);
   }, 2500);
 
-  // === Timer de vie ===
+  // Timer de vie
   startLifeTimer(updateDisplay);
 
-  // === Boutons ===
-const createAccountBtn = document.getElementById('createAccount');
-const loginBtn = document.getElementById('login');
-const sendSolBtn = document.getElementById('sendSOL');
-const burnCoreBtn = document.getElementById('burnCore');
+  // =============================================================
+  // 4. Boutons principaux
+  // =============================================================
+  const createAccountBtn = document.getElementById('createAccount');
+  const loginBtn = document.getElementById('login');
+  const sendSolBtn = document.getElementById('sendSOL');
+  const burnCoreBtn = document.getElementById('burnCore');
 
-createAccountBtn.addEventListener('click', createAccount);
+  // =============================================================
+  // 5. Pop-up "Créer un compte"
+  // =============================================================
+  const createAccountModal = document.getElementById("createAccountModal");
+  const closeRegisterModal = document.getElementById("closeRegisterModal");
+  const confirmRegisterBtn = document.getElementById("confirmRegisterBtn");
 
-// === Nouveau système de pop-up login ===
-const loginModal = document.getElementById("loginModal");
-const closeBtn = document.getElementById("closeLoginModal");
-const confirmBtn = document.getElementById("confirmLoginBtn");
-
-// Ouvrir le modal quand on clique sur "Login"
-loginBtn.addEventListener("click", () => {
-  loginModal.classList.add("active");
-});
-
-// Fermer le modal avec la croix
-closeBtn.addEventListener("click", () => {
-  loginModal.classList.remove("active");
-});
-
-// Valider le pseudo
-confirmBtn.addEventListener("click", () => {
-  const username = document.getElementById("loginUsername").value.trim();
-
-  if (username !== "") {
-    currentUser = username;
-    localStorage.setItem("currentUser", currentUser);
-
-    updateUserInfo(currentUser);
-    updateLeaderboard(currentUser);
-
-    // Masquer le bouton "Créer un compte", afficher "Profil"
-    document.getElementById('createAccount').style.display = 'none';
-    document.getElementById('viewProfile').style.display = 'inline-block';
-
-    loginModal.classList.remove("active");
-    alert(`Bienvenue ${currentUser} !`);
-  } else {
-    alert("🚫 Le pseudo ne peut pas être vide !");
+  if (createAccountBtn) {
+    createAccountBtn.addEventListener("click", () => {
+      createAccountModal.style.display = "flex"; // ouvrir
+    });
   }
-});
+  if (closeRegisterModal) {
+    closeRegisterModal.addEventListener("click", () => {
+      createAccountModal.style.display = "none"; // fermer
+    });
+  }
+  window.addEventListener("click", (e) => {
+    if (e.target === createAccountModal) {
+      createAccountModal.style.display = "none";
+    }
+  });
 
+  if (confirmRegisterBtn) {
+    confirmRegisterBtn.addEventListener("click", async () => {
+      const email = document.getElementById("registerEmail").value.trim();
+      const username = document.getElementById("registerUsername").value.trim();
+      const password = document.getElementById("registerPassword").value.trim();
+      const passwordConfirm = document.getElementById("registerPasswordConfirm").value.trim();
 
-  // === Envoi de SOL + Leaderboard ===
+      if (password !== passwordConfirm) {
+        alert("❌ Les mots de passe ne correspondent pas.");
+        return;
+      }
+
+      try {
+        const user = await createAccount(email, password, username);
+        console.log("✅ Compte créé :", user.uid);
+        createAccountModal.style.display = "none";
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
+
+  // =============================================================
+  // 6. Pop-up "Login"
+  // =============================================================
+  const loginModal = document.getElementById("loginModal");
+  const closeBtn = document.getElementById("closeLoginModal");
+  const confirmBtn = document.getElementById("confirmLoginBtn");
+
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      loginModal.style.display = "flex";
+    });
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      loginModal.style.display = "none";
+    });
+  }
+  window.addEventListener("click", (e) => {
+    if (e.target === loginModal) {
+      loginModal.style.display = "none";
+    }
+  });
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", async () => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+
+      if (email && password) {
+        try {
+          const user = await signIn(email, password);
+
+          if (!user.emailVerified) {
+            alert("⚠️ Veuillez vérifier votre email avant de vous connecter.");
+            return;
+          }
+
+          currentUser = user.uid;
+          localStorage.setItem("currentUser", currentUser);
+
+          await updateUserInfo(currentUser);
+          updateLeaderboard(currentUser);
+
+          document.getElementById('createAccount').style.display = 'none';
+          document.getElementById('viewProfile').style.display = 'inline-block';
+
+          loginModal.style.display = "none";
+          alert(`Bienvenue ${user.email} !`);
+        } catch (err) {
+          alert("❌ Email ou mot de passe incorrect.");
+        }
+      } else {
+        alert("🚫 Email et mot de passe requis !");
+      }
+    });
+  }
+
+  // =============================================================
+  // 7. Gestion des actions : Send SOL & Burn
+  // =============================================================
   sendSolBtn.addEventListener('click', () => {
     if (!currentUser) {
       alert("🚫 Vous devez être connecté pour envoyer du SOL.");
       return;
     }
-
-    // Ajout des points au joueur
-    const users = JSON.parse(localStorage.getItem("users") || "{}");
-    if (!users[currentUser]) users[currentUser] = { feed: 0 };
-    const amount = 10;
-    users[currentUser].feed += amount;
-    localStorage.setItem("users", JSON.stringify(users));
-
-    // Mises à jour
     sendSOL(currentUser);
     updateDisplay();
     updateUserInfo(currentUser);
@@ -175,7 +254,9 @@ confirmBtn.addEventListener("click", () => {
     updateDisplay();
   });
 
-  // === Leaderboard + MarketCap ===
+  // =============================================================
+  // 8. Leaderboard + MarketCap
+  // =============================================================
   const milestones = [9000, 20000, 40000];
   let lastTriggeredMilestone = 0;
   let lastMarketCap = 0;
@@ -186,7 +267,7 @@ confirmBtn.addEventListener("click", () => {
     smoothUpdateMarketCap(marketCap);
     updateEggIntensity(marketCap);
 
-    // Éclosion de l'œuf
+    // 🔹 Éclosion de l'œuf
     if (marketCap >= 10000 && !window.eggHatched) {
       const aiHologram = document.getElementById('ai-hologram');
       if (aiHologram) {
@@ -204,7 +285,7 @@ confirmBtn.addEventListener("click", () => {
       window.eggHatched = true;
     }
 
-    // Sons milestones
+    // 🔹 Sons milestones
     if (marketCap - lastMarketCap >= marketCapStep) {
       playBeep();
       lastMarketCap = marketCap;
@@ -217,7 +298,7 @@ confirmBtn.addEventListener("click", () => {
       }
     }
 
-    // Déblocage du leaderboard
+    // 🔹 Déblocage du leaderboard
     const leaderboardSection = document.getElementById('leaderboardSection');
     const leaderboardMessage = document.getElementById('leaderboardMessage');
     const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');

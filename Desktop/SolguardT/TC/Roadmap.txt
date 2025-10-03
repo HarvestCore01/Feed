@@ -274,3 +274,43 @@ Conclusion
 ⚠️ Il reste surtout du design UX/UI à améliorer pour que l'expérience soit premium.
 🎯 Prochain objectif immédiat : Étape 1 et 2, rendre les interactions stylées et claires.
 Souhaites-tu que je te prépare le CSS complet et finalisé pour le hover + badge premium ?
+
+
+
+----------------------------------------------------
+
+Yes 🔥 je vais te condenser un résumé clair et structuré de ton projet, que tu pourras compléter pour me dire où tu en es exactement.
+🚀 Résumé Core Feed
+1. Concept de base
+Token crypto (lancé sur Pump.fun ou Dexscreener).
+Chaque interaction (buy / burn / send) nourrit une IA fictive.
+L’IA évolue selon la progression du MarketCap.
+2. Problème du marché visé
+Les memecoins meurent trop vite (pump/dump sans âme).
+Les rug pulls détruisent la confiance.
+Pas de raison de rester investi après 2 jours.
+3. Solution proposée
+Donner une narration vivante et progressive :
+Chaque palier de MarketCap = nouvelle étape de l’IA.
+Toujours un nouvel objectif → les investisseurs restent engagés.
+Impossible de rug narrativement → "ce n’est pas l’équipe, c’est l’IA".
+4. Mécaniques principales
+Dashboard (déjà en cours) : MarketCap, énergie de l’IA, bouton nourrir.
+Leaderboard : visible à partir d’un palier (ex : 1M$).
+Inventaire : chaque joueur démarre avec 3 œufs.
+Les œufs évoluent via quêtes (xp + visibilité projet).
+Quêtes : actions communautaires qui rapportent XP et progression IA.
+5. Roadmap de paliers (exemple)
+500k MC → L’IA parle pour la première fois.
+1M MC → Leaderboard activé.
+2.5M MC → Premier œuf "éclos" en forme étrange (IA holographique).
+5M MC → Inventaire / quêtes activés.
+10M MC+ → PvP, évolutions spéciales, features avancées.
+(et ajustement des paliers si la croissance va trop vite)
+6. Objectif stratégique
+Créer un meme culte mais durable, où chaque pump a un sens (nourrir l’IA).
+Garder la commu active même après le pump initial grâce aux features gamifiées.
+À terme → un projet unique à la croisée de la crypto, du jeu et du storytelling.
+👉 Voilà la base.
+Dis-moi : où tu en es aujourd’hui dans ces 6 points ? (Concept validé, dashboard prêt, token déjà lancé ou pas, paliers fixés ou pas, etc.)
+Comme ça je cale ma stratégie pile sur ton avancement actuel.

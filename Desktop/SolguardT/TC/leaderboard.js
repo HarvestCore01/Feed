@@ -115,52 +115,63 @@ function renderTable(sortedList, tbody, currentUser, key) {
 function openPlayerPopup(user) {
   const popup = document.getElementById("playerPopup");
   if (!popup) {
-    console.error("❌ #playerPopup introuvable dans le DOM");
+    console.warn("⚠️ Aucun élément #playerPopup trouvé sur cette page.");
     return;
   }
 
-  // Remplir les infos du joueur
-  document.getElementById("popupUsername").textContent = user.username;
-  document.getElementById("popupFeed").textContent = user.feed.toFixed(2);
-  document.getElementById("popupPoints").textContent = user.points || 0;
-  document.getElementById("popupRank").textContent = user.rank || "-";
+  const popupUsername = document.getElementById("popupUsername");
+  const popupFeed = document.getElementById("popupFeed");
+  const popupPoints = document.getElementById("popupPoints");
+  const popupRank = document.getElementById("popupRank");
+  const popupMessage = document.getElementById("popupMessage");
 
-  // Message dynamique
-  if (user.feed > 50000) {
-    document.getElementById("popupMessage").textContent =
-      "Cette Whale domine par sa puissance financière.";
-  } else if (user.points > 100) {
-    document.getElementById("popupMessage").textContent =
-      "Un héros qui propage la voix du Core Feed.";
-  } else {
-    document.getElementById("popupMessage").textContent =
-      "Ce joueur est encore discret, mais il a du potentiel.";
+  if (popupUsername) popupUsername.textContent = user.username;
+  if (popupFeed) popupFeed.textContent = user.feed.toFixed(2);
+  if (popupPoints) popupPoints.textContent = user.points || 0;
+  if (popupRank) popupRank.textContent = user.rank || "-";
+
+  // ===== Message dynamique en fonction du profil =====
+  if (popupMessage) {
+    if (user.feed > 50000) {
+      popupMessage.textContent = "Cette Whale domine par sa puissance financière.";
+    } else if (user.points > 100) {
+      popupMessage.textContent = "Un héros qui propage la voix du Core Feed.";
+    } else {
+      popupMessage.textContent = "Ce joueur est encore discret, mais il a du potentiel.";
+    }
   }
 
-  // ✅ Active le popup
+  // Active l'affichage
   popup.classList.add("active");
-  document.body.style.overflow = "hidden"; // Empêche le scroll arrière-plan
+  document.body.style.overflow = "hidden"; // bloque le scroll en arrière-plan
 }
 
+// =============================================================
+// 4. Fonction pour fermer le pop-up
+// =============================================================
 function closePlayerPopup() {
   const popup = document.getElementById("playerPopup");
-  popup.classList.remove("active");
-  document.body.style.overflow = "auto";
+  if (popup) {
+    popup.classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
 }
 
-// Fermeture avec la croix ou le bouton
+// =============================================================
+// 5. Gestion des événements pour fermer le pop-up
+// =============================================================
 document.addEventListener("DOMContentLoaded", () => {
   const closePopupEl = document.getElementById("closePopup");
   const closePopupBtnEl = document.getElementById("closePopupBtn");
+  const popup = document.getElementById("playerPopup");
 
   if (closePopupEl) closePopupEl.addEventListener("click", closePlayerPopup);
   if (closePopupBtnEl) closePopupBtnEl.addEventListener("click", closePlayerPopup);
 
-  // Fermeture en cliquant sur le fond noir
-  const popup = document.getElementById("playerPopup");
-  popup.addEventListener("click", (e) => {
-    if (e.target.id === "playerPopup") {
-      closePlayerPopup();
-    }
-  });
+  // Fermer le pop-up en cliquant sur l'overlay
+  if (popup) {
+    popup.addEventListener("click", (e) => {
+      if (e.target === popup) closePlayerPopup();
+    });
+  }
 });

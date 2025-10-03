@@ -144,19 +144,36 @@
   </a>
 </div>
 
+<!-- Modal Create Account -->
+<div id="createAccountModal" class="modal">
+  <div class="modal-content">
+    <h2>Créer un compte</h2>
+    <input type="email" id="registerEmail" placeholder="Votre email" />
+    <input type="text" id="registerUsername" placeholder="Choisissez un pseudo" />
+    <input type="password" id="registerPassword" placeholder="Créer un mot de passe" />
+    <input type="password" id="registerPasswordConfirm" placeholder="Confirmer le mot de passe" />
+    <button id="confirmRegisterBtn">Créer mon compte</button>
+    <button id="closeRegisterModal">Annuler</button>
+  </div>
+</div>
+
+
 <!-- ===== MODAL LOGIN ===== -->
 <div id="loginModal" class="modal-overlay">
   <div class="modal-content">
     <span class="modal-close" id="closeLoginModal">&times;</span>
     <h2>Connexion</h2>
     <p>Entre ton pseudo pour te connecter</p>
-    <input type="text" id="loginUsername" placeholder="Pseudo" />
+    <input type="email" id="loginEmail" placeholder="Votre email" />
+<input type="password" id="loginPassword" placeholder="Votre mot de passe" />
     <button id="confirmLoginBtn">Se connecter</button>
   </div>
 </div>
 
 
-  <!-- ===== SCRIPT PRINCIPAL ===== -->
+  <!-- ===== SCRIPTS PRINCIPAUX ===== -->
+  <script type="module" src="./firebase-init.js"></script>
+  <script type="module" src="./account.js"></script>
   <script type="module" src="./main.js"></script>
   <script src="./matrixBackground.js"></script>
 </body>
