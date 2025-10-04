@@ -33,6 +33,25 @@ export async function signUp(email, password, username) {
   return userCred.user;
 }
 
+// 🔹 Récupérer les infos utilisateur Firestore
+export async function getUserData(uid) {
+  const userRef = doc(db, "users", uid);
+  const snap = await getDoc(userRef);
+
+  if (snap.exists()) {
+    return snap.data();
+  } else {
+    console.warn("⚠️ Aucun doc trouvé pour l'utilisateur :", uid);
+    return null;
+  }
+}
+
+// 🔹 Déconnexion utilisateur
+export async function logout() {
+  await signOut(auth);
+  localStorage.removeItem("currentUser");
+}
+
 // =============================================================
 // 2. Connexion utilisateur
 // =============================================================

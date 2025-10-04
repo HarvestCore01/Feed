@@ -1,6 +1,6 @@
 // === main.js ===
 // 🔹 Import des modules
-import { createAccount, updateUserInfo, signIn } from './account.js';
+import { createAccount, updateUserInfo, signIn, signOutUser } from './account.js';
 import { sendSOL, burnTokens, autoIncreaseMarketCap, startLifeTimer, marketCap } from './market.js';
 import { updateDisplay, smoothUpdateMarketCap } from './ui.js';
 import { updateLeaderboard } from './leaderboard.js';
@@ -32,6 +32,9 @@ onAuthStateChanged(auth, (user) => {
 
     document.getElementById('createAccount').style.display = 'none';
     document.getElementById('viewProfile').style.display = 'inline-block';
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+document.getElementById('login').style.display = 'none';
+
 
     console.log("Reconnecté automatiquement via Firebase :", currentUser);
   } else {
@@ -214,11 +217,17 @@ onAuthStateChanged(auth, (user) => {
           currentUser = user.uid;
           localStorage.setItem("currentUser", currentUser);
 
+             // 🔹 Récupérer le pseudo depuis Firestore
+      const userData = await getUserData(currentUser);
+
           await updateUserInfo(currentUser);
           updateLeaderboard(currentUser);
 
           document.getElementById('createAccount').style.display = 'none';
           document.getElementById('viewProfile').style.display = 'inline-block';
+          document.getElementById('logoutBtn').style.display = 'inline-block';
+          document.getElementById('login').style.display = 'none';
+
 
           loginModal.style.display = "none";
           alert(`Bienvenue ${user.email} !`);
@@ -230,6 +239,28 @@ onAuthStateChanged(auth, (user) => {
       }
     });
   }
+
+  // === Bouton Logout ===
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOutUser();
+      localStorage.removeItem("currentUser");
+
+      // Réinitialise l'affichage
+      document.getElementById('createAccount').style.display = 'inline-block';
+      document.getElementById('login').style.display = 'inline-block';
+      document.getElementById('viewProfile').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
+
+      alert("✅ Déconnecté avec succès !");
+      currentUser = null;
+    } catch (err) {
+      console.error("❌ Erreur de déconnexion :", err);
+    }
+  });
+}
 
   // =============================================================
   // 7. Gestion des actions : Send SOL & Burn
