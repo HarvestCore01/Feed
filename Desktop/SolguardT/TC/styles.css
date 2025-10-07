@@ -1031,75 +1031,64 @@ button:hover {
   transition: all 0.2s ease-in-out;
 }
 
-/* ===== MODAL LOGIN ===== */
-.modal-overlay {
+/* ===== MODAL (LOGIN / CREATE ACCOUNT) ===== */
+.modal {
+  display: none; /* masqué par défaut */
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
   z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.4s ease;
 }
 
-.modal-overlay.active {
+.modal.active {
   display: flex;
+  opacity: 1;
 }
 
+/* === Contenu de la fenêtre === */
 .modal-content {
+  position: relative;
   background: linear-gradient(145deg, #000, #0a0f0c);
   border: 2px solid #00ff9c;
   border-radius: 12px;
-  padding: 30px;
-  width: 400px;
+  padding: 35px 30px;
+  width: 380px;
   max-width: 90%;
   text-align: center;
   box-shadow: 0 0 25px rgba(0, 255, 156, 0.5);
   animation: popup-bounce 0.4s ease;
 }
 
+/* Animation d’apparition fluide */
+@keyframes popup-bounce {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* === Titre === */
 .modal-content h2 {
   color: #00ff9c;
-  margin-bottom: 10px;
+  text-shadow: 0 0 12px #00ff9c;
+  margin-bottom: 15px;
+  font-family: "Orbitron", monospace;
+  letter-spacing: 1px;
 }
 
+/* === Sous-texte === */
 .modal-content p {
   color: #63ffd4;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
 }
 
-.modal-content input {
-  width: 80%;
-  padding: 10px;
-  border: 1px solid #00ff9c;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  text-align: center;
-}
-
-.modal-content button {
-  padding: 10px 20px;
-  background: #00ff9c;
-  color: #000;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.modal-content button:hover {
-  background: #63ffd4;
-}
-
+/* === Bouton fermeture === */
+.modal-content .close,
 .modal-close {
   position: absolute;
-  top: 15px;
+  top: 12px;
   right: 20px;
   font-size: 1.8rem;
   color: #ff4d4d;
@@ -1107,38 +1096,104 @@ button:hover {
   transition: color 0.3s ease;
 }
 
+.modal-content .close:hover,
 .modal-close:hover {
   color: #ff0000;
 }
 
-@keyframes popup-bounce {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+/* === Champs de texte / email / mot de passe === */
+.modal-content label {
+  display: block;
+  text-align: left;
+  margin-top: 12px;
+  color: #00ffcc;
+  font-weight: 500;
+  font-family: "Orbitron", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
 
-.modal {
-  display: none; /* Masqué par défaut */
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 2000;
-  justify-content: center;
+/* === Style premium des champs === */
+.modal-content input[type="text"],
+.modal-content input[type="email"],
+.modal-content input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 255, 156, 0.3);
+  border-radius: 4px;
+  background: rgba(0, 255, 156, 0.05);
+  color: #00ffcc;
+  font-family: "Orbitron", monospace;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.25s ease;
+  letter-spacing: 0.5px;
+}
+
+/* === Effet néon au focus === */
+.modal-content input:focus {
+  border-color: #00ff9c;
+  box-shadow: 0 0 8px #00ff9c, inset 0 0 6px rgba(0,255,156,0.3);
+  background: rgba(0, 255, 156, 0.08);
+  transform: scale(1.02);
+}
+
+/* === Conteneur mot de passe + œil === */
+.password-field {
+  position: relative;
+  display: flex;
   align-items: center;
+  width: 100%;
 }
 
-.modal-content {
-  background: #000;
-  border: 2px solid #00ff9c;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  text-align: center;
+.password-field input {
+  flex: 1;
+  padding-right: 35px;
 }
-.close {
+
+.password-field .eye {
   position: absolute;
-  top: 10px; right: 20px;
-  font-size: 24px;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   cursor: pointer;
-  color: #00ff9c;
+  opacity: 0.7;
+  font-size: 16px;
+  color: #00ffcc;
+  user-select: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.password-field .eye:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* === Boutons === */
+.modal-content button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 20px;
+  background: #00ff9c;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Orbitron", monospace;
+  letter-spacing: 0.8px;
+}
+
+.modal-content button:hover {
+  background: #63ffd4;
+  box-shadow: 0 0 10px #63ffd4;
+}
+
+/* === Animation subtile du bouton quand on le clique === */
+.modal-content button:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 20px #00ff9c;
 }

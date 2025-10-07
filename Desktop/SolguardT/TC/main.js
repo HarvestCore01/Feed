@@ -1,5 +1,7 @@
 // === main.js ===
+// =============================================================
 // 🔹 Import des modules
+// =============================================================
 import { createAccount, updateUserInfo, signIn, signOutUser } from './account.js';
 import { sendSOL, burnTokens, autoIncreaseMarketCap, startLifeTimer, marketCap } from './market.js';
 import { updateDisplay, smoothUpdateMarketCap } from './ui.js';
@@ -8,51 +10,56 @@ import { auth } from "./firebase-init.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 
-// === Variables globales ===
+// =============================================================
+// 🔸 Variables globales
+// =============================================================
 let currentUser = null;
 let leaderboardUnlocked = false;
 window.eggHatched = false;
 
-// === Sons globaux ===
 const bootSound = new Audio('./sounds/boot.mp3');
 bootSound.volume = 0.2;
 let bootPlayed = false;
 
+
 // =============================================================
-// 1. Initialisation de la page
+// 1️⃣ INITIALISATION DE LA PAGE
 // =============================================================
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Main.js chargé ✅");
 
-// 🔹 Vérifie l'état de connexion Firebase
-onAuthStateChanged(auth, (user) => {
+  // Vérifie l'état de connexion Firebase
+  onAuthStateChanged(auth, async (user) => {
   if (user && user.emailVerified) {
     currentUser = user.uid;
-    updateUserInfo(currentUser);
 
-    document.getElementById('createAccount').style.display = 'none';
-    document.getElementById('viewProfile').style.display = 'inline-block';
-    document.getElementById('logoutBtn').style.display = 'inline-block';
-document.getElementById('login').style.display = 'none';
+    try {
+      // 🟢 Attendre Firestore avant de continuer
+      await updateUserInfo(currentUser);
 
+      document.getElementById('createAccount').style.display = 'none';
+      document.getElementById('viewProfile').style.display = 'inline-block';
+      document.getElementById('logoutBtn').style.display = 'inline-block';
+      document.getElementById('login').style.display = 'none';
 
-    console.log("Reconnecté automatiquement via Firebase :", currentUser);
+      console.log("Reconnecté automatiquement via Firebase :", currentUser);
+    } catch (err) {
+      console.error("⚠️ Erreur lors du chargement du profil :", err);
+    }
   } else {
-    // Nettoyage si pas connecté
     localStorage.removeItem("currentUser");
     currentUser = null;
-
     document.getElementById('createAccount').style.display = 'inline-block';
     document.getElementById('viewProfile').style.display = 'none';
-
+    document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('login').style.display = 'inline-block';
     console.log("Aucun utilisateur connecté.");
   }
 });
 
   // =============================================================
-  // 2. Fonctions locales (sons, animations, intensité, etc.)
+  // 2️⃣ UTILITAIRES VISUELS / SONS / ANIMATIONS
   // =============================================================
-
   function updateEggIntensity(marketCap) {
     const egg = document.getElementById('ai-hologram');
     if (!egg) return;
@@ -73,7 +80,6 @@ document.getElementById('login').style.display = 'none';
         bootPlayed = true;
         console.log("🔊 Son de boot joué avec succès !");
       }).catch(() => {
-        console.warn("⚠️ Lecture auto bloquée, attente d'un clic utilisateur...");
         document.body.addEventListener('click', () => {
           bootSound.play();
           bootPlayed = true;
@@ -105,7 +111,7 @@ document.getElementById('login').style.display = 'none';
   }
 
   // =============================================================
-  // 3. Lancement initial et animation d’entrée
+  // 3️⃣ LANCEMENT INITIAL ET INTRO
   // =============================================================
   playBootSound();
 
@@ -121,172 +127,162 @@ document.getElementById('login').style.display = 'none';
     }, 800);
   }, 2500);
 
-  // Timer de vie
   startLifeTimer(updateDisplay);
 
   // =============================================================
-  // 4. Boutons principaux
+  // 4️⃣ BOUTONS PRINCIPAUX
   // =============================================================
   const createAccountBtn = document.getElementById('createAccount');
   const loginBtn = document.getElementById('login');
   const sendSolBtn = document.getElementById('sendSOL');
   const burnCoreBtn = document.getElementById('burnCore');
+  const logoutBtn = document.getElementById("logoutBtn");
+
 
   // =============================================================
-  // 5. Pop-up "Créer un compte"
+  // 5️⃣ MODALES (LOGIN / REGISTER)
   // =============================================================
-  const createAccountModal = document.getElementById("createAccountModal");
-  const closeRegisterModal = document.getElementById("closeRegisterModal");
-  const confirmRegisterBtn = document.getElementById("confirmRegisterBtn");
 
-  if (createAccountBtn) {
-    createAccountBtn.addEventListener("click", () => {
-      createAccountModal.style.display = "flex"; // ouvrir
-    });
+  // --- OUVERTURE / FERMETURE UNIFIÉE ---
+  function openModal(id) {
+    document.getElementById(id)?.classList.add('active');
   }
-  if (closeRegisterModal) {
-    closeRegisterModal.addEventListener("click", () => {
-      createAccountModal.style.display = "none"; // fermer
-    });
+  function closeModal(id) {
+    document.getElementById(id)?.classList.remove('active');
   }
+
   window.addEventListener("click", (e) => {
-    if (e.target === createAccountModal) {
-      createAccountModal.style.display = "none";
+    if (e.target.classList.contains("modal")) {
+      e.target.classList.remove("active");
     }
   });
 
-  if (confirmRegisterBtn) {
-    confirmRegisterBtn.addEventListener("click", async () => {
-      const email = document.getElementById("registerEmail").value.trim();
-      const username = document.getElementById("registerUsername").value.trim();
-      const password = document.getElementById("registerPassword").value.trim();
-      const passwordConfirm = document.getElementById("registerPasswordConfirm").value.trim();
+  // --- TOGGLE MOT DE PASSE ---
+  function togglePassword(id, el) {
+    const input = document.getElementById(id);
+    const type = input.type === "password" ? "text" : "password";
+    input.type = type;
+    el.textContent = type === "password" ? "👁️" : "🙈";
+  }
+  window.togglePassword = togglePassword;
+  window.openModal = openModal;
+  window.closeModal = closeModal;
 
-      if (password !== passwordConfirm) {
-        alert("❌ Les mots de passe ne correspondent pas.");
-        return;
+  // --- LOGIN ---
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => openModal("loginModal"));
+  }
+
+  // --- REGISTER ---
+  if (createAccountBtn) {
+    createAccountBtn.addEventListener("click", () => openModal("registerModal"));
+  }
+
+  // =============================================================
+  // 6️⃣ AUTHENTIFICATION : LOGIN / REGISTER / LOGOUT
+  // =============================================================
+
+  // --- LOGIN FORM ---
+  const loginForm = document.getElementById("loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+      if (!email || !password) return alert("🚫 Email et mot de passe requis.");
+
+      try {
+        const user = await signIn(email, password);
+        if (!user.emailVerified) {
+          alert("⚠️ Vérifie ton email avant de te connecter.");
+          return;
+        }
+
+        currentUser = user.uid;
+        localStorage.setItem("currentUser", currentUser);
+        await updateUserInfo(currentUser);
+        updateLeaderboard(currentUser);
+
+        document.getElementById('createAccount').style.display = 'none';
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('viewProfile').style.display = 'inline-block';
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+
+        closeModal("loginModal");
+        alert(`Bienvenue dans le Core, ${user.email}!`);
+      } catch (err) {
+        console.error("Erreur login :", err);
+        alert("❌ Email ou mot de passe incorrect.");
       }
+    });
+  }
+
+  // --- REGISTER FORM ---
+  const registerForm = document.getElementById("registerForm");
+  if (registerForm) {
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("register-username").value.trim();
+      const email = document.getElementById("register-email").value.trim();
+      const password = document.getElementById("register-password").value.trim();
+
+      if (!email || !password || !username) return alert("🚫 Tous les champs sont requis.");
 
       try {
         const user = await createAccount(email, password, username);
         console.log("✅ Compte créé :", user.uid);
-        createAccountModal.style.display = "none";
+        closeModal("registerModal");
+        alert("🎉 Compte créé avec succès ! Vérifie ton email avant de te connecter.");
       } catch (err) {
-        console.error(err);
+        console.error("Erreur création compte :", err);
+        alert("❌ Impossible de créer le compte.");
+      }
+    });
+  }
+
+  // --- LOGOUT ---
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOutUser();
+        localStorage.removeItem("currentUser");
+        currentUser = null;
+
+        document.getElementById('createAccount').style.display = 'inline-block';
+        document.getElementById('login').style.display = 'inline-block';
+        document.getElementById('viewProfile').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+
+        alert("✅ Déconnecté avec succès !");
+      } catch (err) {
+        console.error("Erreur déconnexion :", err);
       }
     });
   }
 
   // =============================================================
-  // 6. Pop-up "Login"
+  // 7️⃣ ACTIONS : SEND / BURN
   // =============================================================
-  const loginModal = document.getElementById("loginModal");
-  const closeBtn = document.getElementById("closeLoginModal");
-  const confirmBtn = document.getElementById("confirmLoginBtn");
-
-  if (loginBtn) {
-    loginBtn.addEventListener("click", () => {
-      loginModal.style.display = "flex";
-    });
-  }
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      loginModal.style.display = "none";
-    });
-  }
-  window.addEventListener("click", (e) => {
-    if (e.target === loginModal) {
-      loginModal.style.display = "none";
-    }
-  });
-
-  if (confirmBtn) {
-    confirmBtn.addEventListener("click", async () => {
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-
-      if (email && password) {
-        try {
-          const user = await signIn(email, password);
-
-          if (!user.emailVerified) {
-            alert("⚠️ Veuillez vérifier votre email avant de vous connecter.");
-            return;
-          }
-
-          currentUser = user.uid;
-          localStorage.setItem("currentUser", currentUser);
-
-             // 🔹 Récupérer le pseudo depuis Firestore
-      const userData = await getUserData(currentUser);
-
-          await updateUserInfo(currentUser);
-          updateLeaderboard(currentUser);
-
-          document.getElementById('createAccount').style.display = 'none';
-          document.getElementById('viewProfile').style.display = 'inline-block';
-          document.getElementById('logoutBtn').style.display = 'inline-block';
-          document.getElementById('login').style.display = 'none';
-
-
-          loginModal.style.display = "none";
-          alert(`Bienvenue ${user.email} !`);
-        } catch (err) {
-          alert("❌ Email ou mot de passe incorrect.");
-        }
-      } else {
-        alert("🚫 Email et mot de passe requis !");
-      }
+  if (sendSolBtn) {
+    sendSolBtn.addEventListener("click", () => {
+      if (!currentUser) return alert("🚫 Connecte-toi d’abord.");
+      sendSOL(currentUser);
+      updateDisplay();
+      updateUserInfo(currentUser);
+      updateLeaderboard(currentUser);
     });
   }
 
-  // === Bouton Logout ===
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await signOutUser();
-      localStorage.removeItem("currentUser");
-
-      // Réinitialise l'affichage
-      document.getElementById('createAccount').style.display = 'inline-block';
-      document.getElementById('login').style.display = 'inline-block';
-      document.getElementById('viewProfile').style.display = 'none';
-      document.getElementById('logoutBtn').style.display = 'none';
-
-      alert("✅ Déconnecté avec succès !");
-      currentUser = null;
-    } catch (err) {
-      console.error("❌ Erreur de déconnexion :", err);
-    }
-  });
-}
+  if (burnCoreBtn) {
+    burnCoreBtn.addEventListener("click", () => {
+      if (!currentUser) return alert("🚫 Connecte-toi d’abord.");
+      burnTokens(currentUser);
+      updateDisplay();
+    });
+  }
 
   // =============================================================
-  // 7. Gestion des actions : Send SOL & Burn
-  // =============================================================
-  sendSolBtn.addEventListener('click', () => {
-    if (!currentUser) {
-      alert("🚫 Vous devez être connecté pour envoyer du SOL.");
-      return;
-    }
-    sendSOL(currentUser);
-    updateDisplay();
-    updateUserInfo(currentUser);
-    updateLeaderboard(currentUser);
-  });
-
-  burnCoreBtn.addEventListener('click', () => {
-    if (!currentUser) {
-      alert("🚫 Vous devez être connecté pour brûler des tokens.");
-      return;
-    }
-    burnTokens(currentUser);
-    updateDisplay();
-  });
-
-  // =============================================================
-  // 8. Leaderboard + MarketCap
+  // 8️⃣ LEADERBOARD / MARKETCAP
   // =============================================================
   const milestones = [9000, 20000, 40000];
   let lastTriggeredMilestone = 0;
@@ -298,7 +294,7 @@ if (logoutBtn) {
     smoothUpdateMarketCap(marketCap);
     updateEggIntensity(marketCap);
 
-    // 🔹 Éclosion de l'œuf
+    // 🔹 Éclosion de l’œuf
     if (marketCap >= 10000 && !window.eggHatched) {
       const aiHologram = document.getElementById('ai-hologram');
       if (aiHologram) {
@@ -334,14 +330,13 @@ if (logoutBtn) {
     const leaderboardMessage = document.getElementById('leaderboardMessage');
     const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');
     const milestoneGoalEl = document.getElementById('milestoneGoal');
-
     if (!milestoneGoalEl) return;
-    const milestoneGoal = parseInt(milestoneGoalEl.textContent.replace(/\D/g, ''));
 
+    const milestoneGoal = parseInt(milestoneGoalEl.textContent.replace(/\D/g, ''));
     if (!leaderboardUnlocked) {
       if (marketCap < milestoneGoal) {
         leaderboardSection.classList.add('locked');
-        leaderboardMessage.innerHTML = `🔒 Débloquez le leaderboard en atteignant <strong>${milestoneGoal}</strong> SOL.`;
+        leaderboardMessage.innerHTML = `🔒 Débloquez le leaderboard à <strong>${milestoneGoal}</strong> SOL.`;
         openLeaderboardBtn.onclick = () => false;
       } else {
         leaderboardUnlocked = true;

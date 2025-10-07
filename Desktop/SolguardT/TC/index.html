@@ -145,31 +145,93 @@
   </a>
 </div>
 
-<!-- Modal Create Account -->
-<div id="createAccountModal" class="modal">
+<!-- ===== MODALE LOGIN ===== -->
+<div class="modal" id="loginModal">
   <div class="modal-content">
-    <h2>Créer un compte</h2>
-    <input type="email" id="registerEmail" placeholder="Votre email" />
-    <input type="text" id="registerUsername" placeholder="Choisissez un pseudo" />
-    <input type="password" id="registerPassword" placeholder="Créer un mot de passe" />
-    <input type="password" id="registerPasswordConfirm" placeholder="Confirmer le mot de passe" />
-    <button id="confirmRegisterBtn">Créer mon compte</button>
-    <button id="closeRegisterModal">Annuler</button>
-  </div>
-</div>
-
-
-<!-- ===== MODAL LOGIN ===== -->
-<div id="loginModal" class="modal-overlay">
-  <div class="modal-content">
-    <span class="modal-close" id="closeLoginModal">&times;</span>
+    <span class="close" onclick="closeModal('loginModal')">&times;</span>
     <h2>Connexion</h2>
-    <p>Entre ton pseudo pour te connecter</p>
-    <input type="email" id="loginEmail" placeholder="Votre email" />
-<input type="password" id="loginPassword" placeholder="Votre mot de passe" />
-    <button id="confirmLoginBtn">Se connecter</button>
+    <p>Entre dans la Matrice Core Feed</p>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <label for="login-email">Adresse e-mail</label>
+      <input 
+        type="email" 
+        id="login-email" 
+        name="email"
+        placeholder="exemple@corefeed.io" 
+        required
+      >
+
+      <label for="login-password">Mot de passe</label>
+      <div class="password-field">
+        <input 
+          type="password" 
+          id="login-password" 
+          name="password"
+          placeholder="••••••••" 
+          required
+        >
+        <span class="eye" onclick="togglePassword('login-password', this)">👁️</span>
+      </div>
+
+      <button type="submit">Se connecter</button>
+    </form>
+
+    <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
+      Pas encore de compte ? 
+      <a href="#" onclick="openModal('registerModal')" style="color:#00ff9c; text-decoration:none;">Créer un compte</a>
+    </p>
   </div>
 </div>
+
+<!-- ===== MODALE CRÉATION DE COMPTE ===== -->
+<div class="modal" id="registerModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('registerModal')">&times;</span>
+    <h2>Créer un compte</h2>
+    <p>Rejoins la Matrice et alimente le Core</p>
+
+    <form id="registerForm" onsubmit="handleRegister(event)">
+      <label for="register-username">Pseudo</label>
+      <input 
+        type="text" 
+        id="register-username" 
+        name="username"
+        placeholder="Neo_42" 
+        required
+      >
+
+      <label for="register-email">Adresse e-mail</label>
+      <input 
+        type="email" 
+        id="register-email" 
+        name="email"
+        placeholder="exemple@corefeed.io" 
+        required
+      >
+
+      <label for="register-password">Mot de passe</label>
+      <div class="password-field">
+        <input 
+          type="password" 
+          id="register-password" 
+          name="password"
+          placeholder="••••••••" 
+          required
+        >
+        <span class="eye" onclick="togglePassword('register-password', this)">👁️</span>
+      </div>
+
+      <button type="submit">Créer mon compte</button>
+    </form>
+
+    <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
+      Déjà membre ? 
+      <a href="#" onclick="openModal('loginModal')" style="color:#00ff9c; text-decoration:none;">Se connecter</a>
+    </p>
+  </div>
+</div>
+
 
 
   <!-- ===== SCRIPTS PRINCIPAUX ===== -->
