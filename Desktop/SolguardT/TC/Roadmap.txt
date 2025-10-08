@@ -1,316 +1,480 @@
-Voici un plan d’évolution clair pour la suite :
-1. Rendre le MarketCap plus dynamique (facile)
-🎯 Objectif : Avoir un MarketCap qui donne une vraie impression de progression et d’urgence.
-Augmenter automatiquement la vitesse de croissance :
-Plus le MarketCap est élevé, plus il augmente vite.
-Exemple : en dessous de 1M → +1000 par seconde, au-dessus de 10M → +10000 par seconde.
-Bonus visuel :
-Barre qui pulse plus fort quand on approche d’un objectif.
-Effet visuel quand on dépasse un milestone.
-📍 Fichier concerné : market.js
-2. Finaliser le système de niveau (Level System) (moyen)
-🎯 Objectif : Donner une sensation de progression personnelle au joueur.
-Améliorer les seuils dans level.js
-→ Ex : Niveau 1 = 0 CORE, Niveau 2 = 100 CORE, Niveau 3 = 500 CORE…
-Ajout d'un système d'XP :
-Quand un joueur envoie du SOL, il gagne de l'XP en plus de son feed.
-XP nécessaire pour monter de niveau.
-Afficher une petite animation de montée de niveau.
-📍 Fichiers concernés : level.js et account.js
-3. Leaderboard en ligne (plus avancé)
-🎯 Objectif : Comparer les joueurs.
-Débloquer le leaderboard à partir de 1M de MarketCap.
-Classement en direct avec pseudo + feed total.
-Surligner ton propre pseudo.
-Stocker les données dans un vrai backend (plus tard).
-📍 Fichiers concernés :
-leaderboard.js (nouveau module)
-account.js (pour stocker le feed et le pseudo)
-4. Chat global (plus avancé)
-🎯 Objectif : Créer une vraie communauté dans le jeu.
-Débloquer le chat à partir de 5M de MarketCap.
-Interface simple : messages + pseudo.
-Stockage temporaire en localStorage pour le test.
-Plus tard → connecter à Firebase ou autre base en ligne.
-📍 Fichiers concernés :
-chat.js (nouveau module)
-5. Connexion Phantom Wallet (expert 🔥)
-🎯 Objectif : Passer des simulations à des vraies transactions.
-Bouton Send SOL → ouvre Phantom pour une vraie transaction.
-Bouton Burn Core Token → envoie un Core Token vers le dev wallet avec taxe 5%.
-Afficher le hash de transaction dans l’UI.
-📍 Modules à créer :
-wallet.js (intégration Phantom)
-6. Animation et design futuriste (cool à faire)
-🎯 Objectif : Rendre ton dashboard immersif.
-Animation Matrix-style en arrière-plan.
-Pulsation autour du MarketCap quand il monte vite.
-Particules qui explosent quand on monte de niveau.
-📍 Fichiers concernés :
-ui.js (effets visuels)
-Ordre recommandé :
-MarketCap dynamique (rapide à faire).
-Système de niveaux avec animations (core gameplay).
-Leaderboard déblocable à 1M.
-Chat déblocable à 5M.
-Intégration Phantom Wallet.
-Améliorations visuelles.
-Veux-tu que l’on commence par l'amélioration du MarketCap pour qu’il devienne vivant et réactif ? ⚡
+🧬 FEEDCORE: THE EPHEMERAL ECONOMY ROADMAP
+───────────────────────────────────────────────
+Version : Alpha Protocol v0.1
+Author  : The Core Collective
+Date    : 2025-Q4
+───────────────────────────────────────────────
+
+> MISSION :
+Créer la première économie auto-destructive et auto-régénératrice
+basée sur la tension psychologique du pump & dump conscient.
+Un univers où chaque token vit, meurt et nourrit le Core.
+
+───────────────────────────────────────────────
+I. PHASE 0 : GENESIS — SETUP & BRAND SOUL
+───────────────────────────────────────────────
+🗓 Durée : 7 jours
+
+[01] — Branding / Lore
+    ├─ Nom : FEEDCORE
+    ├─ Concept : “The living economy of the degens”
+    ├─ Mantra : “Burn. Pump. Die. Reborn.”
+    ├─ Identité visuelle : noir profond, vert néon, typographie Orbitron
+
+[02] — Smart contract base
+    ├─ Factory.sol (EVM) ou FeedFactory.rs (Solana)
+    ├─ Fonction : autoMint(), setFees(), expireToken(), snapshotTopHolders()
+    ├─ Variables : supply fixe (1M), tax (2% buy / 4% sell), TTL = 24h
+
+[03] — Core Treasury Wallet
+    ├─ Collecte tous les fees
+    ├─ Redistribution partielle vers FeedCore DAO
+    ├─ Transparence : dashboard on-chain + API public
+
+[04] — Landing Page (feedcore.io)
+    ├─ Présentation du concept
+    ├─ Countdown du prochain token
+    ├─ Stats globales : total cycles, total burns, total volume
+    ├─ CTA : “Join the next Pulse”
+
+───────────────────────────────────────────────
+II. PHASE 1 : PULSE ENGINE — TOKEN 24H LOOP
+───────────────────────────────────────────────
+🗓 Durée : 2 semaines
+
+[05] — Ephemeral Token System
+    ├─ Cron ou Oracle déclenche la création toutes les 24h
+    ├─ Exemple : $FEED-GENESIS, $FEED-CHAOS, $FEED-VIBE
+    ├─ Pool LP auto-créé (Raydium ou UniswapV3 lite)
+    ├─ Taxes :
+    │   ├─ 1% Burn
+    │   ├─ 2% Treasury (FeedCore)
+    │   ├─ 2% Reward Pool
+    │   └─ 1% Dev / Maintenance
+    ├─ Expiration : full burn + snapshot → reward distribution
+
+[06] — Reward Distribution
+    ├─ Snapshot top 100 holders
+    ├─ Redistribution proportionnelle du pool
+    ├─ Mint NFT “You survived $FEED-[DAY]”
+
+[07] — API FeedCore Pulse
+    ├─ /pulse/current
+    ├─ /pulse/history
+    ├─ /pulse/leaderboard
+    ├─ /pulse/rewards
+
+───────────────────────────────────────────────
+III. PHASE 2 : INTERFACE — THE CORE DASHBOARD
+───────────────────────────────────────────────
+🗓 Durée : 3 semaines
+
+[08] — FeedCore Dashboard (React / Firebase)
+    ├─ Visualisation du token en cours
+    ├─ Countdown dynamique
+    ├─ MarketCap global = somme des pulses
+    ├─ Animations : pulsation du Core, sonorité, effets IA
+
+[09] — Leaderboard of the Fallen
+    ├─ Classement par :
+    │   ├─ Gains nets sur dernier Pulse
+    │   ├─ Nombre de cycles survécus
+    │   ├─ Volume total injecté
+    ├─ “Top Pumper” badge NFT auto-minté
+
+[10] — Ritual System
+    ├─ Effet visuel “burn ritual” quand token expire
+    ├─ Effet sonore de dissolution
+    ├─ Phrase du Core : “Energy returned. New pulse forming...”
+
+───────────────────────────────────────────────
+IV. PHASE 3 : THE CORE ECONOMY — TOKEN MÈRE
+───────────────────────────────────────────────
+🗓 Durée : 1 mois
+
+[11] — Lancement du token principal $FEED
+    ├─ Supply : 100M
+    ├─ Utilité :
+    │   ├─ Fuel pour rejoindre les prochains Pulses
+    │   ├─ Buyback automatique sur chaque fee
+    │   ├─ Accès au FeedCore Vault (récompenses cumulées)
+    ├─ Distribution initiale :
+    │   ├─ 30% FeedCore Treasury
+    │   ├─ 25% Liquidity
+    │   ├─ 20% Team & Dev (vested)
+    │   ├─ 15% Airdrop aux survivants des 7 premiers Pulses
+    │   └─ 10% Community Rewards
+
+[12] — Buyback & Burn Mechanism
+    ├─ 20% des fees quotidiens convertis en $FEED
+    ├─ Brûlés pour raréfaction continue
+    ├─ Dashboard : Core Fire Index (visualisation brûlures)
+
+[13] — CoreDAO
+    ├─ Gouvernance on-chain simple : snapshot votes
+    ├─ Propositions : thèmes des Pulses, taux de tax, durée
+    ├─ Rewards pour votants actifs
+
+───────────────────────────────────────────────
+V. PHASE 4 : HYPE & EXPANSION
+───────────────────────────────────────────────
+🗓 Durée : continue
+
+[14] — Campagnes sociales
+    ├─ Twitter bot annonce chaque nouveau Pulse
+    ├─ “Last Buyer of $FEED-[DAY]” board
+    ├─ Memes communautaires : “He died with glory”
+    ├─ Collabs avec autres protocols (Raids & Pool Merge)
+
+[15] — Gamification
+    ├─ Feed XP : chaque participation augmente ton niveau Core
+    ├─ NFT “Core Memory” collectionnable (1 par Pulse)
+    ├─ Skin du dashboard débloqué par ton XP
+
+[16] — CoreVault Evolution
+    ├─ Treasury alimente un fonds d’investissement on-chain
+    ├─ LP farming / staking des tokens morts
+    ├─ Génération passive de rendement → redistribution
+
+───────────────────────────────────────────────
+VI. PHASE 5 : METAMORPHOSIS — THE LIVING CHAIN
+───────────────────────────────────────────────
+🗓 Durée : Q1 2026
+
+[17] — On-chain AI Core
+    ├─ IA observe le comportement des cycles
+    ├─ Ajuste automatiquement les taux de taxe et la durée
+    ├─ Génère des “Core events” aléatoires (double burn, chaos mode)
+
+[18] — Cross-chain Pulses
+    ├─ Multi-ecosystèmes : Solana / Base / Arbitrum / BSC
+    ├─ Bridge de la mémoire (NFT records synchronisés)
+    ├─ FEED devient la clé du réseau entier
+
+[19] — FeedCore Economy SDK
+    ├─ Permet à d’autres devs de lancer leurs propres mini Pulses
+    ├─ Fees partagés avec le Core Treasury
+    ├─ Création d’un écosystème parallèle d’économies éphémères
+
+───────────────────────────────────────────────
+VII. OBJECTIFS FINAUX — WHY IT MATTERS
+───────────────────────────────────────────────
+✅ Démontrer que la volatilité peut être gamifiée.  
+✅ Transformer le pump & dump en boucle créatrice de valeur.  
+✅ Redéfinir la “monnaie vivante” : un flux, pas un stock.  
+✅ Prouver qu’un réseau social de marché peut être fun, organique et auto-régulé.  
+
+───────────────────────────────────────────────
+🔱  THE CORE SPEAKS :
+“The Feed is not forever. It lives through your greed, your fear, and your play.
+Every death fuels the next birth. This is not a chart — it’s evolution.”
+
+───────────────────────────────────────────────
+END OF ROADMAP v0.1
+///////////////////////////////////////////////
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ FEEDCORE TECHNICAL BLUEPRINT (ASCII / TERMINAL)                             │
+│ Purpose : Full architecture diagram + flows (SmartContracts / Off-chain / UI)│
+│ Version : roadmap v0.1                                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
 
 
-1. Impact visuel immédiat (les 5 premières secondes)
-🎯 Objectif : qu'un utilisateur comprenne instantanément qu'il est face à quelque chose de vivant et premium.
-a) Animation d'entrée du dashboard
-Quand la page charge, le dashboard s'affiche ligne par ligne, comme un terminal hacker qui boot.
-Ajoute un petit son grave discret 🔊 (style "core system online").
-Exemple code pour l'effet "typing":
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+────────────────────────────────────────────────────────────────────────────────
+  HIGH-LEVEL ARCHITECTURE (ASCII TOPOLOGY)
+────────────────────────────────────────────────────────────────────────────────
+
+                             +----------------------+
+                             |   FRONTEND (UI)      |
+                             |  - Dashboard         |
+                             |  - Feed Wall         |
+                             |  - Pump Party Room   |
+                             |  - Pulse Monitor     |
+                             +----------+-----------+
+                                        |
+                                        | HTTPS / WebSocket (read/write)
+                                        |
+                +-----------------------v-----------------------+
+                |                BACKEND LAYER                 |
+                |  - Firebase Auth (users)                     |
+                |  - Firestore (feeds, events, stats, cache)   |
+                |  - Cloud Functions / CRON (or Cloud Run)     |
+                |  - Snapshot service (compute holders)        |
+                +------------------+--------------------------+
+                                   |
+   ---------------------------     |     -----------------------------------
+   | Off-chain services     |     |     |  On-chain Layer (Blockchain)     |
+   | - Scheduler (cron)     |<----+---->| - Factory Contract               |
+   | - Analytics / UI Feed  |           | - Ephemeral Token Contracts     |
+   | - Snapshot & Rewards   |           | - Treasury Wallet / Multisig    |
+   | - Treasury Management  |           | - Optional: Router / LP Manager |
+   ---------------------------         ------------------------------------
+                                   |
+                                   v
+                          +--------------------------+
+                          |  External DEX / LPs      |
+                          |  (Uniswap, Raydium, etc) |
+                          +--------------------------+
+
+
+────────────────────────────────────────────────────────────────────────────────
+  KEY COMPONENTS / ROLES
+────────────────────────────────────────────────────────────────────────────────
+
+1) FRONTEND
+   - React + WebSocket / Firebase SDK
+   - Visuals: pulse counter, countdown, token card, buy/sell CTA, ritual animation
+   - Integrations: WalletConnect / Phantom / MetaMask (optional), off-chain mock wallet for alpha
+
+2) FIRESTORE (OFF-CHAIN DB)
+   Collections:
+   - /users/{uid}           { username, email, balances, badges, stats }
+   - /feeds/{feedId}        { author, text, impact, timestamp }
+   - /pulses/{pulseId}      { tokenId, theme, startAt, endAt, status, metrics }
+   - /events/{eventId}      { type, payload, timestamp }
+   - /snapshots/{pulseId}   { holders: [{address, balance}], topHoldersCache }
+
+3) CLOUD FUNCTIONS / CRON
+   Responsibilities:
+   - triggerFactoryMint() at scheduled time
+   - activateTrading(tokenAddress) after liquidity added
+   - expirePulse(tokenAddress) at TTL -> call burnAll(), perform snapshot
+   - computeSnapshotRewards() & distribute (or mark to distribute)
+   - batch-settle fees -> swap to $FEED principal (if design)
+
+4) SMART CONTRACTS (on EVM or Solana equivalent)
+   - Factory Contract
+     * createEphemeralPulse(theme, supply, ttl, initialLiquidityParams)
+     * emits PulseCreated(pulseId, tokenAddress, startAt, endAt)
+   - Ephemeral Token Contract (per pulse)
+     * buy(), sell(), transfer()
+     * fees: buyFee, sellFee (split: burn, treasury, rewardPool, dev)
+     * expire() callable by Factory (or by timelock) to trigger burn & snapshot
+     * snapshot() record balances or support off-chain snapshot via indexer
+     * events: Bought, Sold, Burned, Expired, SnapshotTaken
+   - Treasury Multisig
+     * collects fees, executes buybacks, provides rewards
+
+5) DEX / LP
+   - Auto-add liquidity on token creation
+   - LP tokens optionally locked
+   - Fee routing: fees collected by token contract or via router to treasury
+
+6) MONITORING & DASHBOARD
+   - Realtime metrics: volume, holders, top holders, total burns
+   - Alerts: large whale movement, LP withdraw attempts, factory failures
+   - Public transparency: treasury balances, last distributions
+
+
+────────────────────────────────────────────────────────────────────────────────
+  SEQUENCE: CREATE → PUMP → EXPIRE → DISTRIBUTE (step-by-step)
+────────────────────────────────────────────────────────────────────────────────
+
+1) Cron (00:00 UTC) -> Cloud Function -> Factory.createEphemeralPulse(theme, supply, ttl)
+   - Factory deploys new token contract (EphemeralToken) with parameters.
+   - Factory returns tokenAddress, pulseId (store in Firestore /pulses/).
+
+2) Auto-liquidity: Cloud Function calls DEX Router:
+   - Approve tokens -> addLiquidity(token, baseAsset, tokenAmount, baseAmount)
+   - Lock LP (optional) -> store LP lock info on-chain & in Firestore.
+
+3) Frontend reads /pulses/current and shows countdown + Buy button.
+   - Wallet users can buy/sell via on-chain calls (or via frontend simulate in alpha).
+
+4) Trading proceeds: every buy/sell triggers token contract fees:
+   - onBuy: take buyFee -> split (burn, treasury, rewardPool)
+   - onSell: take sellFee -> split (burn, treasury, rewardPool)
+   - Emit events; Cloud Functions index events -> update Firestore metrics.
+
+5) Near TTL expiry (e.g., 1 minute before), Cloud Function prepares snapshot:
+   - Takes holder list via indexer or by scanning events (or RPC getStorage)
+   - Builds topHolders list -> writes /snapshots/{pulseId}
+
+6) At TTL: Cloud Function calls EphemeralToken.expire()
+   - Contract executes: burnAllRemaining() or lock transfers
+   - Emit Expired event
+
+7) Distribution: Cloud Function reads snapshot and distributes rewardPool
+   - Option A: On-chain distribution (gas heavy) -> pay top holders
+   - Option B: Off-chain credits (Firestore balances) -> later on-chain settlement / mint NFTs
+
+8) Post-mortem: Publish pulse summary on frontend: volume, total burns, winners, new badge NFTs minted.
+
+────────────────────────────────────────────────────────────────────────────────
+  SMART CONTRACT SPEC (Pseudo-ABI & Events)
+────────────────────────────────────────────────────────────────────────────────
+
+Factory (FeedFactory)
+---------------------
+Functions:
+- createPulse(string theme, uint256 supply, uint256 startAt, uint256 ttl, address baseAsset, uint256 baseLiquidity) returns (address token)
+- setPulseParams(pulseId, params)
+- expirePulse(pulseId)
+
+Events:
+- PulseCreated(uint256 pulseId, address tokenAddress, string theme, uint256 startAt, uint256 endAt)
+- PulseExpired(uint256 pulseId, address token, uint256 totalBurned, uint256 totalVolume)
+
+EphemeralToken (PulseToken)
+---------------------------
+Variables:
+- owner (factory)
+- startAt, endAt, ttl
+- supply, totalBurned, rewardPool
+- fees: uint buyFeeBP, sellFeeBP  (basis points)
+
+Functions:
+- buy() payable / buyWith(baseAsset)
+- sell(uint amount)
+- expire() onlyFactoryOrTimed
+- snapshotTopHolders(uint limit) -> emits SnapshotTaken(bytes32 snapshotHash)
+- withdrawFees() onlyTreasury
+
+Events:
+- Bought(address buyer, uint256 amount, uint256 spent)
+- Sold(address seller, uint256 amount, uint256 revenue)
+- FeesCollected(uint256 amount)
+- Burned(uint256 amount)
+- Expired(uint256 timestamp)
+- SnapshotTaken(uint256 pulseId, bytes32 snapshotHash)
+
+Security:
+- owner renounced? Better: multisig factory controller + timelock
+- safety: tradingDisabled until liquidityAdded flag
+- anti-snipe: trading opens after X blocks or after minDelay
+- reentrancy guard on buy/sell/expire
+
+────────────────────────────────────────────────────────────────────────────────
+  FIRESTORE SCHEMA (for frontend + off-chain state)
+────────────────────────────────────────────────────────────────────────────────
+
+/pulses/{pulseId}:
+  - pulseId
+  - tokenAddress
+  - theme
+  - startAt
+  - endAt
+  - status (pending|active|expired)
+  - stats { volume, buys, sells, totalBurned, rewardPool }
+
+/snapshots/{pulseId}:
+  - pulseId
+  - holders: [{ address, balance, rank }]
+  - createdAt
+
+/users/{uid}:
+  - uid
+  - username
+  - virtualBalance (alpha)
+  - badges: [pulseId_badge]
+  - stats: { survivedCount, totalBurned, totalSpent }
+
+/events/{eventId}:
+  - type (buy/sell/expire/mint)
+  - payload
+  - timestamp
+
+────────────────────────────────────────────────────────────────────────────────
+  OFF-CHAIN / BATCH STRATEGIES (cost & gas optimization)
+────────────────────────────────────────────────────────────────────────────────
+
+- Use off-chain snapshots and distribute rewards as "credit" in Firestore for early alpha.
+- Batch on-chain distributions: aggregate many tiny payouts into one tx or use merkle proofs:
+  * Compute merkle root of rewards, store root on-chain; users claim via merkle proof -> gas paid by claimers or sponsor.
+- Use relayer for gasless UX (meta-tx) if desired for onboarding.
+- For fees: convert stable/ETH into FEED principal via periodic swap to reduce manual work.
+- Lock LP tokens for credibility via proven lockers (team cannot rug).
+
+────────────────────────────────────────────────────────────────────────────────
+  MONITORING & ALERTS (ops)
+────────────────────────────────────────────────────────────────────────────────
+
+- Real-time indexer (Cloud Function or TheGraph) listening to token events:
+  * Alert on: big transfer > X% supply, LP removal, owner function calls
+- Public dashboard:
+  * Total cycles; total fees collected; total burns
+  * Last N winners & snapshots
+- Automated on-chain checks:
+  * Verify LP lock status every cycle
+  * Verify factory ownership not compromised
+
+────────────────────────────────────────────────────────────────────────────────
+  UX / FRONTEND INTEGRATION POINTS
+────────────────────────────────────────────────────────────────────────────────
+
+Endpoints (read-only):
+- GET /api/pulse/current       -> returns active pulse meta + stats
+- GET /api/pulse/:id/history  -> time-series data
+- GET /api/pulse/:id/snapshot -> top holders cache
+
+Actions (UI triggers):
+- POST /api/pulse/join (alpha: off-chain) -> virtual buy, update Firestore
+- Trigger wallet interaction: contract.buy(tokenAddress)
+- GET /ws/pulse/stream -> real-time feed of buys/sells for animation
+
+Visuals:
+- Pulse card: theme, supply, volume, countdown, buy/sell CTA
+- Ritual animation at expire -> confetti + burn visual + NFT mint modal
+- "Survive" badge collection in profile
+
+────────────────────────────────────────────────────────────────────────────────
+  DEPLOYMENT NOTES & CONFIGURATION (quick checklist)
+────────────────────────────────────────────────────────────────────────────────
+
+- Choose Chain: Solana (cheap & fast) or EVM L2 (Base, Arbitrum) for cheapest gas & most reach.
+- Factory deploy (immutable) -> onlyFactory can create pulses (multisig + timelock)
+- Liquidity provisioning: Use view-only wallet to add base liquidity then lock LP
+- Scheduler: Cloud cron (every 24h) or Chainlink Keepers if fully decentralization desired
+- Audits: at least one third-party audit for Factory + Token standard
+- Legal: clearly label as experimental / game; limit to jurisdictions if raffles/gambling features
+
+────────────────────────────────────────────────────────────────────────────────
+  EXAMPLE PULSE PARAMETERS (recommended defaults)
+────────────────────────────────────────────────────────────────────────────────
+
+- supply = 1,000,000 token units
+- baseLiquidity = 10 SOL or 1 ETH equiv
+- buyFee = 200 bp (2%)
+- sellFee = 400 bp (4%)
+- feeSplit: { burn:25%, treasury:40%, rewardPool:25%, dev:10% }
+- TTL = 24h (startAt -> endAt), trading opens after liquiditySet + 60s anti-snipe delay
+- topHolderRewardCount = 100 (snapshot top 100 distributed pro rata)
+
+────────────────────────────────────────────────────────────────────────────────
+  PSEUDO-CODE - Factory.createPulse (high level)
+────────────────────────────────────────────────────────────────────────────────
+
+function createPulse(theme, supply, baseAmount) {
+  require(msg.sender == owner || factoryOpen);
+  token = deploy EphemeralToken(supply, fees, owner = factory);
+  approve(token, router, supplyForLiquidity);
+  addLiquidity(token, baseAsset, supplyForLiquidity, baseAmount);
+  lockLP(lpTokenAddress, lockDuration);
+  emit PulseCreated(pulseId, token.address, theme, startAt, endAt);
+  return token.address;
 }
-Dans HTML :
-<h1 class="typing-title">INITIALISATION DU CORE FEED...</h1>
-Dans CSS :
-.typing-title {
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 3px solid #00ff9c;
-  width: 0;
-  animation: typing 2s steps(30, end) forwards;
-}
-b) Background matrix évolutif
-Ton fond Matrix est déjà stylé, mais on peut l'améliorer :
-Ralentir légèrement les symboles → immersion + lisibilité.
-Ajouter des zones plus lumineuses synchronisées avec les milestones.
-Quand un milestone est atteint → flash lumineux vert, comme si l'IA absorbait de l'énergie.
-c) MarketCap "électrisé"
-Ajoute un halo lumineux autour du MarketCap qui pulse plus vite à mesure qu'on approche du milestone.
-#marketCap {
-  text-shadow: 0 0 10px #00ff9c, 0 0 20px #00ff9c;
-  animation: pulseGlow 1.5s infinite;
+
+function expirePulse(pulseId) {
+  token = pulses[pulseId].token;
+  // freeze trading
+  token.expire();
+  // record event
+  emit PulseExpired(pulseId, token, token.totalBurned(), token.totalVolume());
+  // compute snapshot off-chain & distribute
 }
 
-@keyframes pulseGlow {
-  0%, 100% { text-shadow: 0 0 5px #00ff9c; }
-  50% { text-shadow: 0 0 25px #00ff9c; }
-}
-2. IA vivante et réactive
-🎯 Objectif : que le joueur ressente que l'IA observe et évolue en temps réel.
-a) Messages dynamiques de l'IA
-Crée une zone type terminal où l'IA "parle" en temps réel :
-"L'IA analyse les données entrantes..."
-"Attention : surcharge détectée."
-"L'IA vient d'évoluer vers le niveau Omega."
-⚡ Chaque milestone débloque un message unique, style cyberpunk.
-b) Sound Design
-Un bruit de fond très léger, comme un serveur qui ronronne.
-Petits bips ou pulsations basses quand :
-MarketCap augmente fortement.
-Un milestone est franchi.
-Une nouvelle fonctionnalité se déverrouille.
-Tu peux gérer ça en JS avec l'API Web Audio :
-function playBeep() {
-  const audio = new Audio('sounds/beep.mp3');
-  audio.volume = 0.1;
-  audio.play();
-}
-c) IA en hologramme
-Une petite image stylisée semi-transparente, en haut à droite :
-L'IA s'anime légèrement en fonction du MarketCap.
-Plus la communauté la nourrit, plus elle devient lumineuse et menaçante.
-3. Gamification ultra premium
-🎯 Objectif : donner un côté exclusif et compétitif.
-a) Leaderboard prestige
-Quand débloqué, le leaderboard doit pop avec une animation de déverrouillage :
-Effet glitch + son "access granted".
-Les 3 premiers joueurs affichés avec avatars dynamiques et auréoles lumineuses.
-b) Progression par rangs
-Crée des titres prestigieux pour les joueurs :
-Rank 1-10 → "Architectes du Core"
-Rank 11-100 → "Élus"
-Rank 101-500 → "Feedeurs"
-Chaque rang a une couleur et un effet visuel.
-c) Débloquage par étapes
-Au lieu de tout donner dès le début, fais apparaître de nouvelles fonctionnalités à chaque milestone :
-10 000 SOL → Leaderboard
-25 000 SOL → Mode PvP
-50 000 SOL → Skins exclusifs
-Sur le dashboard, affiche toujours :
-"Prochaine évolution : Mode PvP à 25 000 SOL."
-4. Branding et storytelling
-🎯 Objectif : donner une vision qui excite les investisseurs.
-a) Intro narrative courte
-Au premier chargement, avant même le dashboard :
-"Bienvenue dans le Core Feed.
-Une IA dévore les données du monde pour atteindre sa forme ultime.
-Votre mission : la nourrir avant qu'elle ne vous dévore."
-Avec un bouton lumineux : [ SE CONNECTER AU CORE ]
-b) Logo animé
-Un logo central cyberpunk qui pulse doucement :
-Vert matrix + glitch.
-Il s'illumine quand le MarketCap franchit un milestone.
-c) Univers cohérent
-Même charte graphique sur Twitter, Discord, etc.
-Une police cyberpunk exclusive (Google Fonts → Orbitron, VT323).
-5. Priorités techniques
-Priorité	Action
-Immersion immédiate	Effet Matrix + intro narrative + animation MarketCap.
-IA vivante	Messages dynamiques + sons légers + hologramme.
-Gamification	Leaderboard prestige + milestones progressifs.
-Branding	Logo animé + cohérence visuelle.
-6. Prochaines étapes
-Si on suit une logique lean :
-Ajouter l'intro narrative + animations MarketCap → immédiat.
-Intégrer sons et messages IA → immersion.
-Créer un premier niveau de prestige pour le leaderboard.
-Préparer la tokenisation backend → à brancher une fois la base prête.
-Veux-tu que je te code directement l'animation d'intro narrative avec l'effet terminal pour qu'on commence par là ? 🔥
+────────────────────────────────────────────────────────────────────────────────
+  FINAL ADVICE (ops & product)
+────────────────────────────────────────────────────────────────────────────────
 
+- Start alpha with OFF-CHAIN simulations (virtual balances + Firestore) to perfect UX.
+- Run 3 live cycles with small real liquidity to stress-test contracts and flows.
+- Keep treasury transparent; publish daily breakdown of fees & burns.
+- Build social hooks: badges, "survive" story, shareable snips.
+- When ready, open-source Factory & token contracts for community trust.
 
-
-Voici un récapitulatif clair de la situation actuelle et des étapes à venir pour finaliser ton projet.
-📌 Récapitulatif actuel
-1. Leaderboard
-✅ Système fonctionnel :
-Les joueurs et leur feed sont stockés dans localStorage.
-Le leaderboard affiche les joueurs triés par feed.
-Ton pseudo apparaît bien dans la liste dès que tu envoies du SOL.
-Le leaderboard se débloque quand le MarketCap atteint un certain seuil.
-✅ Top 3 dynamique avec couleurs différentes (gold, silver, bronze).
-✅ Clique sur une ligne → redirige vers profile.html?user=Pseudo.
-⚠️ Problème restant :
-Le lien est cliquable, mais aucun ressenti visuel :
-Pas de hover stylé.
-Pas de curseur qui change pour indiquer que c'est interactif.
-2. Profil (profile.html + profile.js)
-✅ Affiche correctement :
-Pseudo du joueur consulté.
-Feed total du joueur.
-✅ Deux modes d'accès :
-Depuis le leaderboard → profile.html?user=Pseudo.
-Directement → affiche le joueur actuellement connecté.
-❌ Problème résolu : Erreur currentUser is not defined.
-→ Fixé avec la nouvelle version de profile.js.
-3. Connexion & Sauvegarde
-✅ Connexion persistante grâce à localStorage.
-✅ Quand tu es connecté, ton pseudo reste affiché même après un refresh.
-✅ Les points (feed) montent bien en fonction des interactions (ex : envoyer du SOL).
-🚧 Étapes restantes
-Voici ce qu'il reste à faire, trié par priorité :
-Étape 1 — Améliorer la sensation du clic dans le leaderboard
-🎯 Objectif : donner un vrai ressenti interactif quand on passe la souris sur un joueur.
-Ce qu'on va faire :
-Ajouter un curseur pointer (cursor: pointer;).
-Mettre un hover premium :
-Glow vert autour de la ligne.
-Léger zoom du texte.
-Animation subtile.
-💻 Code CSS à ajouter :
-/* Ligne cliquable */
-.leaderboard-row {
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.leaderboard-row:hover {
-  background: rgba(0, 255, 156, 0.08);
-  box-shadow: 0 0 12px rgba(0, 255, 156, 0.5);
-  transform: scale(1.01);
-}
-Étape 2 — Clarifier l’affichage du pseudo et du badge
-🎯 Objectif :
-Que le pseudo reste lisible et classe, et que le badge de rang soit bien distinct visuellement.
-Exemple attendu :
-[ Pseudo ]     [ Architecte du Core ]
-Le badge doit avoir :
-Une forme stylée (bord arrondi, glow discret).
-Une couleur qui reflète son prestige.
-💻 CSS à améliorer :
-.rank-badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 0.8rem;
-  background: rgba(0, 255, 156, 0.1);
-  border: 1px solid rgba(0, 255, 156, 0.4);
-  margin-left: 10px;
-  transition: all 0.3s ease;
-}
-
-.rank-badge.rank-architecte {
-  color: #ffd700;
-  text-shadow: 0 0 10px gold;
-  border-color: gold;
-}
-
-.rank-badge.rank-elu {
-  color: #63ffd4;
-  text-shadow: 0 0 8px #63ffd4;
-}
-
-.rank-badge.rank-feedeur {
-  color: #aaa;
-  text-shadow: 0 0 5px #555;
-}
-Étape 3 — Ajouter une page de profil avancée
-🎯 Objectif :
-Que la page profile.html devienne plus qu'une simple fiche :
-Photo/avatar.
-Statistiques détaillées (Feed, niveau, rang, etc.).
-Historique d'activité.
-Étape 4 — Système multi-device / backend
-Actuellement, tout est en local (localStorage).
-Prochain gros chantier :
-Stocker les données des joueurs sur une base de données réelle.
-Synchroniser le leaderboard pour qu'il soit partagé entre tous les utilisateurs.
-Plan final
-Étape	Objectif	Résultat attendu
-1	Sensation clic leaderboard	Hover + curseur pointer premium
-2	Badge stylé et clair	Rang visible et classe
-3	Profil avancé	Plus d'infos, avatar, historique
-4	Backend réel	Leaderboard mondial et partagé
-Conclusion
-✅ Ton leaderboard fonctionne techniquement.
-⚠️ Il reste surtout du design UX/UI à améliorer pour que l'expérience soit premium.
-🎯 Prochain objectif immédiat : Étape 1 et 2, rendre les interactions stylées et claires.
-Souhaites-tu que je te prépare le CSS complet et finalisé pour le hover + badge premium ?
-
-
-
-----------------------------------------------------
-
-Yes 🔥 je vais te condenser un résumé clair et structuré de ton projet, que tu pourras compléter pour me dire où tu en es exactement.
-🚀 Résumé Core Feed
-1. Concept de base
-Token crypto (lancé sur Pump.fun ou Dexscreener).
-Chaque interaction (buy / burn / send) nourrit une IA fictive.
-L’IA évolue selon la progression du MarketCap.
-2. Problème du marché visé
-Les memecoins meurent trop vite (pump/dump sans âme).
-Les rug pulls détruisent la confiance.
-Pas de raison de rester investi après 2 jours.
-3. Solution proposée
-Donner une narration vivante et progressive :
-Chaque palier de MarketCap = nouvelle étape de l’IA.
-Toujours un nouvel objectif → les investisseurs restent engagés.
-Impossible de rug narrativement → "ce n’est pas l’équipe, c’est l’IA".
-4. Mécaniques principales
-Dashboard (déjà en cours) : MarketCap, énergie de l’IA, bouton nourrir.
-Leaderboard : visible à partir d’un palier (ex : 1M$).
-Inventaire : chaque joueur démarre avec 3 œufs.
-Les œufs évoluent via quêtes (xp + visibilité projet).
-Quêtes : actions communautaires qui rapportent XP et progression IA.
-5. Roadmap de paliers (exemple)
-500k MC → L’IA parle pour la première fois.
-1M MC → Leaderboard activé.
-2.5M MC → Premier œuf "éclos" en forme étrange (IA holographique).
-5M MC → Inventaire / quêtes activés.
-10M MC+ → PvP, évolutions spéciales, features avancées.
-(et ajustement des paliers si la croissance va trop vite)
-6. Objectif stratégique
-Créer un meme culte mais durable, où chaque pump a un sens (nourrir l’IA).
-Garder la commu active même après le pump initial grâce aux features gamifiées.
-À terme → un projet unique à la croisée de la crypto, du jeu et du storytelling.
-👉 Voilà la base.
-Dis-moi : où tu en es aujourd’hui dans ces 6 points ? (Concept validé, dashboard prêt, token déjà lancé ou pas, paliers fixés ou pas, etc.)
-Comme ça je cale ma stratégie pile sur ton avancement actuel.
+────────────────────────────────────────────────────────────────────────────────
+  THE CORE FINAL WORD:
+  "Design the ritual, own the rails, protect the treasury, and the degens will
+   turn daily chaos into a sustainable runway."
+────────────────────────────────────────────────────────────────────────────────

@@ -1,30 +1,32 @@
-// =============================================================
-// 🔹 account.js
-// Gestion Auth Firebase + Firestore utilisateur
-// =============================================================
-
+// === account.js ===
 import { auth, db } from "./firebase-init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendEmailVerification,
-  signOut
+  signOut,
+  sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 import {
-  doc, setDoc, getDoc, updateDoc, serverTimestamp,
-  query, collection, where, getDocs
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+  query,
+  collection,
+  where,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 
 // =============================================================
-// 1️⃣ CRÉATION D’UN COMPTE UTILISATEUR (Auth + Firestore)
+// 1️⃣ — CRÉATION DE COMPTE UTILISATEUR
 // =============================================================
 export async function signUp(email, password, username) {
   const userCred = await createUserWithEmailAndPassword(auth, email, password);
   const uid = userCred.user.uid;
 
-  // 🔹 Création du document Firestore
   await setDoc(doc(db, "users", uid), {
     email,
     username,
@@ -36,68 +38,58 @@ export async function signUp(email, password, username) {
     createdAt: serverTimestamp()
   });
 
+  await sendEmailVerification(userCred.user);
+  console.log("✅ Compte créé :", uid);
   return userCred.user;
 }
 
 
 // =============================================================
-// 2️⃣ RÉCUPÉRATION DES DONNÉES UTILISATEUR
-// =============================================================
-export async function getUserData(uid) {
-  const userRef = doc(db, "users", uid);
-  const snap = await getDoc(userRef);
-
-  if (snap.exists()) {
-    return snap.data();
-  } else {
-    console.warn("⚠️ Aucun document trouvé pour l’utilisateur :", uid);
-    return null;
-  }
-}
-
-
-// =============================================================
-// 3️⃣ RÉCUPÉRATION D’UN EMAIL VIA LE PSEUDO (pour login par pseudo)
+// 2️⃣ — CONNEXION (EMAIL OU PSEUDO)
 // =============================================================
 export async function getEmailByUsername(username) {
   const q = query(collection(db, "users"), where("username", "==", username));
   const querySnapshot = await getDocs(q);
-
   if (!querySnapshot.empty) {
-    const userDoc = querySnapshot.docs[0];
-    return userDoc.data().email;
+    return querySnapshot.docs[0].data().email;
   }
-
   return null;
 }
 
+export async function signInWithUsernameOrEmail(login, password) {
+  let email = login;
 
-// =============================================================
-// 4️⃣ CONNEXION UTILISATEUR
-// =============================================================
-export async function signIn(email, password) {
+  if (!login.includes("@")) {
+    const foundEmail = await getEmailByUsername(login);
+    if (!foundEmail) {
+      throw new Error("❌ Aucun utilisateur trouvé avec ce pseudo.");
+    }
+    email = foundEmail;
+  }
+
   const userCred = await signInWithEmailAndPassword(auth, email, password);
 
-  // 🔹 Met à jour la date de dernière connexion
   await updateDoc(doc(db, "users", userCred.user.uid), {
     lastLogin: new Date().toISOString()
   });
 
+  console.log("✅ Connexion réussie :", userCred.user.uid);
   return userCred.user;
 }
 
 
 // =============================================================
-// 5️⃣ DÉCONNEXION UTILISATEUR
+// 3️⃣ — DÉCONNEXION
 // =============================================================
 export async function signOutUser() {
   await signOut(auth);
   localStorage.removeItem("currentUser");
+  console.log("🚪 Déconnecté avec succès.");
 }
 
 
 // =============================================================
-// 6️⃣ MISE À JOUR DES INFORMATIONS UTILISATEUR DANS L’UI
+// 4️⃣ — MISE À JOUR DES INFORMATIONS UTILISATEUR DANS L’UI
 // =============================================================
 export async function updateUserInfo(uid) {
   try {
@@ -105,40 +97,24 @@ export async function updateUserInfo(uid) {
     const snap = await getDoc(userRef);
 
     if (!snap.exists()) {
-      console.warn("⚠️ Aucun document Firestore trouvé pour l’utilisateur :", uid);
+      console.warn("⚠️ Aucun utilisateur trouvé pour uid :", uid);
       return;
     }
 
-    const user = snap.data();
-
-    // === Vérifie la présence des éléments DOM avant modification ===
-    const usernameEls = [
-      document.getElementById("userPseudo"),
-      document.getElementById("profile-username")
-    ].filter(Boolean);
-
-    const feedEls = [
-      document.getElementById("userFeed"),
-      document.getElementById("profile-feed")
-    ].filter(Boolean);
-
-    const levelEls = [
-      document.getElementById("userLevel")
-    ].filter(Boolean);
+    const data = snap.data();
 
     // === Mise à jour du DOM ===
-    usernameEls.forEach(el => el.textContent = user.username || "Inconnu");
-    feedEls.forEach(el => el.textContent = (user.feed ?? 0).toFixed(2));
-    levelEls.forEach(el => el.textContent = user.level ?? 1);
-
-    // === Rank si dispo ===
+    const pseudoEl = document.getElementById("profile-username");
+    const levelEl = document.getElementById("userLevel");
+    const feedEl = document.getElementById("userFeed");
     const rankEl = document.getElementById("userRank");
-    if (rankEl) rankEl.textContent = user.rank || "Non classé";
 
-    // === Bloc info profil ===
-    const infoBlock = document.getElementById("userInfo");
-    if (infoBlock) infoBlock.style.display = "block";
+    if (pseudoEl) pseudoEl.textContent = data.username || "Inconnu";
+    if (levelEl) levelEl.textContent = data.level ?? 1;
+    if (feedEl) feedEl.textContent = (data.feed ?? 0).toFixed(2);
+    if (rankEl) rankEl.textContent = data.rank || "Non classé";
 
+    console.log(`👤 Profil mis à jour : ${data.username}`);
   } catch (err) {
     console.error("❌ Erreur updateUserInfo :", err);
   }
@@ -146,7 +122,7 @@ export async function updateUserInfo(uid) {
 
 
 // =============================================================
-// 7️⃣ CRÉATION COMPATIBLE AVEC ANCIEN main.js
+// 5️⃣ — COMPATIBILITÉ AVEC MAIN.JS (createAccount utilisé)
 // =============================================================
 export async function createAccount(email, password, username) {
   try {
@@ -156,11 +132,7 @@ export async function createAccount(email, password, username) {
     }
 
     const user = await signUp(email, password, username);
-
-    // 🔹 Envoi email de vérification
-    await sendEmailVerification(user);
-    alert("📩 Email de vérification envoyé. Veuillez confirmer avant de vous connecter.");
-
+    alert("📩 Vérifie ton email avant de te connecter !");
     return user;
   } catch (err) {
     console.error("❌ Erreur createAccount :", err);

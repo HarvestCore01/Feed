@@ -33,7 +33,6 @@ Verifier dans quel Branch je suis :
 git branch
 
 
-
 - Fusionner dans master
 # git checkout master
 # git merge TEST-feature

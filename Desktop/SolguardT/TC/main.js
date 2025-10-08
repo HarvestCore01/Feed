@@ -1,8 +1,8 @@
 // === main.js ===
 // =============================================================
-// 🔹 Import des modules
+// 🔹 IMPORT DES MODULES
 // =============================================================
-import { createAccount, updateUserInfo, signIn, signOutUser } from './account.js';
+import { createAccount, updateUserInfo, signInWithUsernameOrEmail, signOutUser } from './account.js';
 import { sendSOL, burnTokens, autoIncreaseMarketCap, startLifeTimer, marketCap } from './market.js';
 import { updateDisplay, smoothUpdateMarketCap } from './ui.js';
 import { updateLeaderboard } from './leaderboard.js';
@@ -11,7 +11,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/fi
 
 
 // =============================================================
-// 🔸 Variables globales
+// 🔸 VARIABLES GLOBALES
 // =============================================================
 let currentUser = null;
 let leaderboardUnlocked = false;
@@ -28,34 +28,35 @@ let bootPlayed = false;
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Main.js chargé ✅");
 
-  // Vérifie l'état de connexion Firebase
+  // 🔹 Vérifie l'état Firebase (connexion persistante)
   onAuthStateChanged(auth, async (user) => {
-  if (user && user.emailVerified) {
-    currentUser = user.uid;
+    if (user && user.emailVerified) {
+      currentUser = user.uid;
 
-    try {
-      // 🟢 Attendre Firestore avant de continuer
-      await updateUserInfo(currentUser);
+      try {
+        await updateUserInfo(currentUser);
 
-      document.getElementById('createAccount').style.display = 'none';
-      document.getElementById('viewProfile').style.display = 'inline-block';
-      document.getElementById('logoutBtn').style.display = 'inline-block';
-      document.getElementById('login').style.display = 'none';
+        document.getElementById('createAccount').style.display = 'none';
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('viewProfile').style.display = 'inline-block';
+        document.getElementById('logoutBtn').style.display = 'inline-block';
 
-      console.log("Reconnecté automatiquement via Firebase :", currentUser);
-    } catch (err) {
-      console.error("⚠️ Erreur lors du chargement du profil :", err);
+        console.log("✅ Reconnecté automatiquement :", currentUser);
+      } catch (err) {
+        console.error("⚠️ Erreur lors du chargement du profil :", err);
+      }
+
+    } else {
+      // 🔹 Aucun utilisateur ou mail non vérifié
+      localStorage.removeItem("currentUser");
+      currentUser = null;
+
+      document.getElementById('createAccount').style.display = 'inline-block';
+      document.getElementById('login').style.display = 'inline-block';
+      document.getElementById('viewProfile').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
     }
-  } else {
-    localStorage.removeItem("currentUser");
-    currentUser = null;
-    document.getElementById('createAccount').style.display = 'inline-block';
-    document.getElementById('viewProfile').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'none';
-    document.getElementById('login').style.display = 'inline-block';
-    console.log("Aucun utilisateur connecté.");
-  }
-});
+  });
 
   // =============================================================
   // 2️⃣ UTILITAIRES VISUELS / SONS / ANIMATIONS
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!bootPlayed) {
       bootSound.play().then(() => {
         bootPlayed = true;
-        console.log("🔊 Son de boot joué avec succès !");
+        console.log("🔊 Son de boot joué !");
       }).catch(() => {
         document.body.addEventListener('click', () => {
           bootSound.play();
@@ -111,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =============================================================
-  // 3️⃣ LANCEMENT INITIAL ET INTRO
+  // 3️⃣ INTRO / DÉMARRAGE
   // =============================================================
   playBootSound();
 
@@ -130,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startLifeTimer(updateDisplay);
 
   // =============================================================
-  // 4️⃣ BOUTONS PRINCIPAUX
+  // 4️⃣ BOUTONS / MODALES
   // =============================================================
   const createAccountBtn = document.getElementById('createAccount');
   const loginBtn = document.getElementById('login');
@@ -138,61 +139,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const burnCoreBtn = document.getElementById('burnCore');
   const logoutBtn = document.getElementById("logoutBtn");
 
-
-  // =============================================================
-  // 5️⃣ MODALES (LOGIN / REGISTER)
-  // =============================================================
-
-  // --- OUVERTURE / FERMETURE UNIFIÉE ---
-  function openModal(id) {
-    document.getElementById(id)?.classList.add('active');
-  }
-  function closeModal(id) {
-    document.getElementById(id)?.classList.remove('active');
-  }
+  function openModal(id) { document.getElementById(id)?.classList.add('active'); }
+  function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
 
   window.addEventListener("click", (e) => {
-    if (e.target.classList.contains("modal")) {
-      e.target.classList.remove("active");
-    }
+    if (e.target.classList.contains("modal")) e.target.classList.remove("active");
   });
 
-  // --- TOGGLE MOT DE PASSE ---
   function togglePassword(id, el) {
     const input = document.getElementById(id);
     const type = input.type === "password" ? "text" : "password";
     input.type = type;
     el.textContent = type === "password" ? "👁️" : "🙈";
   }
+
   window.togglePassword = togglePassword;
   window.openModal = openModal;
   window.closeModal = closeModal;
 
+  if (loginBtn) loginBtn.addEventListener("click", () => openModal("loginModal"));
+  if (createAccountBtn) createAccountBtn.addEventListener("click", () => openModal("registerModal"));
+
+  // =============================================================
+  // 5️⃣ AUTHENTIFICATION
+  // =============================================================
+
   // --- LOGIN ---
-  if (loginBtn) {
-    loginBtn.addEventListener("click", () => openModal("loginModal"));
-  }
-
-  // --- REGISTER ---
-  if (createAccountBtn) {
-    createAccountBtn.addEventListener("click", () => openModal("registerModal"));
-  }
-
-  // =============================================================
-  // 6️⃣ AUTHENTIFICATION : LOGIN / REGISTER / LOGOUT
-  // =============================================================
-
-  // --- LOGIN FORM ---
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("login-email").value.trim();
+      const login = document.getElementById("login-email").value.trim();
       const password = document.getElementById("login-password").value.trim();
-      if (!email || !password) return alert("🚫 Email et mot de passe requis.");
+      if (!login || !password) return alert("🚫 Identifiant et mot de passe requis.");
 
       try {
-        const user = await signIn(email, password);
+        const user = await signInWithUsernameOrEmail(login, password);
         if (!user.emailVerified) {
           alert("⚠️ Vérifie ton email avant de te connecter.");
           return;
@@ -200,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentUser = user.uid;
         localStorage.setItem("currentUser", currentUser);
+
         await updateUserInfo(currentUser);
         updateLeaderboard(currentUser);
 
@@ -211,13 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal("loginModal");
         alert(`Bienvenue dans le Core, ${user.email}!`);
       } catch (err) {
-        console.error("Erreur login :", err);
-        alert("❌ Email ou mot de passe incorrect.");
+        console.error("❌ Erreur login :", err);
+        alert("❌ Identifiants invalides ou utilisateur introuvable.");
       }
     });
   }
 
-  // --- REGISTER FORM ---
+  // --- REGISTER ---
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
@@ -226,13 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const email = document.getElementById("register-email").value.trim();
       const password = document.getElementById("register-password").value.trim();
 
-      if (!email || !password || !username) return alert("🚫 Tous les champs sont requis.");
+      if (!email || !password || !username)
+        return alert("🚫 Tous les champs sont requis.");
 
       try {
         const user = await createAccount(email, password, username);
         console.log("✅ Compte créé :", user.uid);
         closeModal("registerModal");
-        alert("🎉 Compte créé avec succès ! Vérifie ton email avant de te connecter.");
+        alert("🎉 Compte créé ! Vérifie ton email avant connexion.");
       } catch (err) {
         console.error("Erreur création compte :", err);
         alert("❌ Impossible de créer le compte.");
@@ -261,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =============================================================
-  // 7️⃣ ACTIONS : SEND / BURN
+  // 6️⃣ ACTIONS UTILISATEUR (SEND / BURN)
   // =============================================================
   if (sendSolBtn) {
     sendSolBtn.addEventListener("click", () => {
@@ -282,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =============================================================
-  // 8️⃣ LEADERBOARD / MARKETCAP
+  // 7️⃣ LEADERBOARD & MARKETCAP
   // =============================================================
   const milestones = [9000, 20000, 40000];
   let lastTriggeredMilestone = 0;
@@ -325,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 🔹 Déblocage du leaderboard
+    // 🔹 Déblocage leaderboard
     const leaderboardSection = document.getElementById('leaderboardSection');
     const leaderboardMessage = document.getElementById('leaderboardMessage');
     const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');

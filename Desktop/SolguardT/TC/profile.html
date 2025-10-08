@@ -3,32 +3,155 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mon Profil - Core Feed</title>
+  <title>Profil Utilisateur</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: #030a07;
+      color: #b8ffe9;
+      font-family: "Orbitron", monospace;
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .profile-container {
+      max-width: 550px;
+      margin: 0 auto;
+      padding: 35px;
+      border-radius: 12px;
+      border: 2px solid #00ff9c;
+      background: linear-gradient(145deg, #000, #0a0f0c);
+      box-shadow: 0 0 25px rgba(0, 255, 156, 0.5);
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: #00ff9c;
+      text-shadow: 0 0 12px #00ff9c;
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+    }
+
+    p.subtitle {
+      color: #63ffd4;
+      font-size: 0.9rem;
+      margin-bottom: 25px;
+    }
+
+    .profile-info {
+      background: rgba(0, 255, 156, 0.05);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: left;
+      color: #b8ffe9;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-info div {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(0,255,156,0.15);
+      padding-bottom: 5px;
+    }
+
+    .profile-info span {
+      color: #00ffcc;
+      font-weight: bold;
+    }
+
+    .feature-btn {
+      display: inline-block;
+      background: #00ff9c;
+      color: #000;
+      font-weight: bold;
+      border-radius: 6px;
+      padding: 10px 22px;
+      margin-top: 25px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px #00ff9c;
+      letter-spacing: 0.6px;
+    }
+
+    .feature-btn:hover {
+      background: #63ffd4;
+      box-shadow: 0 0 15px #63ffd4;
+    }
+
+    .rank-badge {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid #00ff9c;
+      color: #00ffcc;
+      background: rgba(0, 255, 156, 0.1);
+      text-shadow: 0 0 8px #00ffcc;
+      font-size: 0.85rem;
+    }
+
+    .footer-text {
+      margin-top: 30px;
+      color: #4effc7;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    /* === Effet pulse / immersion sur stats === */
+.profile-info div {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.profile-info div:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(0, 255, 156, 0.4);
+  background: rgba(0, 255, 156, 0.08);
+}
+
+.profile-container {
+  animation: subtlePulse 3s infinite ease-in-out;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { box-shadow: 0 0 25px rgba(0, 255, 156, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(0, 255, 156, 0.8); }
+}
+
+  </style>
 </head>
+
 <body>
-  <div class="container profile-container">
-    <h1 class="profile-title">👤 Mon Profil</h1>
+  <div class="profile-container">
+    <h1>🧬 Profil du Core</h1>
+    <p class="subtitle">Données vitales du flux FeedCore</p>
 
-    <!-- Bloc profil stylisé -->
-    <div id="userInfo" class="profile-card">
-      <div class="profile-stats">
-        <div class="stat">
-          <span class="label">Pseudo</span>
-          <span class="value" id="profile-username">Chargement...</span>
-        </div>
+    <div class="profile-info">
+      <div><strong>Pseudo :</strong> <span id="profile-username">Chargement...</span></div>
+      <div><strong>Feed :</strong> <span id="profile-feed">0.00 SOL</span></div>
+      <div><strong>Niveau :</strong> <span id="profile-level">0</span></div>
+      <div><strong>Rang :</strong> <span id="profile-rank">Non classé</span></div>
+    </div>
 
-        <div class="stat">
-          <span class="label">Niveau</span>
-          <span class="value" id="userLevel">0</span>
-        </div>
+    <span class="rank-badge" id="rankBadge">Membre du Core</span>
 
-        <div class="stat">
-          <span class="label">Total Feed</span>
-          <span class="value" id="profile-feed">0</span>
-          <span class="unit">SOL</span>
-        </div>
+    <button class="feature-btn" id="backToDashboard">⬅ Retour au Dashboard</button>
 
-        <div class="stat">
-          <span class="label">Rank</span>
-          <span class="value" i
+    <div class="footer-text">FeedCore Network — Propulse ton flux</div>
+  </div>
+
+
+  <script type="module" src="./profile.js"></script>
+</body>
+</html>
