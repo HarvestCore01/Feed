@@ -4,70 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Core Feed Dashboard</title>
-
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-    <!-- Intro terminal -->
-<div id="intro-screen">
-  <h1 class="typing-title">INITIALISATION DU CORE FEED...</h1>
-</div>
-<div id="flash-overlay"></div>
+  <!-- === Intro terminal === -->
+  <div id="intro-screen">
+    <h1 class="typing-title">INITIALISATION DU CORE FEED...</h1>
+  </div>
+  <div id="flash-overlay"></div>
 
-<!-- Dashboard (caché au début) -->
-<div id="dashboard" style="display: none;">
-  <!-- Ton contenu habituel du dashboard ici -->
-</div>
+  <!-- === Matrix Background === -->
+  <canvas id="matrixBackground"></canvas>
+  <div id="matrixOverlay"></div>
 
-    <link rel="stylesheet" href="styles.css">
-    <canvas id="matrixBackground"></canvas>
-    <div id="matrixOverlay"></div>
-  <div class="container">
+  <!-- === Dashboard === -->
+  <div class="container" id="dashboard" style="display: none;">
     <h1>Core Feed Dashboard</h1>
     <p>Bienvenue sur ton projet Core Feed 🚀</p>
-
 
     <!-- ===== MARKETCAP ===== -->
     <div>
       <h2>MarketCap : <span id="marketCap">0</span> SOL</h2>
     </div>
 
-    <!-- ===== PROGRESSION DE L'IA ===== -->
+    <!-- ===== PROGRESSION ===== -->
     <div style="margin-top:20px; max-width:600px; margin-left:auto; margin-right:auto;">
-      <!-- Texte dynamique IA -->
-      <div id="progressMessage" 
-           style="margin-bottom:10px; font-weight:bold; color:#63ffd4; text-shadow:0 0 10px #63ffd4; text-align:center;">
+      <div id="progressMessage" style="margin-bottom:10px; font-weight:bold; color:#63ffd4; text-shadow:0 0 10px #63ffd4; text-align:center;">
         Initialisation du feed IA...
       </div>
-
-      <!-- Objectif actuel -->
       <div style="margin-bottom:10px; font-weight:bold; color:#00ff9c; text-align:center;">
         Objectif actuel : <span id="milestoneGoal">10000</span> SOL
       </div>
 
-        <!-- Barre de progression avec œuf -->  
- <div class="progressWrap">
-  <div id="progressContainer">
-    <div id="progressBar"></div>
-  </div>
-
-  <!-- œuf, sibling de la barre (plus dans le conteneur qui clippe) -->
-  <div id="ai-hologram">
-    <div class="egg">
-      <span class="scanline"></span>
-      <span class="core"></span>
-      <!-- Fissure -->
-    <span class="crack"></span>
-    <!-- L'IA qui naît -->
-    <div class="ia-entity"></div>
+      <div class="progressWrap">
+        <div id="progressContainer">
+          <div id="progressBar"></div>
+        </div>
+        <div id="ai-hologram">
+          <div class="egg">
+            <span class="scanline"></span>
+            <span class="core"></span>
+            <span class="crack"></span>
+            <div class="ia-entity"></div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-
-
-    <!-- ===== LIFE BAR (Énergie IA) ===== -->
+    <!-- ===== LIFE BAR ===== -->
     <div style="margin-top:30px; max-width:600px; margin-left:auto; margin-right:auto;">
       <h3 style="color:#ff4d6d; margin-bottom:5px;">Énergie de l'IA</h3>
       <div id="lifeContainer" style="background:#111; border:1px solid #ff4d6d; border-radius:10px; overflow:hidden; height:20px;">
@@ -80,164 +66,177 @@
 
     <!-- ===== BOUTONS ===== -->
     <div style="margin-top:20px;">
-      <button id="sendSOL">Send SOL</button>
+      <button id="feedPulseBtn">💬 Feed Pulse</button>
       <button id="burnCore">Burn Core Token</button>
       <button id="logoutBtn" style="display:none;">Se déconnecter</button>
-      <!-- Bouton pour créer un compte (visible seulement si pas connecté) -->
-<button id="createAccount">Create Account</button>
-
-<!-- Bouton pour voir le profil (caché par défaut) -->
-<a id="viewProfile" href="profile.html" class="feature-btn" style="display:none;">Mon Profil</a>
+      <button id="createAccount">Create Account</button>
+      <a id="viewProfile" href="profile.html" class="feature-btn" style="display:none;">Mon Profil</a>
       <button id="login">Login</button>
     </div>
 
-<!-- Section Leaderboard toujours visible -->
-<div id="leaderboardSection" class="feature-box locked">
-  <h2>Leaderboard</h2>
-  <p id="leaderboardMessage">
-    🔒 Débloquez le leaderboard en atteignant <span id="milestoneGoalDisplay">20 000</span> SOL de MarketCap.
-  </p>
+    <!-- ===== LEADERBOARD ===== -->
+    <div id="leaderboardSection" class="feature-box locked">
+      <h2>Leaderboard</h2>
+      <p id="leaderboardMessage">🔒 Débloquez le leaderboard en atteignant <span id="milestoneGoalDisplay">20 000</span> SOL de MarketCap.</p>
+      <a href="leaderboard.html" id="openLeaderboardBtn" class="feature-btn disabled" onclick="return false;">Ouvrir Leaderboard</a>
+    </div>
 
-  <!-- Bouton visible mais inactif au début -->
-  <a href="leaderboard.html" id="openLeaderboardBtn" class="feature-btn disabled" onclick="return false;">
-    Ouvrir Leaderboard
-  </a>
-</div>
+    <div id="leaderboardUnlockMessage" style="display:none; margin-top:15px; padding:10px; border:1px solid #00ff9c;
+                color:#00ff9c; font-weight:bold; text-shadow:0 0 10px #00ff9c;
+                background:rgba(0,255,156,0.1); border-radius:6px;">
+    </div>
 
-
-
-    <!-- Leaderboard Section -->
-<div id="leaderboardTableSection" style="display:none; margin-top:30px;">
-  <h3 style="color:#00ff9c;">🏆 Classement Mondial</h3>
-  <p style="color:#63ffd4;">Top joueurs qui nourrissent l'IA</p>
-
-  <table id="leaderboardTable" style="width:100%; border-collapse:collapse; margin-top:10px;">
-    <thead>
-      <tr style="background:#063e2b; color:#FFFF;">
-        <th style="padding:8px;">Rank</th>
-        <th style="padding:8px;">Pseudo</th>
-        <th style="padding:8px;">Feed Total (SOL)</th>
-      </tr>
-    </thead>
-    <tbody id="leaderboardBody">
-      <!-- Rempli en JS -->
-    </tbody>
-  </table>
-
-  <!-- Info joueur -->
-  <p id="leaderboardInfo" style="margin-top:10px; color:#63ffd4; font-size:14px;">
-    Montez dans le classement en nourrissant l'IA !
-  </p>
-</div>
-
-<!-- Message dynamique d'ouverture -->
-<div id="leaderboardUnlockMessage" 
-     style="display:none; margin-top:15px; padding:10px; border:1px solid #00ff9c;
-            color:#00ff9c; font-weight:bold; text-shadow:0 0 10px #00ff9c;
-            background:rgba(0,255,156,0.1); border-radius:6px;">
-</div>
-
-<!-- Ajoute ce bouton en dessous de la barre ou d'une section -->
-<div id="leaderboardLink" style="display:none; margin-top:20px;">
-  <a href="leaderboard.html" 
-     style="padding:10px 20px; background:#FFFF; color:#000; font-weight:bold; border-radius:4px; text-decoration:none;">
-    Voir le Leaderboard
-  </a>
-</div>
-
-<!-- ===== MODALE LOGIN ===== -->
-<div class="modal" id="loginModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal('loginModal')">&times;</span>
-    <h2>Connexion</h2>
-    <p>Entre dans la Matrice Core Feed</p>
-
-    <form id="loginForm" onsubmit="handleLogin(event)">
-      <label for="login-email">Adresse e-mail</label>
-      <input 
-        type="email" 
-        id="login-email" 
-        name="email"
-        placeholder="exemple@corefeed.io" 
-        required
-      >
-
-      <label for="login-password">Mot de passe</label>
-      <div class="password-field">
-        <input 
-          type="password" 
-          id="login-password" 
-          name="password"
-          placeholder="••••••••" 
-          required
-        >
-        <span class="eye" onclick="togglePassword('login-password', this)">👁️</span>
-      </div>
-
-      <button type="submit">Se connecter</button>
-    </form>
-
-    <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
-      Pas encore de compte ? 
-      <a href="#" onclick="openModal('registerModal')" style="color:#00ff9c; text-decoration:none;">Créer un compte</a>
-    </p>
+    <div id="leaderboardLink" style="display:none; margin-top:20px;">
+      <a href="leaderboard.html"
+         style="padding:10px 20px; background:#FFFF; color:#000; font-weight:bold; border-radius:4px; text-decoration:none;">
+        Voir le Leaderboard
+      </a>
+    </div>
   </div>
-</div>
 
-<!-- ===== MODALE CRÉATION DE COMPTE ===== -->
-<div class="modal" id="registerModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal('registerModal')">&times;</span>
-    <h2>Créer un compte</h2>
-    <p>Rejoins la Matrice et alimente le Core</p>
+  <!-- ===== MODALE FEED PULSE ===== -->
+  <div id="feedModal" class="modal">
+    <div class="modal-content feed-modal">
+      <span class="close" id="closeFeedModal">&times;</span>
+      <h2>💬 Feed Pulse Live</h2>
+      <p>Connecté au cœur du flux</p>
 
-    <form id="registerForm" onsubmit="handleRegister(event)">
-      <label for="register-username">Pseudo</label>
-      <input 
-        type="text" 
-        id="register-username" 
-        name="username"
-        placeholder="Neo_42" 
-        required
-      >
-
-      <label for="register-email">Adresse e-mail</label>
-      <input 
-        type="email" 
-        id="register-email" 
-        name="email"
-        placeholder="exemple@corefeed.io" 
-        required
-      >
-
-      <label for="register-password">Mot de passe</label>
-      <div class="password-field">
-        <input 
-          type="password" 
-          id="register-password" 
-          name="password"
-          placeholder="••••••••" 
-          required
-        >
-        <span class="eye" onclick="togglePassword('register-password', this)">👁️</span>
+      <div id="feedChatContainer">
+        <div id="feedChatLog"></div>
+        <div id="feedInputBox">
+          <textarea id="feedMessage" placeholder="Pulse ton message..." rows="2"></textarea>
+          <button id="feedSendBtn">Envoyer</button>
+        </div>
       </div>
-
-      <button type="submit">Créer mon compte</button>
-    </form>
-
-    <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
-      Déjà membre ? 
-      <a href="#" onclick="openModal('loginModal')" style="color:#00ff9c; text-decoration:none;">Se connecter</a>
-    </p>
+    </div>
   </div>
-</div>
 
+  <!-- ===== MODALES LOGIN & REGISTER ===== -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('loginModal')">&times;</span>
+      <h2>Connexion</h2>
+      <p>Entre dans la Matrice Core Feed</p>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <label for="login-email">Adresse e-mail</label>
+        <input type="email" id="login-email" name="email" placeholder="exemple@corefeed.io" required>
+        <label for="login-password">Mot de passe</label>
+        <div class="password-field">
+          <input type="password" id="login-password" name="password" placeholder="••••••••" required>
+          <span class="eye" onclick="togglePassword('login-password', this)">👁️</span>
+        </div>
+        <button type="submit">Se connecter</button>
+      </form>
+      <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
+        Pas encore de compte ? 
+        <a href="#" onclick="openModal('registerModal')" style="color:#00ff9c; text-decoration:none;">Créer un compte</a>
+      </p>
+    </div>
+  </div>
 
+  <div class="modal" id="registerModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('registerModal')">&times;</span>
+      <h2>Créer un compte</h2>
+      <p>Rejoins la Matrice et alimente le Core</p>
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <label for="register-username">Pseudo</label>
+        <input type="text" id="register-username" name="username" placeholder="Neo_42" required>
+        <label for="register-email">Adresse e-mail</label>
+        <input type="email" id="register-email" name="email" placeholder="exemple@corefeed.io" required>
+        <label for="register-password">Mot de passe</label>
+        <div class="password-field">
+          <input type="password" id="register-password" name="password" placeholder="••••••••" required>
+          <span class="eye" onclick="togglePassword('register-password', this)">👁️</span>
+        </div>
+        <button type="submit">Créer mon compte</button>
+      </form>
+      <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
+        Déjà membre ?
+        <a href="#" onclick="openModal('loginModal')" style="color:#00ff9c; text-decoration:none;">Se connecter</a>
+      </p>
+    </div>
+  </div>
 
-  <!-- ===== SCRIPTS PRINCIPAUX ===== -->
+  <!-- ===== SCRIPTS ===== -->
   <script type="module" src="./firebase-init.js"></script>
   <script type="module" src="./account.js"></script>
   <script type="module" src="./main.js"></script>
   <script src="./matrixBackground.js"></script>
+
+  <!-- === FEED PULSE SCRIPT === -->
+  <script>
+    const feedPulseBtn = document.getElementById("feedPulseBtn");
+    const feedModal = document.getElementById("feedModal");
+    const closeFeedModal = document.getElementById("closeFeedModal");
+    const feedChatLog = document.getElementById("feedChatLog");
+    const feedMessage = document.getElementById("feedMessage");
+    const feedSendBtn = document.getElementById("feedSendBtn");
+    const marketCap = document.getElementById("marketCap");
+
+    // --- Connexion WebSocket ---
+    const socket = new WebSocket("ws://localhost:8080");
+
+    socket.addEventListener("open", () => {
+      console.log("%c✅ Connecté au Feed Pulse Core", "color:#00ff9c");
+    });
+
+    socket.addEventListener("message", (event) => {
+      const payload = JSON.parse(event.data);
+      if (payload.type === "message" && payload.data) {
+        appendMessage(payload.data.user || "Anonyme", payload.data.text);
+        pulseEffect();
+      }
+    });
+
+    // --- Ouvrir / fermer la modale ---
+    feedPulseBtn.addEventListener("click", () => {
+      feedModal.classList.add("active");
+      feedMessage.focus();
+    });
+
+    closeFeedModal.addEventListener("click", () => {
+      feedModal.classList.remove("active");
+    });
+
+    // --- Envoyer un message ---
+    function sendFeedMessage() {
+      const msg = feedMessage.value.trim();
+      if (msg === "") return;
+      const username = localStorage.getItem("username") || "CoreUser";
+
+      socket.send(JSON.stringify({
+        type: "new_message",
+        user: username,
+        text: msg
+      }));
+
+      feedMessage.value = "";
+    }
+
+    feedSendBtn.addEventListener("click", sendFeedMessage);
+
+    feedMessage.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendFeedMessage();
+      }
+    });
+
+    // --- Affichage des messages ---
+    function appendMessage(username, message) {
+      const msgEl = document.createElement("div");
+      msgEl.classList.add("feed-message");
+      msgEl.innerHTML = `<strong>${username}</strong> → ${message}`;
+      feedChatLog.appendChild(msgEl);
+      msgEl.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // --- Effet Pulse sur le MarketCap ---
+    function pulseEffect() {
+      marketCap.classList.add("milestone-flash");
+      setTimeout(() => marketCap.classList.remove("milestone-flash"), 600);
+    }
+  </script>
 </body>
 </html>
