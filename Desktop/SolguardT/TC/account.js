@@ -84,7 +84,16 @@ export async function signInWithUsernameOrEmail(login, password) {
 export async function signOutUser() {
   await signOut(auth);
   localStorage.removeItem("currentUser");
+  localStorage.removeItem("username");
   console.log("🚪 Déconnecté avec succès.");
+
+  if (typeof window.refreshFeedWriteAccess === "function") {
+    window.refreshFeedWriteAccess(); // désactive le feed à la déconnexion
+  }
+
+  if (typeof window.showFeedNotification === "function") {
+    window.showFeedNotification("🔒 Déconnecté du Core Feed");
+  }
 }
 
 
@@ -127,16 +136,100 @@ export async function updateUserInfo(uid) {
 export async function createAccount(email, password, username) {
   try {
     if (!email || !password || !username) {
-      alert("⚠️ Email, mot de passe et pseudo requis.");
+      if (typeof window.showFeedNotification === "function") {
+        window.showFeedNotification("⚠️ Email, mot de passe et pseudo requis.");
+      }
       return null;
     }
 
     const user = await signUp(email, password, username);
-    alert("📩 Vérifie ton email avant de te connecter !");
+
+    if (typeof window.showFeedNotification === "function") {
+      window.showFeedNotification("📩 Vérifie ton email avant de te connecter !");
+    }
+
     return user;
   } catch (err) {
     console.error("❌ Erreur createAccount :", err);
-    alert("❌ Impossible de créer le compte.");
+    if (typeof window.showFeedNotification === "function") {
+      window.showFeedNotification("❌ Impossible de créer le compte.");
+    }
     throw err;
   }
 }
+
+
+// =============================================================
+// 6️⃣ — HANDLERS UTILISÉS PAR INDEX.HTML
+// =============================================================
+
+// --- Connexion utilisateur ---
+async function handleLogin(event) {
+  event.preventDefault();
+
+  const login = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value.trim();
+
+  try {
+    const user = await signInWithUsernameOrEmail(login, password);
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const username = userDoc.exists() ? userDoc.data().username : "Anon";
+
+    // Sauvegarde du pseudo pour le chat Feed Pulse
+    localStorage.setItem("username", username);
+    localStorage.setItem("currentUser", user.uid);
+
+    if (typeof window.showFeedNotification === "function") {
+      window.showFeedNotification(`Bienvenue ${username} dans le Core 💚`);
+    }
+
+    if (typeof window.refreshFeedWriteAccess === "function") {
+      window.refreshFeedWriteAccess(); // réactive l’accès au feed
+    }
+
+    closeModal("loginModal");
+  } catch (err) {
+    console.error("❌ Erreur login :", err);
+    if (typeof window.showFeedNotification === "function") {
+      window.showFeedNotification("Connexion impossible : identifiants invalides.");
+    }
+  }
+}
+
+// --- Création de compte ---
+async function handleRegister(event) {
+  event.preventDefault();
+
+  const email = document.getElementById("register-email").value.trim();
+  const password = document.getElementById("register-password").value.trim();
+  const username = document.getElementById("register-username").value.trim();
+
+  try {
+    const user = await signUp(email, password, username);
+
+    localStorage.setItem("username", username);
+    localStorage.setItem("currentUser", user.uid);
+
+    if (typeof window.showFeedNotification === "function") {
+      window.showFeedNotification(`Compte créé avec succès, ${username} 🌀`);
+    }
+
+    if (typeof window.refreshFeedWriteAccess === "function") {
+      window.refreshFeedWriteAccess(); // active le feed immédiatement
+    }
+
+    closeModal("registerModal");
+  } catch (err) {
+    console.error("❌ Erreur register :", err);
+    if (typeof window.showFeedNotification === "function") {
+      window.showFeedNotification("❌ Impossible de créer le compte.");
+    }
+  }
+}
+
+
+// =============================================================
+// 7️⃣ — EXPORT GLOBAL POUR LE HTML
+// =============================================================
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;

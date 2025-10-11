@@ -2,10 +2,10 @@
 // =============================================================
 // 🔹 IMPORT DES MODULES
 // =============================================================
-import { createAccount, updateUserInfo, signInWithUsernameOrEmail, signOutUser } from './account.js';
-import { sendSOL, burnTokens, autoIncreaseMarketCap, startLifeTimer, marketCap } from './market.js';
-import { updateDisplay, smoothUpdateMarketCap } from './ui.js';
-import { updateLeaderboard } from './leaderboard.js';
+import {updateUserInfo,signOutUser} from "./account.js";
+import {sendSOL,burnTokens,autoIncreaseMarketCap,startLifeTimer,marketCap} from "./market.js";
+import { updateDisplay, smoothUpdateMarketCap } from "./ui.js";
+import { updateLeaderboard } from "./leaderboard.js";
 import { auth } from "./firebase-init.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
@@ -17,7 +17,7 @@ let currentUser = null;
 let leaderboardUnlocked = false;
 window.eggHatched = false;
 
-const bootSound = new Audio('./sounds/boot.mp3');
+const bootSound = new Audio("./sounds/boot.mp3");
 bootSound.volume = 0.2;
 let bootPlayed = false;
 
@@ -25,10 +25,12 @@ let bootPlayed = false;
 // =============================================================
 // 1️⃣ INITIALISATION DE LA PAGE
 // =============================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   console.log("Main.js chargé ✅");
 
-  // 🔹 Vérifie l'état Firebase (connexion persistante)
+  // =============================================================
+  // 🔹 OBSERVATEUR D’AUTHENTIFICATION
+  // =============================================================
   onAuthStateChanged(auth, async (user) => {
     if (user && user.emailVerified) {
       currentUser = user.uid;
@@ -36,76 +38,92 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         await updateUserInfo(currentUser);
 
-        document.getElementById('createAccount').style.display = 'none';
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('viewProfile').style.display = 'inline-block';
-        document.getElementById('logoutBtn').style.display = 'inline-block';
+        document.getElementById("createAccount").style.display = "none";
+        document.getElementById("login").style.display = "none";
+        document.getElementById("viewProfile").style.display = "inline-block";
+        document.getElementById("logoutBtn").style.display = "inline-block";
+
+        // ✅ Active le feed si connecté
+        if (window.refreshFeedWriteAccess) window.refreshFeedWriteAccess();
+
+        if (window.showFeedNotification)
+          showFeedNotification("🔗 Reconnexion réussie au Core Feed");
 
         console.log("✅ Reconnecté automatiquement :", currentUser);
       } catch (err) {
         console.error("⚠️ Erreur lors du chargement du profil :", err);
       }
-
     } else {
       // 🔹 Aucun utilisateur ou mail non vérifié
       localStorage.removeItem("currentUser");
+      localStorage.removeItem("username");
       currentUser = null;
 
-      document.getElementById('createAccount').style.display = 'inline-block';
-      document.getElementById('login').style.display = 'inline-block';
-      document.getElementById('viewProfile').style.display = 'none';
-      document.getElementById('logoutBtn').style.display = 'none';
+      document.getElementById("createAccount").style.display = "inline-block";
+      document.getElementById("login").style.display = "inline-block";
+      document.getElementById("viewProfile").style.display = "none";
+      document.getElementById("logoutBtn").style.display = "none";
+
+      // 🔒 Désactive le feed
+      if (window.refreshFeedWriteAccess) window.refreshFeedWriteAccess();
     }
   });
 
   // =============================================================
-  // 2️⃣ UTILITAIRES VISUELS / SONS / ANIMATIONS
+  // 2️⃣ UTILITAIRES VISUELS / AUDIO
   // =============================================================
   function updateEggIntensity(marketCap) {
-    const egg = document.getElementById('ai-hologram');
+    const egg = document.getElementById("ai-hologram");
     if (!egg) return;
     const intensity = Math.min(Math.log10(marketCap + 1) / 4, 1);
-    egg.style.setProperty('--intensity', intensity.toFixed(3));
+    egg.style.setProperty("--intensity", intensity.toFixed(3));
     egg.style.animationDuration = `${2.5 - intensity * 1.5}s`;
   }
 
   function playMilestoneSound() {
-    const audio = new Audio('./sounds/milestone.mp3');
+    const audio = new Audio("./sounds/milestone.mp3");
     audio.volume = 0.25;
-    audio.play().catch(err => console.warn("Lecture bloquée :", err));
+    audio.play().catch((err) => console.warn("Lecture bloquée :", err));
   }
 
   function playBootSound() {
     if (!bootPlayed) {
-      bootSound.play().then(() => {
-        bootPlayed = true;
-        console.log("🔊 Son de boot joué !");
-      }).catch(() => {
-        document.body.addEventListener('click', () => {
-          bootSound.play();
+      bootSound
+        .play()
+        .then(() => {
           bootPlayed = true;
-        }, { once: true });
-      });
+          console.log("🔊 Son de boot joué !");
+        })
+        .catch(() => {
+          document.body.addEventListener(
+            "click",
+            () => {
+              bootSound.play();
+              bootPlayed = true;
+            },
+            { once: true }
+          );
+        });
     }
   }
 
   function hatchEgg() {
-    const flash = document.createElement('div');
-    flash.style.position = 'fixed';
+    const flash = document.createElement("div");
+    flash.style.position = "fixed";
     flash.style.top = 0;
     flash.style.left = 0;
-    flash.style.width = '100%';
-    flash.style.height = '100%';
-    flash.style.background = 'rgba(0,217,255,0.8)';
+    flash.style.width = "100%";
+    flash.style.height = "100%";
+    flash.style.background = "rgba(0,217,255,0.8)";
     flash.style.zIndex = 9999;
-    flash.style.transition = 'opacity 0.6s ease-out';
+    flash.style.transition = "opacity 0.6s ease-out";
     document.body.appendChild(flash);
-    setTimeout(() => flash.style.opacity = 0, 50);
+    setTimeout(() => (flash.style.opacity = 0), 50);
     setTimeout(() => flash.remove(), 650);
   }
 
   function playBeep() {
-    const audio = new Audio('./sounds/beep.mp3');
+    const audio = new Audio("./sounds/beep.mp3");
     audio.volume = 0.05;
     audio.playbackRate = 0.9 + Math.random() * 0.2;
     audio.play();
@@ -116,34 +134,39 @@ document.addEventListener('DOMContentLoaded', () => {
   // =============================================================
   playBootSound();
 
-  const intro = document.getElementById('intro-screen');
-  const dashboard = document.getElementById('dashboard');
+  const intro = document.getElementById("intro-screen");
+  const dashboard = document.getElementById("dashboard");
 
   setTimeout(() => {
-    intro.classList.add('fade-out');
+    intro.classList.add("fade-out");
     setTimeout(() => {
-      intro.style.display = 'none';
-      dashboard.style.display = 'block';
-      setTimeout(() => dashboard.classList.add('visible'), 50);
+      intro.style.display = "none";
+      dashboard.style.display = "block";
+      setTimeout(() => dashboard.classList.add("visible"), 50);
     }, 800);
   }, 2500);
 
   startLifeTimer(updateDisplay);
 
   // =============================================================
-  // 4️⃣ BOUTONS / MODALES
+  // 4️⃣ MODALES / MOT DE PASSE / UI
   // =============================================================
-  const createAccountBtn = document.getElementById('createAccount');
-  const loginBtn = document.getElementById('login');
-  const sendSolBtn = document.getElementById('sendSOL');
-  const burnCoreBtn = document.getElementById('burnCore');
+  const createAccountBtn = document.getElementById("createAccount");
+  const loginBtn = document.getElementById("login");
   const logoutBtn = document.getElementById("logoutBtn");
+  const sendSolBtn = document.getElementById("sendSOL");
+  const burnCoreBtn = document.getElementById("burnCore");
 
-  function openModal(id) { document.getElementById(id)?.classList.add('active'); }
-  function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+  function openModal(id) {
+    document.getElementById(id)?.classList.add("active");
+  }
+  function closeModal(id) {
+    document.getElementById(id)?.classList.remove("active");
+  }
 
   window.addEventListener("click", (e) => {
-    if (e.target.classList.contains("modal")) e.target.classList.remove("active");
+    if (e.target.classList.contains("modal"))
+      e.target.classList.remove("active");
   });
 
   function togglePassword(id, el) {
@@ -157,87 +180,26 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openModal = openModal;
   window.closeModal = closeModal;
 
-  if (loginBtn) loginBtn.addEventListener("click", () => openModal("loginModal"));
-  if (createAccountBtn) createAccountBtn.addEventListener("click", () => openModal("registerModal"));
+  if (loginBtn)
+    loginBtn.addEventListener("click", () => openModal("loginModal"));
+  if (createAccountBtn)
+    createAccountBtn.addEventListener("click", () => openModal("registerModal"));
 
   // =============================================================
-  // 5️⃣ AUTHENTIFICATION
+  // 5️⃣ DÉCONNEXION
   // =============================================================
-
-  // --- LOGIN ---
-  const loginForm = document.getElementById("loginForm");
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const login = document.getElementById("login-email").value.trim();
-      const password = document.getElementById("login-password").value.trim();
-      if (!login || !password) return alert("🚫 Identifiant et mot de passe requis.");
-
-      try {
-        const user = await signInWithUsernameOrEmail(login, password);
-        if (!user.emailVerified) {
-          alert("⚠️ Vérifie ton email avant de te connecter.");
-          return;
-        }
-
-        currentUser = user.uid;
-        localStorage.setItem("currentUser", currentUser);
-
-        await updateUserInfo(currentUser);
-        updateLeaderboard(currentUser);
-
-        document.getElementById('createAccount').style.display = 'none';
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('viewProfile').style.display = 'inline-block';
-        document.getElementById('logoutBtn').style.display = 'inline-block';
-
-        closeModal("loginModal");
-        alert(`Bienvenue dans le Core, ${user.email}!`);
-      } catch (err) {
-        console.error("❌ Erreur login :", err);
-        alert("❌ Identifiants invalides ou utilisateur introuvable.");
-      }
-    });
-  }
-
-  // --- REGISTER ---
-  const registerForm = document.getElementById("registerForm");
-  if (registerForm) {
-    registerForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const username = document.getElementById("register-username").value.trim();
-      const email = document.getElementById("register-email").value.trim();
-      const password = document.getElementById("register-password").value.trim();
-
-      if (!email || !password || !username)
-        return alert("🚫 Tous les champs sont requis.");
-
-      try {
-        const user = await createAccount(email, password, username);
-        console.log("✅ Compte créé :", user.uid);
-        closeModal("registerModal");
-        alert("🎉 Compte créé ! Vérifie ton email avant connexion.");
-      } catch (err) {
-        console.error("Erreur création compte :", err);
-        alert("❌ Impossible de créer le compte.");
-      }
-    });
-  }
-
-  // --- LOGOUT ---
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
         await signOutUser();
-        localStorage.removeItem("currentUser");
-        currentUser = null;
 
-        document.getElementById('createAccount').style.display = 'inline-block';
-        document.getElementById('login').style.display = 'inline-block';
-        document.getElementById('viewProfile').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById("createAccount").style.display = "inline-block";
+        document.getElementById("login").style.display = "inline-block";
+        document.getElementById("viewProfile").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "none";
 
-        alert("✅ Déconnecté avec succès !");
+        if (window.showFeedNotification)
+          showFeedNotification("🚪 Déconnecté du Core Feed");
       } catch (err) {
         console.error("Erreur déconnexion :", err);
       }
@@ -247,19 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // =============================================================
   // 6️⃣ ACTIONS UTILISATEUR (SEND / BURN)
   // =============================================================
-  if (sendSolBtn) {
-    sendSolBtn.addEventListener("click", () => {
-      if (!currentUser) return alert("🚫 Connecte-toi d’abord.");
-      sendSOL(currentUser);
-      updateDisplay();
-      updateUserInfo(currentUser);
-      updateLeaderboard(currentUser);
-    });
-  }
-
   if (burnCoreBtn) {
     burnCoreBtn.addEventListener("click", () => {
-      if (!currentUser) return alert("🚫 Connecte-toi d’abord.");
+      if (!currentUser) {
+        if (window.showFeedNotification)
+          showFeedNotification("⚠️ Connecte-toi avant de brûler des tokens");
+        return;
+      }
       burnTokens(currentUser);
       updateDisplay();
     });
@@ -278,11 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
     smoothUpdateMarketCap(marketCap);
     updateEggIntensity(marketCap);
 
-    // 🔹 Éclosion de l’œuf
     if (marketCap >= 10000 && !window.eggHatched) {
-      const aiHologram = document.getElementById('ai-hologram');
+      const aiHologram = document.getElementById("ai-hologram");
       if (aiHologram) {
-        aiHologram.classList.add('hatch');
+        aiHologram.classList.add("hatch");
         hatchEgg();
         setTimeout(() => {
           aiHologram.innerHTML = `
@@ -296,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
       window.eggHatched = true;
     }
 
-    // 🔹 Sons milestones
     if (marketCap - lastMarketCap >= marketCapStep) {
       playBeep();
       lastMarketCap = marketCap;
@@ -309,23 +263,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 🔹 Déblocage leaderboard
-    const leaderboardSection = document.getElementById('leaderboardSection');
-    const leaderboardMessage = document.getElementById('leaderboardMessage');
-    const openLeaderboardBtn = document.getElementById('openLeaderboardBtn');
-    const milestoneGoalEl = document.getElementById('milestoneGoal');
+    const leaderboardSection = document.getElementById("leaderboardSection");
+    const leaderboardMessage = document.getElementById("leaderboardMessage");
+    const openLeaderboardBtn = document.getElementById("openLeaderboardBtn");
+    const milestoneGoalEl = document.getElementById("milestoneGoal");
     if (!milestoneGoalEl) return;
 
-    const milestoneGoal = parseInt(milestoneGoalEl.textContent.replace(/\D/g, ''));
+    const milestoneGoal = parseInt(
+      milestoneGoalEl.textContent.replace(/\D/g, "")
+    );
     if (!leaderboardUnlocked) {
       if (marketCap < milestoneGoal) {
-        leaderboardSection.classList.add('locked');
+        leaderboardSection.classList.add("locked");
         leaderboardMessage.innerHTML = `🔒 Débloquez le leaderboard à <strong>${milestoneGoal}</strong> SOL.`;
         openLeaderboardBtn.onclick = () => false;
       } else {
         leaderboardUnlocked = true;
-        leaderboardSection.classList.add('unlocked');
-        leaderboardSection.classList.remove('locked');
+        leaderboardSection.classList.add("unlocked");
+        leaderboardSection.classList.remove("locked");
         leaderboardMessage.innerHTML = `🎉 Le leaderboard est maintenant disponible !`;
         openLeaderboardBtn.onclick = null;
       }
