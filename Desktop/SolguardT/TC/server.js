@@ -95,17 +95,23 @@ async function getRecentMessages() {
 
 // =============================================================
 // === Événements WebSocket
-wss.on("connection", async (ws) => {
-  console.log("💫 Nouveau client connecté au Feed Pulse");
-
-  // Envoi de l’historique dès la connexion
-  const history = await getRecentMessages();
-  ws.send(JSON.stringify({ type: "history", data: history }));
-
-  // Réception des nouveaux messages
+// Réception des nouveaux messages
   ws.on("message", async (message) => {
     try {
       const payload = JSON.parse(message);
+
+      // --- typing ---
+      if (payload.type === "typing") {
+        broadcast({ type: "user_typing", user: payload.user });
+        return;
+      }
+
+      if (payload.type === "stop_typing") {
+        broadcast({ type: "user_stop_typing", user: payload.user });
+        return;
+      }
+
+      // --- message standard ---
       if (payload.type === "new_message") {
         const { user, text } = payload;
         if (!text?.trim()) return;
@@ -116,7 +122,7 @@ wss.on("connection", async (ws) => {
     } catch (err) {
       console.error("❌ Erreur réception message:", err);
     }
-  });
+  
 
   ws.on("close", () => console.log("❌ Client déconnecté"));
 });

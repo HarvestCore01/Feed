@@ -3,9 +3,24 @@
 // =============================================================
 
 import { auth } from "./firebase-init.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
-// 🔗 Adresse WebSocket
-const WS_URL = "ws://localhost:8080"; // remplace par wss://ton-domaine en prod
+// =============================================================
+// === Rechargement automatique du profil Firebase ===
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    try {
+      await user.reload();
+      console.log("🔁 Profil Firebase rechargé :", user.displayName || user.email);
+    } catch (e) {
+      console.warn("⚠️ Impossible de recharger le profil Firebase :", e);
+    }
+  }
+});
+
+// =============================================================
+// === Paramètres WebSocket ===
+const WS_URL = "ws://localhost:8080"; // à remplacer par wss://ton-domaine en prod
 
 // =============================================================
 // === Sélection dynamique des éléments ===
@@ -86,12 +101,26 @@ window.showFeedNotification = showFeedNotification;
 // === Son pour nouveaux messages ===
 function playPing() {
   try {
-    const audio = new Audio(
-      "https://cdn.pixabay.com/download/audio/2022/03/15/audio_ae62d9e7d5.mp3?filename=notification-3-141424.mp3"
-    );
+    const audio = new Audio("/assets/notification.mp3"); // son local conseillé
     audio.volume = 0.3;
-    audio.play();
-  } catch {}
+    audio.play().catch(() => {
+      console.warn("[FeedPulse] Audio bloqué par le navigateur (autoplay)");
+    });
+  } catch (e) {
+    console.warn("[FeedPulse] Erreur lecture audio :", e);
+  }
+}
+
+// =============================================================
+// === Récupération du pseudo utilisateur ===
+function getUserPseudo(user) {
+  if (!user) return "Anonyme";
+  if (user.displayName && user.displayName.trim() !== "") {
+    return user.displayName.trim();
+  } else if (user.email) {
+    return user.email.split("@")[0];
+  }
+  return "Anonyme";
 }
 
 // =============================================================
@@ -100,9 +129,7 @@ function appendMessage(user, text) {
   const { log } = getFeedElements();
   if (!log) return;
 
-  const currentUser = auth.currentUser
-    ? auth.currentUser.displayName || auth.currentUser.email.split
-    : null;
+  const currentUser = getUserPseudo(auth.currentUser);
   const isOwn = user === currentUser;
 
   const row = document.createElement("div");
@@ -149,7 +176,10 @@ function appendMessage(user, text) {
 // === Sauvegarde locale ===
 function saveMessagesToLocal(messages) {
   try {
-    localStorage.setItem("feedMessagesCache", JSON.stringify(messages.slice(-50)));
+    localStorage.setItem(
+      "feedMessagesCache",
+      JSON.stringify(messages.slice(-50))
+    );
   } catch (e) {
     console.warn("[FeedPulse] Erreur sauvegarde locale :", e);
   }
@@ -162,6 +192,57 @@ function loadMessagesFromLocal() {
   } catch {
     return [];
   }
+}
+
+// =============================================================
+// === Typing Indicator (User typing...) ===
+let typingUsers = new Set();
+let typingIndicator;
+
+document.addEventListener("DOMContentLoaded", () => {
+  typingIndicator = document.createElement("div");
+  typingIndicator.id = "feedTypingIndicator";
+  typingIndicator.style.cssText = `
+    text-align:center;
+    color:#00ff9c;
+    font-size:0.9rem;
+    margin:6px 0;
+    opacity:0;
+    transition: opacity 0.3s ease;
+  `;
+  const { input } = getFeedElements();
+  if (input && input.parentNode) {
+    input.parentNode.insertBefore(typingIndicator, input);
+  } else {
+    document.body.appendChild(typingIndicator);
+  }
+});
+
+function updateTypingIndicator() {
+  if (typingUsers.size === 0) {
+    typingIndicator.textContent = "";
+    typingIndicator.style.opacity = "0";
+  } else {
+    typingIndicator.textContent =
+      "💬 " +
+      Array.from(typingUsers).join(", ") +
+      (typingUsers.size > 1 ? " pulsent..." : " pulse...");
+    typingIndicator.style.opacity = "1";
+  }
+}
+
+let typingTimeout;
+function notifyTyping() {
+  clearTimeout(typingTimeout);
+  const user = auth.currentUser;
+  if (!user || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+  const pseudo = getUserPseudo(user);
+  socket.send(JSON.stringify({ type: "typing", user: pseudo }));
+
+  typingTimeout = setTimeout(() => {
+    socket.send(JSON.stringify({ type: "stop_typing", user: pseudo }));
+  }, 3000);
 }
 
 // =============================================================
@@ -188,7 +269,18 @@ function connectWS() {
     try {
       const payload = JSON.parse(event.data);
 
-      // 📜 Historique des 30 derniers messages
+      if (payload.type === "user_typing") {
+        typingUsers.add(payload.user);
+        updateTypingIndicator();
+        return;
+      }
+
+      if (payload.type === "user_stop_typing") {
+        typingUsers.delete(payload.user);
+        updateTypingIndicator();
+        return;
+      }
+
       if (payload?.type === "history" && Array.isArray(payload.data)) {
         const { log } = getFeedElements();
         if (log) log.innerHTML = "";
@@ -196,7 +288,6 @@ function connectWS() {
         return;
       }
 
-      // 💬 Nouveau message en temps réel
       if (payload?.type === "message" && payload?.data) {
         appendMessage(payload.data.user, payload.data.text);
         cachedMessages.push(payload.data);
@@ -229,18 +320,22 @@ function sendCurrentMessage() {
   }
 
   if (!socket || socket.readyState !== WebSocket.OPEN) {
-    showFeedNotification("⚠️ Connexion au Core en cours… réessaie dans un instant");
+    showFeedNotification(
+      "⚠️ Connexion au Core en cours… réessaie dans un instant"
+    );
     return;
   }
 
-  const username = user.displayName || user.email;
+  const username = getUserPseudo(user);
   const msg = { type: "new_message", user: username, text };
   socket.send(JSON.stringify(msg));
   input.value = "";
+
+  socket.send(JSON.stringify({ type: "stop_typing", user: username }));
 }
 
 // =============================================================
-// === Bind UI dynamique ===
+// === Bind UI ===
 function bindFeedUI() {
   const { sendBtn, input } = getFeedElements();
   if (sendBtn) sendBtn.onclick = sendCurrentMessage;
@@ -249,6 +344,8 @@ function bindFeedUI() {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendCurrentMessage();
+      } else {
+        notifyTyping();
       }
     };
   }
@@ -256,7 +353,7 @@ function bindFeedUI() {
 bindFeedUI();
 
 // =============================================================
-// === FEED MODAL HANDLER — Centré & Stable ===
+// === FEED MODAL HANDLER ===
 document.addEventListener("DOMContentLoaded", () => {
   const feedPulseBtn = document.getElementById("feedPulseBtn");
   const feedModal = document.getElementById("feedModal");
@@ -280,7 +377,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.appendChild(overlay);
     }
 
-    // OUVERTURE MODALE
     feedPulseBtn.addEventListener("click", () => {
       overlay.style.display = "block";
       feedModal.style.display = "block";
@@ -302,7 +398,6 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(bindFeedUI, 150);
     });
 
-    // FERMETURE
     const closeModal = () => {
       feedModal.style.opacity = "0";
       overlay.style.opacity = "0";
@@ -318,7 +413,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (closeBtn) closeBtn.addEventListener("click", closeModal);
   }
 
-  // OUVRIR EN GRAND
   if (openFeedPageBtn) {
     openFeedPageBtn.addEventListener("click", () => {
       window.location.href = "feed.html";
@@ -327,78 +421,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =============================================================
-
-// =============================================================
-// === AJOUT : indicateur "User typing" + affichage pseudo ===
-// =============================================================
-
-// stock temporaire pour les utilisateurs en train d’écrire
-let typingUsers = new Set();
-
-// zone d'affichage "en train d'écrire"
-let typingIndicator = document.getElementById("feedTypingIndicator");
-if (!typingIndicator) {
-  typingIndicator = document.createElement("div");
-  typingIndicator.id = "feedTypingIndicator";
-  typingIndicator.style.cssText = `
-    text-align:center;
-    color:#00ff9c;
-    font-size:0.9rem;
-    margin:6px 0;
-    opacity:0.8;
-    transition: opacity 0.3s ease;
-  `;
-  const { log } = getFeedElements();
-  if (log) log.parentNode.insertBefore(typingIndicator, log);
-}
-
-// petite fonction d'affichage
-function updateTypingIndicator() {
-  if (typingUsers.size === 0) {
-    typingIndicator.textContent = "";
-    typingIndicator.style.opacity = "0";
-  } else {
-    typingIndicator.textContent =
-      "💬 " +
-      Array.from(typingUsers).join(", ") +
-      (typingUsers.size > 1 ? " pulsent..." : " pulse...");
-    typingIndicator.style.opacity = "1";
-  }
-}
-
-// envoi "typing" quand l'utilisateur commence à écrire
-let typingTimeout;
-function notifyTyping() {
-  clearTimeout(typingTimeout);
-  const user = auth.currentUser;
-  if (!user || !socket || socket.readyState !== WebSocket.OPEN) return;
-
-  const pseudo = user.displayName || user.email.split("@")[0];
-  socket.send(JSON.stringify({ type: "typing", user: pseudo }));
-
-  // arrêt automatique après 3s sans frappe
-  typingTimeout = setTimeout(() => {
-    socket.send(JSON.stringify({ type: "stop_typing", user: pseudo }));
-  }, 3000);
-}
-
-// injection dans ton bindFeedUI existant
-function bindFeedUI() {
-  const { sendBtn, input } = getFeedElements();
-  if (sendBtn) sendBtn.onclick = sendCurrentMessage;
-  if (input) {
-    input.onkeydown = (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendCurrentMessage();
-      } else {
-        notifyTyping(); // 👈 ajoute cette ligne
-      }
-    };
-  }
-}
-bindFeedUI();
-// écoute les messages "typing" et "stop_typing"
 // === Synchro Auth Firebase ===
 auth.onAuthStateChanged((user) => {
   const { input, sendBtn } = getFeedElements();
@@ -408,7 +430,10 @@ auth.onAuthStateChanged((user) => {
     input.disabled = false;
     sendBtn.disabled = false;
     input.placeholder = "Pulse ton message...";
-    console.log("%c[FeedPulse] Connecté en tant que " + (user.displayName || user.email), "color:#00ff9c");
+    console.log(
+      "%c[FeedPulse] Connecté en tant que " + getUserPseudo(user),
+      "color:#00ff9c"
+    );
   } else {
     input.disabled = true;
     sendBtn.disabled = true;

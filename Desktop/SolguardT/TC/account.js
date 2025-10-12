@@ -4,7 +4,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  sendEmailVerification
+  sendEmailVerification,
+  updateProfile,
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 import {
@@ -16,18 +17,26 @@ import {
   query,
   collection,
   where,
-  getDocs
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
 
 // =============================================================
 // 1️⃣ — CRÉATION DE COMPTE UTILISATEUR
 // =============================================================
 export async function signUp(email, password, username) {
   const userCred = await createUserWithEmailAndPassword(auth, email, password);
-  const uid = userCred.user.uid;
+  const user = userCred.user;
 
-  await setDoc(doc(db, "users", uid), {
+  // ✅ Ajoute le pseudo au profil Firebase
+  try {
+    await updateProfile(user, { displayName: username.trim() });
+    console.log("👤 Profil Firebase mis à jour :", username);
+  } catch (e) {
+    console.warn("⚠️ Impossible de définir le displayName :", e);
+  }
+
+  // 🔥 Crée le document utilisateur dans Firestore
+  await setDoc(doc(db, "users", user.uid), {
     email,
     username,
     feed: 0,
@@ -35,14 +44,13 @@ export async function signUp(email, password, username) {
     rank: "Débutant",
     points: 0,
     lastLogin: new Date().toISOString(),
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
   });
 
-  await sendEmailVerification(userCred.user);
-  console.log("✅ Compte créé :", uid);
-  return userCred.user;
+  await sendEmailVerification(user);
+  console.log("✅ Compte créé :", user.uid);
+  return user;
 }
-
 
 // =============================================================
 // 2️⃣ — CONNEXION (EMAIL OU PSEUDO)
@@ -59,6 +67,7 @@ export async function getEmailByUsername(username) {
 export async function signInWithUsernameOrEmail(login, password) {
   let email = login;
 
+  // 🔍 Si l'utilisateur se connecte avec un pseudo
   if (!login.includes("@")) {
     const foundEmail = await getEmailByUsername(login);
     if (!foundEmail) {
@@ -68,15 +77,46 @@ export async function signInWithUsernameOrEmail(login, password) {
   }
 
   const userCred = await signInWithEmailAndPassword(auth, email, password);
+  const user = userCred.user;
 
-  await updateDoc(doc(db, "users", userCred.user.uid), {
-    lastLogin: new Date().toISOString()
+  // 🕓 Attendre que Firebase Auth soit complètement prêt
+  await new Promise((resolve) => {
+    const unsub = auth.onAuthStateChanged(async (u) => {
+      if (u) {
+        unsub();
+        resolve(u);
+      }
+    });
   });
 
-  console.log("✅ Connexion réussie :", userCred.user.uid);
-  return userCred.user;
-}
+  // 🔁 Recharge le profil Firebase
+  await user.reload();
 
+  // 📦 Récupère le pseudo Firestore
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  const firestoreName = userDoc.exists() ? userDoc.data().username : null;
+
+  // 🔄 Si le displayName Firebase est vide → on le remplit depuis Firestore
+  if (firestoreName && (!user.displayName || user.displayName.trim() === "")) {
+    try {
+      await updateProfile(user, { displayName: firestoreName });
+      await user.reload();
+      console.log(`✅ DisplayName mis à jour depuis Firestore : ${firestoreName}`);
+    } catch (e) {
+      console.warn("⚠️ Impossible de mettre à jour le displayName :", e);
+    }
+  }
+
+  console.log("✅ Pseudo rechargé :", user.displayName || "Inconnu");
+
+  // 🕓 Mise à jour du timestamp de dernière connexion
+  await updateDoc(doc(db, "users", user.uid), {
+    lastLogin: new Date().toISOString(),
+  });
+
+  console.log("✅ Connexion réussie :", user.uid);
+  return user;
+}
 
 // =============================================================
 // 3️⃣ — DÉCONNEXION
@@ -88,14 +128,13 @@ export async function signOutUser() {
   console.log("🚪 Déconnecté avec succès.");
 
   if (typeof window.refreshFeedWriteAccess === "function") {
-    window.refreshFeedWriteAccess(); // désactive le feed à la déconnexion
+    window.refreshFeedWriteAccess();
   }
 
   if (typeof window.showFeedNotification === "function") {
     window.showFeedNotification("🔒 Déconnecté du Core Feed");
   }
 }
-
 
 // =============================================================
 // 4️⃣ — MISE À JOUR DES INFORMATIONS UTILISATEUR DANS L’UI
@@ -129,7 +168,6 @@ export async function updateUserInfo(uid) {
   }
 }
 
-
 // =============================================================
 // 5️⃣ — COMPATIBILITÉ AVEC MAIN.JS (createAccount utilisé)
 // =============================================================
@@ -158,7 +196,6 @@ export async function createAccount(email, password, username) {
   }
 }
 
-
 // =============================================================
 // 6️⃣ — HANDLERS UTILISÉS PAR INDEX.HTML
 // =============================================================
@@ -173,7 +210,12 @@ async function handleLogin(event) {
   try {
     const user = await signInWithUsernameOrEmail(login, password);
     const userDoc = await getDoc(doc(db, "users", user.uid));
-    const username = userDoc.exists() ? userDoc.data().username : "Anon";
+    const username =
+      (user.displayName && user.displayName.trim() !== "")
+        ? user.displayName
+        : userDoc.exists()
+        ? userDoc.data().username
+        : "Anon";
 
     // Sauvegarde du pseudo pour le chat Feed Pulse
     localStorage.setItem("username", username);
@@ -184,7 +226,7 @@ async function handleLogin(event) {
     }
 
     if (typeof window.refreshFeedWriteAccess === "function") {
-      window.refreshFeedWriteAccess(); // réactive l’accès au feed
+      window.refreshFeedWriteAccess();
     }
 
     closeModal("loginModal");
@@ -215,7 +257,7 @@ async function handleRegister(event) {
     }
 
     if (typeof window.refreshFeedWriteAccess === "function") {
-      window.refreshFeedWriteAccess(); // active le feed immédiatement
+      window.refreshFeedWriteAccess();
     }
 
     closeModal("registerModal");
@@ -226,7 +268,6 @@ async function handleRegister(event) {
     }
   }
 }
-
 
 // =============================================================
 // 7️⃣ — EXPORT GLOBAL POUR LE HTML
