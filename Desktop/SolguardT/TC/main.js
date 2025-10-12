@@ -2,13 +2,17 @@
 // =============================================================
 // 🔹 IMPORT DES MODULES
 // =============================================================
-import {updateUserInfo,signOutUser} from "./account.js";
-import {burnTokens,autoIncreaseMarketCap,startLifeTimer,marketCap} from "./market.js";
+import { updateUserInfo, signOutUser } from "./account.js";
+import { burnTokens, autoIncreaseMarketCap, marketCap } from "./market.js";
 import { updateDisplay, smoothUpdateMarketCap } from "./ui.js";
 import { updateLeaderboard } from "./leaderboard.js";
-import { auth } from "./firebase-init.js";
+import { auth, app } from "./firebase-init.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-
+import {
+  getDatabase,
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 // =============================================================
 // 🔸 VARIABLES GLOBALES
@@ -20,7 +24,6 @@ window.eggHatched = false;
 const bootSound = new Audio("./sounds/boot.mp3");
 bootSound.volume = 0.2;
 let bootPlayed = false;
-
 
 // =============================================================
 // 1️⃣ INITIALISATION DE LA PAGE
@@ -43,9 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("viewProfile").style.display = "inline-block";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
-        // ✅ Active le feed si connecté
         if (window.refreshFeedWriteAccess) window.refreshFeedWriteAccess();
-
         if (window.showFeedNotification)
           showFeedNotification("🔗 Reconnexion réussie au Core Feed");
 
@@ -54,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("⚠️ Erreur lors du chargement du profil :", err);
       }
     } else {
-      // 🔹 Aucun utilisateur ou mail non vérifié
       localStorage.removeItem("currentUser");
       localStorage.removeItem("username");
       currentUser = null;
@@ -64,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("viewProfile").style.display = "none";
       document.getElementById("logoutBtn").style.display = "none";
 
-      // 🔒 Désactive le feed
       if (window.refreshFeedWriteAccess) window.refreshFeedWriteAccess();
     }
   });
@@ -109,14 +108,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function hatchEgg() {
     const flash = document.createElement("div");
-    flash.style.position = "fixed";
-    flash.style.top = 0;
-    flash.style.left = 0;
-    flash.style.width = "100%";
-    flash.style.height = "100%";
-    flash.style.background = "rgba(0,217,255,0.8)";
-    flash.style.zIndex = 9999;
-    flash.style.transition = "opacity 0.6s ease-out";
+    flash.style.cssText = `
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,217,255,0.8);z-index:9999;transition:opacity .6s ease-out;
+    `;
     document.body.appendChild(flash);
     setTimeout(() => (flash.style.opacity = 0), 50);
     setTimeout(() => flash.remove(), 650);
@@ -146,7 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 800);
   }, 2500);
 
-  startLifeTimer(updateDisplay);
+  // =============================================================
+  // 🧠 NOUVELLE FONCTION : Feed Factory Timer
+  // =============================================================
+  startFeedFactoryTimer(updateDisplay);
 
   // =============================================================
   // 4️⃣ MODALES / MOT DE PASSE / UI
@@ -154,7 +152,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const createAccountBtn = document.getElementById("createAccount");
   const loginBtn = document.getElementById("login");
   const logoutBtn = document.getElementById("logoutBtn");
-  const sendSolBtn = document.getElementById("sendSOL");
   const burnCoreBtn = document.getElementById("burnCore");
 
   function openModal(id) {
@@ -207,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =============================================================
-  // 6️⃣ ACTIONS UTILISATEUR (SEND / BURN)
+  // 6️⃣ ACTIONS UTILISATEUR (BURN)
   // =============================================================
   if (burnCoreBtn) {
     burnCoreBtn.addEventListener("click", () => {
@@ -217,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       burnTokens(currentUser);
-      updateDisplay();
+      updateDisplay?.();
     });
   }
 
@@ -230,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const marketCapStep = 5000;
 
   autoIncreaseMarketCap(() => {
-    updateDisplay();
+    updateDisplay?.();
     smoothUpdateMarketCap(marketCap);
     updateEggIntensity(marketCap);
 
@@ -262,28 +259,109 @@ document.addEventListener("DOMContentLoaded", () => {
         lastTriggeredMilestone = milestone;
       }
     }
-
-    const leaderboardSection = document.getElementById("leaderboardSection");
-    const leaderboardMessage = document.getElementById("leaderboardMessage");
-    const openLeaderboardBtn = document.getElementById("openLeaderboardBtn");
-    const milestoneGoalEl = document.getElementById("milestoneGoal");
-    if (!milestoneGoalEl) return;
-
-    const milestoneGoal = parseInt(
-      milestoneGoalEl.textContent.replace(/\D/g, "")
-    );
-    if (!leaderboardUnlocked) {
-      if (marketCap < milestoneGoal) {
-        leaderboardSection.classList.add("locked");
-        leaderboardMessage.innerHTML = `🔒 Débloquez le leaderboard à <strong>${milestoneGoal}</strong> SOL.`;
-        openLeaderboardBtn.onclick = () => false;
-      } else {
-        leaderboardUnlocked = true;
-        leaderboardSection.classList.add("unlocked");
-        leaderboardSection.classList.remove("locked");
-        leaderboardMessage.innerHTML = `🎉 Le leaderboard est maintenant disponible !`;
-        openLeaderboardBtn.onclick = null;
-      }
-    }
   });
 });
+
+// =============================================================
+// 🧩 LOGIQUE FEED FACTORY TIMER (Firebase → Timer → UI)
+// =============================================================
+function startFeedFactoryTimer(updateDisplay) {
+  const db = getDatabase(app);
+  const nextFeedRef = ref(db, "nextFeed");
+  const lifeBar = document.getElementById("lifeBar");
+  const progressMessage = document.getElementById("progressMessage");
+
+  if (!lifeBar || !progressMessage) {
+    console.warn("⚠️ Éléments #lifeBar ou #progressMessage introuvables.");
+    return;
+  }
+
+  let activeFeedName = null;
+  let countdownInterval = null;
+
+  onValue(nextFeedRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data || !data.startsAt) {
+      updateProgressDisplay(0, "⏳ En attente du prochain Feed...");
+      if (countdownInterval) clearInterval(countdownInterval);
+      return;
+    }
+
+    const { startsAt, duration = 86400000, name = "Feed_Alpha" } = data;
+    console.log("📡 Nouveau nextFeed détecté :", data);
+
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(() => {
+      const now = Date.now();
+      const remaining = startsAt - now;
+      const elapsed = Math.min(Math.max(duration - remaining, 0), duration);
+      const percent = (elapsed / duration) * 100;
+
+      lifeBar.style.width = `${percent.toFixed(2)}%`;
+
+      if (remaining > 0) {
+        const hours = Math.floor(remaining / 3600000);
+        const minutes = Math.floor((remaining % 3600000) / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+
+        updateProgressDisplay(
+          percent,
+          `Prochain Feed « ${name} » dans ${hours}h ${minutes}m ${seconds}s`
+        );
+      } else {
+        if (activeFeedName !== name) {
+          activeFeedName = name;
+          triggerFeedLaunch(name);
+        }
+        clearInterval(countdownInterval);
+      }
+    }, 1000);
+  });
+
+function updateProgressDisplay(percent, message) {
+  if (progressMessage) {
+    progressMessage.textContent = message || "⏳ En attente du prochain Feed...";
+    progressMessage.classList.remove("hidden");
+  }
+
+  if (lifeBar) {
+    lifeBar.style.width = `${percent}%`;
+  }
+
+  // Effet flash à 100%
+  if (percent >= 100) {
+    lifeBar.classList.add("flash-unlock");
+    setTimeout(() => lifeBar.classList.remove("flash-unlock"), 1500);
+  }
+}
+
+
+  function triggerFeedLaunch(feedName) {
+    console.log(`🚀 Nouveau Feed lancé : ${feedName}`);
+    updateProgressDisplay(100, `🚀 Nouveau projet "${feedName}" lancé !`);
+    updateDisplay?.();
+
+    const notif = document.createElement("div");
+    notif.className = "feed-notif";
+    notif.textContent = `🚀 Nouveau projet Feed : ${feedName}`;
+    Object.assign(notif.style, {
+      position: "fixed",
+      top: "20px",
+      right: "20px",
+      background: "rgba(0,255,156,0.1)",
+      border: "1px solid #00ff9c",
+      color: "#00ffcc",
+      padding: "12px 18px",
+      borderRadius: "8px",
+      fontFamily: "Orbitron, monospace",
+      boxShadow: "0 0 12px #00ff9c",
+      zIndex: 9999,
+      transition: "opacity 0.8s ease-out",
+    });
+
+    document.body.appendChild(notif);
+    setTimeout(() => (notif.style.opacity = 0), 3500);
+    setTimeout(() => notif.remove(), 4500);
+  }
+}

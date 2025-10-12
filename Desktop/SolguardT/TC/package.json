@@ -1,14 +1,22 @@
 {
   "name": "tc",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "description": "Feed Factory & Core Feed backend with Firebase + WebSocket",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "feed-factory",
+    "firebase",
+    "websocket",
+    "nodejs",
+    "solguard",
+    "crypto"
+  ],
+  "author": "TonNomOuTeam",
   "license": "ISC",
   "dependencies": {
     "express": "^5.1.0",

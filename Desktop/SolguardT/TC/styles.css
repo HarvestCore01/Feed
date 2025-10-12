@@ -1198,3 +1198,26 @@ button:hover {
   box-shadow: 0 0 20px #00ff9c;
 }
 
+.feed-factory {
+  margin-top: 20px;
+  text-align: center;
+  color: #00ffcc;
+  font-family: 'Orbitron', monospace;
+}
+
+.feed-bar-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(0,255,156,0.1);
+  border: 1px solid #00ffcc;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.feed-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ff9c, #00d1ff);
+  transition: width 1s linear;
+}

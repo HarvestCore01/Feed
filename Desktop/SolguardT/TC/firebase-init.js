@@ -7,6 +7,7 @@ import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/fireb
 const firebaseConfig = {
   apiKey: "AIzaSyCDKeMtXSp34ewRCZlNCKjFotPVGIINHQw",
   authDomain: "feedcore-64023.firebaseapp.com",
+  databaseURL: "https://feedcore-64023-default-rtdb.europe-west1.firebasedatabase.app", // ✅ ajout essentiel
   projectId: "feedcore-64023",
   storageBucket: "feedcore-64023.appspot.com", // ⚠️ ton URL avait une erreur (".app" en trop)
   messagingSenderId: "868675248253",
@@ -16,6 +17,9 @@ const firebaseConfig = {
 
 // 🔹 Initialisation Firebase
 const app = initializeApp(firebaseConfig);
+
+export { app };
+
 
 // 🔹 Exporte les services pour les autres fichiers
 export const auth = getAuth(app);

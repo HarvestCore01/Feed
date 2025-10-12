@@ -258,6 +258,7 @@ function connectWS() {
     console.log("%c[FeedPulse] Connecté au Core", "color:#00ff9c");
     updateStatusIndicator("🟢 Connecté", "#00ff9c");
 
+    // Recharge les messages locaux si présents
     const { log } = getFeedElements();
     if (cachedMessages.length && log) {
       log.innerHTML = "";
@@ -269,6 +270,22 @@ function connectWS() {
     try {
       const payload = JSON.parse(event.data);
 
+      // === 🧠 1️⃣ Historique complet envoyé par le serveur (Firestore) ===
+      if (payload.type === "init_messages" && Array.isArray(payload.data)) {
+        const messages = payload.data;
+        const { log } = getFeedElements();
+        if (log) {
+          log.innerHTML = "";
+          messages.forEach((msg) => appendMessage(msg.user, msg.text));
+          console.log(`📜 ${messages.length} anciens messages rechargés depuis Firestore`);
+        }
+        // Mets à jour le cache local
+        cachedMessages = messages;
+        saveMessagesToLocal(messages);
+        return;
+      }
+
+      // === 2️⃣ Événements de saisie utilisateur ===
       if (payload.type === "user_typing") {
         typingUsers.add(payload.user);
         updateTypingIndicator();
@@ -281,20 +298,26 @@ function connectWS() {
         return;
       }
 
+      // === 3️⃣ Ancien format d'historique (compatibilité) ===
       if (payload?.type === "history" && Array.isArray(payload.data)) {
         const { log } = getFeedElements();
         if (log) log.innerHTML = "";
         payload.data.forEach((msg) => appendMessage(msg.user, msg.text));
+        cachedMessages = payload.data;
+        saveMessagesToLocal(payload.data);
         return;
       }
 
+      // === 4️⃣ Nouveau message en direct ===
       if (payload?.type === "message" && payload?.data) {
         appendMessage(payload.data.user, payload.data.text);
         cachedMessages.push(payload.data);
         saveMessagesToLocal(cachedMessages);
+        return;
       }
-    } catch {
-      console.warn("[FeedPulse] Message non JSON:", event.data);
+
+    } catch (err) {
+      console.warn("[FeedPulse] Message non JSON ou erreur parsing:", event.data, err);
     }
   });
 
@@ -304,7 +327,9 @@ function connectWS() {
   });
 }
 
+// === Initialisation de la connexion ===
 connectWS();
+
 
 // =============================================================
 // === Envoi d’un message ===
