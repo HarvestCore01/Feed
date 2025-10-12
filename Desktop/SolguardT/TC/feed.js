@@ -101,7 +101,7 @@ function appendMessage(user, text) {
   if (!log) return;
 
   const currentUser = auth.currentUser
-    ? auth.currentUser.displayName || auth.currentUser.email
+    ? auth.currentUser.displayName || auth.currentUser.email.split
     : null;
   const isOwn = user === currentUser;
 
@@ -187,6 +187,16 @@ function connectWS() {
   socket.addEventListener("message", (event) => {
     try {
       const payload = JSON.parse(event.data);
+
+      // 📜 Historique des 30 derniers messages
+      if (payload?.type === "history" && Array.isArray(payload.data)) {
+        const { log } = getFeedElements();
+        if (log) log.innerHTML = "";
+        payload.data.forEach((msg) => appendMessage(msg.user, msg.text));
+        return;
+      }
+
+      // 💬 Nouveau message en temps réel
       if (payload?.type === "message" && payload?.data) {
         appendMessage(payload.data.user, payload.data.text);
         cachedMessages.push(payload.data);
@@ -317,6 +327,78 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =============================================================
+
+// =============================================================
+// === AJOUT : indicateur "User typing" + affichage pseudo ===
+// =============================================================
+
+// stock temporaire pour les utilisateurs en train d’écrire
+let typingUsers = new Set();
+
+// zone d'affichage "en train d'écrire"
+let typingIndicator = document.getElementById("feedTypingIndicator");
+if (!typingIndicator) {
+  typingIndicator = document.createElement("div");
+  typingIndicator.id = "feedTypingIndicator";
+  typingIndicator.style.cssText = `
+    text-align:center;
+    color:#00ff9c;
+    font-size:0.9rem;
+    margin:6px 0;
+    opacity:0.8;
+    transition: opacity 0.3s ease;
+  `;
+  const { log } = getFeedElements();
+  if (log) log.parentNode.insertBefore(typingIndicator, log);
+}
+
+// petite fonction d'affichage
+function updateTypingIndicator() {
+  if (typingUsers.size === 0) {
+    typingIndicator.textContent = "";
+    typingIndicator.style.opacity = "0";
+  } else {
+    typingIndicator.textContent =
+      "💬 " +
+      Array.from(typingUsers).join(", ") +
+      (typingUsers.size > 1 ? " pulsent..." : " pulse...");
+    typingIndicator.style.opacity = "1";
+  }
+}
+
+// envoi "typing" quand l'utilisateur commence à écrire
+let typingTimeout;
+function notifyTyping() {
+  clearTimeout(typingTimeout);
+  const user = auth.currentUser;
+  if (!user || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+  const pseudo = user.displayName || user.email.split("@")[0];
+  socket.send(JSON.stringify({ type: "typing", user: pseudo }));
+
+  // arrêt automatique après 3s sans frappe
+  typingTimeout = setTimeout(() => {
+    socket.send(JSON.stringify({ type: "stop_typing", user: pseudo }));
+  }, 3000);
+}
+
+// injection dans ton bindFeedUI existant
+function bindFeedUI() {
+  const { sendBtn, input } = getFeedElements();
+  if (sendBtn) sendBtn.onclick = sendCurrentMessage;
+  if (input) {
+    input.onkeydown = (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendCurrentMessage();
+      } else {
+        notifyTyping(); // 👈 ajoute cette ligne
+      }
+    };
+  }
+}
+bindFeedUI();
+// écoute les messages "typing" et "stop_typing"
 // === Synchro Auth Firebase ===
 auth.onAuthStateChanged((user) => {
   const { input, sendBtn } = getFeedElements();

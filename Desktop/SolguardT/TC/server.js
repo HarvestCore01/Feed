@@ -1,149 +1,122 @@
-// === FeedCore Chat Server (Alpha Investor Build) ===
-// WebSocket temps réel + Firestore batch backup + miroir feedMessages
+// =============================================================
+// === SERVER.JS — Feed Pulse WebSocket + Firestore Persistance ===
+// =============================================================
 
-import express from "express";
 import { WebSocketServer } from "ws";
 import admin from "firebase-admin";
-import { cert } from "firebase-admin/app";
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import fs from "fs";
+import { readFileSync } from "fs";
 
-// === Initialisation Firebase Admin SDK ===
-const serviceAccount = JSON.parse(fs.readFileSync("./serviceAccountKey.json", "utf8"));
-admin.initializeApp({ credential: cert(serviceAccount) });
-const db = getFirestore();
+// =============================================================
+// === Initialisation Firebase Admin ===
+try {
+  const serviceAccount = JSON.parse(
+    readFileSync(new URL("./serviceAccountKey.json", import.meta.url))
+  );
 
-// === Configuration serveur ===
-const app = express();
-const PORT = process.env.PORT || 8080;
-const wss = new WebSocketServer({ noServer: true });
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    console.log("🔥 Firebase Admin initialisé");
+  }
+} catch (err) {
+  console.error("❌ Erreur initialisation Firebase Admin :", err);
+}
 
-// === Buffers & paramètres ===
-let messageBuffer = [];
-let messageHistory = []; // pour mémoire courte en RAM
-const MAX_HISTORY = 30;
-const BATCH_INTERVAL = 10000; // toutes les 10s
+const db = admin.firestore();
 
-// =====================================================
-// === Sauvegarde périodique Firestore (chatBuckets) ===
-// =====================================================
-async function flushMessages() {
-  if (messageBuffer.length === 0) return;
+// =============================================================
+// === Serveur WebSocket
+const wss = new WebSocketServer({ port: 8080 });
+console.log("🚀 Feed Pulse WebSocket en ligne sur port 8080");
+
+// =============================================================
+// === Fonctions utilitaires
+function broadcast(data) {
+  const message = JSON.stringify(data);
+  wss.clients.forEach((client) => {
+    if (client.readyState === 1) client.send(message);
+  });
+}
+
+// =============================================================
+// === Persistance Firestore
+const FEED_COLLECTION = "feedMessages";
+const MAX_MESSAGES = 30;
+
+// Sauvegarde d’un message (plat)
+async function saveMessage(user, text) {
+  const payload = {
+    user,
+    text,
+    timestamp: admin.firestore.Timestamp.now(),
+  };
 
   try {
-    const batch = db.batch();
-    const bucketId = new Date().toISOString().slice(0, 16).replace(":", "-");
-    const bucketRef = db.collection("chatBuckets").doc(bucketId);
+    await db.collection(FEED_COLLECTION).add(payload);
+    console.log(`💾 Message sauvegardé pour ${user}`);
 
-    batch.set(
-      bucketRef,
-      {
-        messages: messageBuffer.map((m) => ({
-          user: m.user,
-          text: m.text,
-          ts: Timestamp.fromDate(new Date(m.ts)),
-        })),
-      },
-      { merge: true }
-    );
+    // Supprime les anciens
+    const snapshot = await db
+      .collection(FEED_COLLECTION)
+      .orderBy("timestamp", "desc")
+      .get();
 
-    await batch.commit();
-    console.log(`🟢 ${messageBuffer.length} messages sauvegardés dans chatBuckets`);
-    messageBuffer = [];
-  } catch (e) {
-    console.error("❌ Erreur sauvegarde Firestore :", e);
+    const messages = snapshot.docs;
+    if (messages.length > MAX_MESSAGES) {
+      const old = messages.slice(MAX_MESSAGES);
+      for (const msg of old) {
+        await db.collection(FEED_COLLECTION).doc(msg.id).delete();
+      }
+      console.log(`🧹 ${old.length} anciens messages supprimés`);
+    }
+  } catch (err) {
+    console.error("❌ Erreur Firestore (saveMessage):", err);
   }
 }
 
-setInterval(flushMessages, BATCH_INTERVAL);
+// Lecture des derniers messages
+async function getRecentMessages() {
+  try {
+    const snapshot = await db
+      .collection(FEED_COLLECTION)
+      .orderBy("timestamp", "desc")
+      .limit(MAX_MESSAGES)
+      .get();
 
-// =====================================================
-// === Connexions WebSocket (temps réel) ===
-// =====================================================
-wss.on("connection", (ws) => {
-  console.log("🟣 Nouvelle connexion FeedCore");
-
-  // Envoie les 30 derniers messages récents (mémoire vive)
-  if (messageHistory.length > 0) {
-    ws.send(JSON.stringify({
-      type: "history",
-      data: messageHistory,
-    }));
+    const messages = snapshot.docs.map((doc) => doc.data()).reverse();
+    console.log(`📦 ${messages.length} messages chargés depuis Firestore`);
+    return messages;
+  } catch (err) {
+    console.error("❌ Erreur Firestore (getRecentMessages):", err);
+    return [];
   }
+}
 
-  ws.on("message", async (raw) => {
+// =============================================================
+// === Événements WebSocket
+wss.on("connection", async (ws) => {
+  console.log("💫 Nouveau client connecté au Feed Pulse");
+
+  // Envoi de l’historique dès la connexion
+  const history = await getRecentMessages();
+  ws.send(JSON.stringify({ type: "history", data: history }));
+
+  // Réception des nouveaux messages
+  ws.on("message", async (message) => {
     try {
-      const data = JSON.parse(raw);
-      if (data.type !== "new_message") return;
+      const payload = JSON.parse(message);
+      if (payload.type === "new_message") {
+        const { user, text } = payload;
+        if (!text?.trim()) return;
 
-      const msg = {
-        user: data.user?.slice(0, 32) || "Anon",
-        text: data.text?.slice(0, 250) || "",
-        ts: Date.now(),
-      };
-
-      // Stockage RAM
-      messageBuffer.push(msg);
-      messageHistory.push(msg);
-      if (messageHistory.length > MAX_HISTORY) messageHistory.shift();
-
-      // Sauvegarde instantanée dans feedMessages (pour lecture front)
-      try {
-        await db.collection("feedMessages").add({
-          user: msg.user,
-          text: msg.text,
-          ts: Timestamp.fromDate(new Date(msg.ts)),
-        });
-      } catch (fireErr) {
-        console.error("⚠️ Erreur enregistrement feedMessages :", fireErr);
+        await saveMessage(user, text);
+        broadcast({ type: "message", data: { user, text } });
       }
-
-      // Diffusion à tous les clients connectés
-      wss.clients.forEach((client) => {
-        if (client.readyState === client.OPEN) {
-          client.send(JSON.stringify({ type: "message", data: msg }));
-        }
-      });
-    } catch (e) {
-      console.error("Erreur message entrant :", e);
+    } catch (err) {
+      console.error("❌ Erreur réception message:", err);
     }
   });
 
-  ws.on("close", () => console.log("🔴 Client déconnecté du Core"));
-});
-
-// =====================================================
-// === API REST : Récupère les derniers messages ===
-// =====================================================
-app.get("/api/feed/latest", async (req, res) => {
-  try {
-    const snapshot = await db
-      .collection("feedMessages")
-      .orderBy("ts", "desc")
-      .limit(30)
-      .get();
-
-    const messages = snapshot.docs
-      .map((doc) => doc.data())
-      .reverse(); // ordre chronologique
-
-    res.json({ success: true, messages });
-  } catch (e) {
-    console.error("❌ Erreur API /api/feed/latest :", e);
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-
-// =====================================================
-// === Upgrade HTTP → WebSocket ===
-// =====================================================
-const server = app.listen(PORT, () =>
-  console.log(`🚀 FeedCore Chat Server lancé sur le port ${PORT}`)
-);
-
-server.on("upgrade", (req, socket, head) => {
-  wss.handleUpgrade(req, socket, head, (ws) => {
-    wss.emit("connection", ws, req);
-  });
+  ws.on("close", () => console.log("❌ Client déconnecté"));
 });
