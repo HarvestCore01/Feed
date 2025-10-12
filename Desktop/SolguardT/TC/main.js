@@ -3,7 +3,7 @@
 // 🔹 IMPORT DES MODULES
 // =============================================================
 import {updateUserInfo,signOutUser} from "./account.js";
-import {sendSOL,burnTokens,autoIncreaseMarketCap,startLifeTimer,marketCap} from "./market.js";
+import {burnTokens,autoIncreaseMarketCap,startLifeTimer,marketCap} from "./market.js";
 import { updateDisplay, smoothUpdateMarketCap } from "./ui.js";
 import { updateLeaderboard } from "./leaderboard.js";
 import { auth } from "./firebase-init.js";

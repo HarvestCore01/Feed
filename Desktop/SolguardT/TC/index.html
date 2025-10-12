@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Core Feed Dashboard</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="feed.css">
 </head>
 
 <body>
@@ -23,8 +24,6 @@
   <div class="container" id="dashboard" style="display: none;">
     <h1>Core Feed Dashboard</h1>
     <p>Bienvenue sur ton projet Core Feed 🚀</p>
-
-  
 
     <!-- ===== MARKETCAP ===== -->
     <div>
@@ -98,27 +97,29 @@
     </div>
   </div>
 
-  <!-- ===== MODALE FEED PULSE ===== -->
-  <div id="feedModal" class="modal">
-    <div class="modal-content feed-modal">
-      <span class="close" id="closeFeedModal">&times;</span>
-      <h2>💬 Feed Pulse Live</h2>
-      <p>Connecté au cœur du flux</p>
+  <!-- ===========================
+       🔮 FEED PULSE — MODALE CHAT
+       =========================== -->
+  <div id="feedModal" class="feed-modal" style="display:none;">
+    <span class="close" onclick="document.getElementById('feedModal').style.display='none'">&times;</span>
+    <h2>💬 Core Feed — Pulse</h2>
+    <p>Échange direct avec le Flux</p>
 
-      <!-- 🆕 Bouton pour ouvrir la page dédiée -->
-    <button id="openFeedPage" class="feature-btn" style="margin-bottom:10px;">
-      🔎 Ouvrir le Feed en plein écran
-    </button>
-
-      <div id="feedChatContainer">
-        <div id="feedChatLog"></div>
-        <div id="feedInputBox">
-          <textarea id="feedMessage" placeholder="Connecte-toi pour pulser..." rows="2" disabled></textarea>
-          <button id="feedSendBtn" disabled>Envoyer</button>
-        </div>
+    <div id="feedChatContainer">
+      <div id="feedChatLog"></div>
+      <div id="feedInputBox">
+        <textarea id="feedMessage" placeholder="Pulse ton message..." rows="2"></textarea>
+        <button id="feedSendBtn">Envoyer</button>
       </div>
     </div>
+
+    <button id="openFeedPage" class="feature-btn" style="margin-top:15px;">
+      🔎 Ouvrir le Feed en plein écran
+    </button>
   </div>
+
+  <!-- === Notifications Holographiques CoreFeed === -->
+  <div id="feedNotificationContainer"></div>
 
   <!-- ===== MODALES LOGIN & REGISTER ===== -->
   <div class="modal" id="loginModal">
@@ -167,184 +168,15 @@
     </div>
   </div>
 
-<!-- === Notifications Holographiques CoreFeed === -->
-<div id="feedNotificationContainer"></div>
-
-
-
+  <!-- === Notifications Holographiques CoreFeed === -->
+  <div id="feedNotificationContainer"></div>
 
   <!-- ===== SCRIPTS ===== -->
   <script type="module" src="./firebase-init.js"></script>
   <script type="module" src="./account.js"></script>
   <script type="module" src="./main.js"></script>
   <script src="./matrixBackground.js"></script>
+<script type="module" src="./feed.js"></script>
 
-  <!-- === FEED PULSE SCRIPT === -->
-  <script>
-    const feedPulseBtn = document.getElementById("feedPulseBtn");
-    const feedModal = document.getElementById("feedModal");
-    const closeFeedModal = document.getElementById("closeFeedModal");
-    const feedChatLog = document.getElementById("feedChatLog");
-    const feedMessage = document.getElementById("feedMessage");
-    const feedSendBtn = document.getElementById("feedSendBtn");
-    const marketCap = document.getElementById("marketCap");
-
-    // --- Connexion WebSocket ---
-    const socket = new WebSocket("ws://localhost:8080");
-
-    socket.addEventListener("open", () => {
-      console.log("%c✅ Connecté au Feed Pulse Core", "color:#00ff9c");
-    });
-
-    socket.addEventListener("message", (event) => {
-      const payload = JSON.parse(event.data);
-      if (payload.type === "message" && payload.data) {
-        appendMessage(payload.data.user || "Anonyme", payload.data.text);
-        pulseEffect();
-      }
-    });
-
-    // --- Gère l’accès écriture selon connexion ---
-    function updateFeedWriteAccess() {
-      const isLoggedIn = !!localStorage.getItem("username");
-      if (!isLoggedIn) {
-        feedMessage.setAttribute("disabled", "true");
-        feedMessage.placeholder = "Connecte-toi pour pulser le Core...";
-        feedSendBtn.setAttribute("disabled", "true");
-        feedSendBtn.style.opacity = "0.5";
-        feedSendBtn.style.cursor = "not-allowed";
-        feedMessage.addEventListener("focus", () => {
-          showFeedNotification("🔒 Connecte-toi pour rejoindre le flux du Core");
-          feedMessage.blur();
-        }, { once: true });
-      } else {
-        feedMessage.removeAttribute("disabled");
-        feedSendBtn.removeAttribute("disabled");
-        feedSendBtn.style.opacity = "1";
-        feedSendBtn.style.cursor = "pointer";
-        feedMessage.placeholder = "Pulse ton message...";
-      }
-    }
-    window.refreshFeedWriteAccess = updateFeedWriteAccess;
-    updateFeedWriteAccess();
-
-    // --- Bouton pour ouvrir la version plein écran du Feed ---
-const openFeedPage = document.getElementById("openFeedPage");
-if (openFeedPage) {
-  openFeedPage.addEventListener("click", () => {
-    window.location.href = "feed.html";
-  });
-}
-
-
-    // --- Ouvrir / fermer la modale ---
-    feedPulseBtn.addEventListener("click", () => {
-  feedModal.classList.add("active");
-  updateFeedWriteAccess();
-
-  const isLoggedIn = !!localStorage.getItem("username");
-  if (!isLoggedIn) {
-    showFeedNotification("🔒 Connecte-toi pour rejoindre le flux du Core");
-  } else {
-    feedMessage.focus();
-  }
-});
-
-
-    closeFeedModal.addEventListener("click", () => {
-      feedModal.classList.remove("active");
-    });
-
-    // --- Envoyer un message ---
-    function sendFeedMessage() {
-      const msg = feedMessage.value.trim();
-      if (!msg) return;
-      const username = localStorage.getItem("username");
-      if (!username) {
-        showFeedNotification("🔒 Connecte-toi pour pulser le Core");
-        return;
-      }
-      socket.send(JSON.stringify({
-        type: "new_message",
-        user: username,
-        text: msg
-      }));
-      feedMessage.value = "";
-    }
-
-    feedSendBtn.addEventListener("click", sendFeedMessage);
-    feedMessage.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendFeedMessage();
-      }
-    });
-
-    // --- Affichage des messages ---
-    function appendMessage(username, message) {
-      const msgEl = document.createElement("div");
-      msgEl.classList.add("feed-message");
-      const userEl = document.createElement("span");
-      userEl.classList.add("feed-username");
-      userEl.textContent = username;
-      userEl.onclick = () => {
-        window.location.href = `profile.html?user=${encodeURIComponent(username)}`;
-      };
-      const textEl = document.createElement("span");
-      textEl.classList.add("feed-text");
-      textEl.textContent = ` → ${message}`;
-      msgEl.appendChild(userEl);
-      msgEl.appendChild(textEl);
-      feedChatLog.appendChild(msgEl);
-      msgEl.scrollIntoView({ behavior: "smooth" });
-    }
-
-    // --- Effet Pulse sur le MarketCap ---
-    function pulseEffect() {
-      marketCap.classList.add("milestone-flash");
-      setTimeout(() => marketCap.classList.remove("milestone-flash"), 600);
-    }
-
-// === FeedCore Notification Function (anti-spam + fluide + positionnée) ===
-let lastNotif = "";
-let lastNotifTime = 0;
-
-window.showFeedNotification = function (message, duration = 3000) {
-  const now = Date.now();
-
-  // 🧠 Anti-spam : ignore les notifications répétées trop proches
-  if (message === lastNotif && now - lastNotifTime < 1000) return;
-  lastNotif = message;
-  lastNotifTime = now;
-
-  // Conteneur principal
-  const container = document.getElementById("feedNotificationContainer");
-  if (!container) return;
-
-  // Création d’une nouvelle bulle
-  const notif = document.createElement("div");
-  notif.className = "feed-notif";
-  notif.textContent = message;
-
-  // Ajout dans le conteneur (en haut ou en bas selon ton style)
-  container.appendChild(notif);
-
-  // Animation d’apparition
-  requestAnimationFrame(() => notif.classList.add("active"));
-
-  // Disparition après la durée
-  setTimeout(() => {
-    notif.classList.remove("active");
-    notif.classList.add("hide");
-
-    // Suppression douce après la transition
-    setTimeout(() => notif.remove(), 500);
-  }, duration);
-};
-
-
-
-  </script>
 </body>
 </html>
-

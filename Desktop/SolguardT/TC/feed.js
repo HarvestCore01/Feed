@@ -1,68 +1,26 @@
 // =============================================================
-// === Feed Pulse — WebSocket Universel (Modale + Page) ===
+// === FEED PULSE — WebSocket Universel (Page + Modale) ===
 // =============================================================
 
-const WS_URL = "ws://localhost:8080"; // 🔗 à remplacer en prod
+import { auth } from "./firebase-init.js";
+
+// 🔗 Adresse WebSocket
+const WS_URL = "ws://localhost:8080"; // remplace par wss://ton-domaine en prod
 
 // =============================================================
-// === Sélection des éléments universels ===
-const log =
-  document.getElementById("chat-log") ||
-  document.getElementById("feedChatLog");
-
-const input =
-  document.getElementById("message") ||
-  document.getElementById("feedMessage");
-
-const sendBtn =
-  document.getElementById("send") ||
-  document.getElementById("feedSendBtn");
-
-const statusEl =
-  document.getElementById("feedStatus") || createStatusIndicator();
-
-if (!log || !input || !sendBtn) {
-  console.warn("[FeedPulse] UI introuvable. Vérifie les IDs du DOM.");
-}
-
-// =============================================================
-// === Gestion accès écriture selon connexion ===
-function updateWriteAccess() {
-  if (!input || !sendBtn) return;
-  const isLoggedIn = !!localStorage.getItem("username");
-
-  if (!isLoggedIn) {
-    input.setAttribute("disabled", "true");
-    input.placeholder = "Connecte-toi pour pulser le Core...";
-    sendBtn.setAttribute("disabled", "true");
-    sendBtn.style.opacity = "0.5";
-    sendBtn.style.cursor = "not-allowed";
-
-    input.addEventListener(
-      "focus",
-      () => {
-        notify("🔒 Connecte-toi pour rejoindre le flux du Core");
-        input.blur();
-      },
-      { once: true }
-    );
-  } else {
-    input.removeAttribute("disabled");
-    sendBtn.removeAttribute("disabled");
-    sendBtn.style.opacity = "1";
-    sendBtn.style.cursor = "pointer";
-    input.placeholder = "Pulse ton message...";
-  }
-}
-
-// =============================================================
-// === Notifications universelles ===
-function notify(msg) {
-  if (typeof window.showFeedNotification === "function") {
-    window.showFeedNotification(msg);
-  } else {
-    console.log("[FeedPulse]", msg);
-  }
+// === Sélection dynamique des éléments ===
+function getFeedElements() {
+  return {
+    log:
+      document.getElementById("chat-log") ||
+      document.getElementById("feedChatLog"),
+    input:
+      document.getElementById("message") ||
+      document.getElementById("feedMessage"),
+    sendBtn:
+      document.getElementById("send") ||
+      document.getElementById("feedSendBtn"),
+  };
 }
 
 // =============================================================
@@ -87,6 +45,9 @@ function createStatusIndicator() {
   return el;
 }
 
+const statusEl =
+  document.getElementById("feedStatus") || createStatusIndicator();
+
 function updateStatusIndicator(text, color) {
   if (!statusEl) return;
   statusEl.textContent = text;
@@ -94,7 +55,35 @@ function updateStatusIndicator(text, color) {
 }
 
 // =============================================================
-// === Ping sonore pour nouveaux messages ===
+// === Notifications holographiques ===
+let lastNotif = "";
+let lastNotifTime = 0;
+
+function showFeedNotification(message, duration = 3000) {
+  const now = Date.now();
+  if (message === lastNotif && now - lastNotifTime < 1000) return;
+  lastNotif = message;
+  lastNotifTime = now;
+
+  const container = document.getElementById("feedNotificationContainer");
+  if (!container) return;
+
+  const notif = document.createElement("div");
+  notif.className = "feed-notif";
+  notif.textContent = message;
+  container.appendChild(notif);
+  requestAnimationFrame(() => notif.classList.add("active"));
+  setTimeout(() => {
+    notif.classList.remove("active");
+    notif.classList.add("hide");
+    setTimeout(() => notif.remove(), 500);
+  }, duration);
+}
+
+window.showFeedNotification = showFeedNotification;
+
+// =============================================================
+// === Son pour nouveaux messages ===
 function playPing() {
   try {
     const audio = new Audio(
@@ -102,74 +91,83 @@ function playPing() {
     );
     audio.volume = 0.3;
     audio.play();
-  } catch (e) {
-    console.warn("[FeedPulse] Impossible de jouer le son:", e);
-  }
+  } catch {}
 }
 
 // =============================================================
-// === Rendu unifié des messages (modale + plein écran) ===
+// === Rendu d’un message ===
 function appendMessage(user, text) {
+  const { log } = getFeedElements();
   if (!log) return;
 
-  const currentUser = localStorage.getItem("username");
+  const currentUser = auth.currentUser
+    ? auth.currentUser.displayName || auth.currentUser.email
+    : null;
   const isOwn = user === currentUser;
 
-  // Structure principale
   const row = document.createElement("div");
   row.className = "feed-message";
   if (isOwn) row.classList.add("own-message");
 
-  // Colonne pseudo + texte
-  const content = document.createElement("div");
-  content.className = "feed-content";
-
-  // Pseudo cliquable
   const userEl = document.createElement("span");
   userEl.className = "feed-username";
   userEl.textContent = user || "Anonyme";
   userEl.onclick = () => {
-    window.location.href = `profile.html?user=${encodeURIComponent(user || "Anonyme")}`;
+    window.location.href = `profile.html?user=${encodeURIComponent(
+      user || "Anonyme"
+    )}`;
   };
 
-  // Texte
   const txt = document.createElement("span");
   txt.className = "feed-text";
   txt.textContent = ` → ${text}`;
 
-  // Heure
   const timeEl = document.createElement("span");
   timeEl.className = "feed-time";
   const now = new Date();
-  timeEl.textContent = ` (${now.getHours().toString().padStart(2, "0")}:${now
-    .getMinutes()
+  timeEl.textContent = ` (${now
+    .getHours()
     .toString()
-    .padStart(2, "0")})`;
+    .padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")})`;
 
-  // Assemblage
-  content.appendChild(userEl);
-  content.appendChild(txt);
-  content.appendChild(timeEl);
-  row.appendChild(content);
+  row.appendChild(userEl);
+  row.appendChild(txt);
+  row.appendChild(timeEl);
   log.appendChild(row);
 
-  // Effet visuel
   if (isOwn) {
     row.style.transition = "background 0.6s ease";
     row.style.background = "rgba(0,255,156,0.1)";
     setTimeout(() => (row.style.background = "transparent"), 600);
   }
 
-  // Son si ce n’est pas moi
   if (!isOwn) playPing();
-
-  // Scroll smooth
   row.scrollIntoView({ behavior: "smooth", block: "end" });
 }
 
 // =============================================================
-// === Connexion WS ===
+// === Sauvegarde locale ===
+function saveMessagesToLocal(messages) {
+  try {
+    localStorage.setItem("feedMessagesCache", JSON.stringify(messages.slice(-50)));
+  } catch (e) {
+    console.warn("[FeedPulse] Erreur sauvegarde locale :", e);
+  }
+}
+
+function loadMessagesFromLocal() {
+  try {
+    const raw = localStorage.getItem("feedMessagesCache");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+// =============================================================
+// === WebSocket ===
 let socket;
+let cachedMessages = loadMessagesFromLocal();
 
 function connectWS() {
   socket = new WebSocket(WS_URL);
@@ -178,6 +176,12 @@ function connectWS() {
   socket.addEventListener("open", () => {
     console.log("%c[FeedPulse] Connecté au Core", "color:#00ff9c");
     updateStatusIndicator("🟢 Connecté", "#00ff9c");
+
+    const { log } = getFeedElements();
+    if (cachedMessages.length && log) {
+      log.innerHTML = "";
+      cachedMessages.forEach((msg) => appendMessage(msg.user, msg.text));
+    }
   });
 
   socket.addEventListener("message", (event) => {
@@ -185,12 +189,8 @@ function connectWS() {
       const payload = JSON.parse(event.data);
       if (payload?.type === "message" && payload?.data) {
         appendMessage(payload.data.user, payload.data.text);
-
-        const marketCap = document.getElementById("marketCap");
-        if (marketCap) {
-          marketCap.classList.add("milestone-flash");
-          setTimeout(() => marketCap.classList.remove("milestone-flash"), 600);
-        }
+        cachedMessages.push(payload.data);
+        saveMessagesToLocal(cachedMessages);
       }
     } catch {
       console.warn("[FeedPulse] Message non JSON:", event.data);
@@ -198,14 +198,8 @@ function connectWS() {
   });
 
   socket.addEventListener("close", () => {
-    console.warn("[FeedPulse] WS fermé. Reconnexion dans 2s…");
     updateStatusIndicator("🔴 Déconnecté — reconnexion...", "#ff4b4b");
     setTimeout(connectWS, 2000);
-  });
-
-  socket.addEventListener("error", (err) => {
-    console.error("[FeedPulse] Erreur WS:", err);
-    updateStatusIndicator("⚠️ Erreur WS", "#ffb347");
   });
 }
 
@@ -214,47 +208,129 @@ connectWS();
 // =============================================================
 // === Envoi d’un message ===
 function sendCurrentMessage() {
+  const { input } = getFeedElements();
   const text = (input?.value || "").trim();
   if (!text) return;
 
-  const username = localStorage.getItem("username");
-  if (!username) {
-    notify("🔒 Connecte-toi pour pulser le Core");
+  const user = auth.currentUser;
+  if (!user) {
+    showFeedNotification("🔒 Connecte-toi pour pulser le Core");
     return;
   }
 
   if (!socket || socket.readyState !== WebSocket.OPEN) {
-    notify("⚠️ Connexion au Core en cours… réessaie dans un instant");
+    showFeedNotification("⚠️ Connexion au Core en cours… réessaie dans un instant");
     return;
   }
 
-  socket.send(
-    JSON.stringify({
-      type: "new_message",
-      user: username,
-      text,
-    })
-  );
-
+  const username = user.displayName || user.email;
+  const msg = { type: "new_message", user: username, text };
+  socket.send(JSON.stringify(msg));
   input.value = "";
 }
 
 // =============================================================
-// === Bind des actions UI ===
-if (sendBtn) sendBtn.addEventListener("click", sendCurrentMessage);
-if (input) {
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendCurrentMessage();
-    }
-  });
+// === Bind UI dynamique ===
+function bindFeedUI() {
+  const { sendBtn, input } = getFeedElements();
+  if (sendBtn) sendBtn.onclick = sendCurrentMessage;
+  if (input) {
+    input.onkeydown = (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendCurrentMessage();
+      }
+    };
+  }
 }
+bindFeedUI();
 
 // =============================================================
-// === Synchro connexion / déconnexion ===
-updateWriteAccess();
-window.refreshFeedWriteAccess = updateWriteAccess;
-window.addEventListener("storage", (e) => {
-  if (e.key === "username") updateWriteAccess();
+// === FEED MODAL HANDLER — Centré & Stable ===
+document.addEventListener("DOMContentLoaded", () => {
+  const feedPulseBtn = document.getElementById("feedPulseBtn");
+  const feedModal = document.getElementById("feedModal");
+  const openFeedPageBtn = document.getElementById("openFeedPage");
+
+  if (feedPulseBtn && feedModal) {
+    let overlay = document.getElementById("feedOverlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "feedOverlay";
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 998;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    // OUVERTURE MODALE
+    feedPulseBtn.addEventListener("click", () => {
+      overlay.style.display = "block";
+      feedModal.style.display = "block";
+      feedModal.style.position = "fixed";
+      feedModal.style.top = "50%";
+      feedModal.style.left = "50%";
+      feedModal.style.transform = "translate(-50%, -50%) scale(1)";
+      feedModal.style.zIndex = "999";
+      feedModal.style.maxHeight = "90vh";
+      feedModal.style.overflow = "hidden";
+      feedModal.style.opacity = "0";
+      document.body.style.overflow = "hidden";
+
+      requestAnimationFrame(() => {
+        overlay.style.opacity = "1";
+        feedModal.style.opacity = "1";
+      });
+
+      setTimeout(bindFeedUI, 150);
+    });
+
+    // FERMETURE
+    const closeModal = () => {
+      feedModal.style.opacity = "0";
+      overlay.style.opacity = "0";
+      setTimeout(() => {
+        feedModal.style.display = "none";
+        overlay.style.display = "none";
+        document.body.style.overflow = "";
+      }, 250);
+    };
+
+    overlay.addEventListener("click", closeModal);
+    const closeBtn = feedModal.querySelector(".close");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  }
+
+  // OUVRIR EN GRAND
+  if (openFeedPageBtn) {
+    openFeedPageBtn.addEventListener("click", () => {
+      window.location.href = "feed.html";
+    });
+  }
+});
+
+// =============================================================
+// === Synchro Auth Firebase ===
+auth.onAuthStateChanged((user) => {
+  const { input, sendBtn } = getFeedElements();
+  if (!input || !sendBtn) return;
+
+  if (user) {
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.placeholder = "Pulse ton message...";
+    console.log("%c[FeedPulse] Connecté en tant que " + (user.displayName || user.email), "color:#00ff9c");
+  } else {
+    input.disabled = true;
+    sendBtn.disabled = true;
+    input.placeholder = "Connecte-toi pour pulser le Core...";
+    console.log("%c[FeedPulse] Non connecté", "color:#ff4b4b");
+  }
 });
