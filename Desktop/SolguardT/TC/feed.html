@@ -2,17 +2,38 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>FeedCore Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💬 Feed Pulse - Core Feed</title>
   <link rel="stylesheet" href="styles.css">
-  <script type="module" src="./feed.js"></script>
 </head>
-<body class="core-chat">
-  <div id="chat-container">
-    <div id="chat-log"></div>
-    <div id="chat-input">
-      <input type="text" id="message" placeholder="Écris dans le Core...">
-      <button id="send">Envoyer</button>
+
+<body style="background: radial-gradient(circle at top left, #001a12, #000); color: #00ffcc; font-family: 'Orbitron', monospace;">
+
+  <!-- === Bouton retour === -->
+  <a href="index.html" class="feature-btn" style="position:absolute; top:20px; left:20px;">
+    ⬅ Retour au Dashboard
+  </a>
+
+  <!-- === Conteneur principal du Feed Pulse (même structure que modale) === -->
+  <div class="feed-modal" style="max-width: 900px; margin: 100px auto; min-height: 600px;">
+    <h2>💬 Feed Pulse Live</h2>
+    <p>Connecté au cœur du flux</p>
+
+    <!-- Conteneur du chat -->
+    <div id="feedChatContainer">
+      <div id="feedChatLog"></div>
+      <div id="feedInputBox">
+        <textarea id="feedMessage" placeholder="Connecte-toi pour pulser le Core..." rows="2" disabled></textarea>
+        <button id="feedSendBtn" disabled>Envoyer</button>
+      </div>
     </div>
   </div>
+
+  <!-- === Notifications Holographiques === -->
+  <div id="feedNotificationContainer"></div>
+
+  <!-- === Scripts === -->
+  <script type="module" src="./firebase-init.js"></script>
+  <script type="module" src="./feed.js"></script>
 </body>
 </html>

@@ -24,6 +24,8 @@
     <h1>Core Feed Dashboard</h1>
     <p>Bienvenue sur ton projet Core Feed 🚀</p>
 
+  
+
     <!-- ===== MARKETCAP ===== -->
     <div>
       <h2>MarketCap : <span id="marketCap">0</span> SOL</h2>
@@ -102,6 +104,11 @@
       <span class="close" id="closeFeedModal">&times;</span>
       <h2>💬 Feed Pulse Live</h2>
       <p>Connecté au cœur du flux</p>
+
+      <!-- 🆕 Bouton pour ouvrir la page dédiée -->
+    <button id="openFeedPage" class="feature-btn" style="margin-bottom:10px;">
+      🔎 Ouvrir le Feed en plein écran
+    </button>
 
       <div id="feedChatContainer">
         <div id="feedChatLog"></div>
@@ -221,12 +228,28 @@
     window.refreshFeedWriteAccess = updateFeedWriteAccess;
     updateFeedWriteAccess();
 
+    // --- Bouton pour ouvrir la version plein écran du Feed ---
+const openFeedPage = document.getElementById("openFeedPage");
+if (openFeedPage) {
+  openFeedPage.addEventListener("click", () => {
+    window.location.href = "feed.html";
+  });
+}
+
+
     // --- Ouvrir / fermer la modale ---
     feedPulseBtn.addEventListener("click", () => {
-      feedModal.classList.add("active");
-      updateFeedWriteAccess();
-      feedMessage.focus();
-    });
+  feedModal.classList.add("active");
+  updateFeedWriteAccess();
+
+  const isLoggedIn = !!localStorage.getItem("username");
+  if (!isLoggedIn) {
+    showFeedNotification("🔒 Connecte-toi pour rejoindre le flux du Core");
+  } else {
+    feedMessage.focus();
+  }
+});
+
 
     closeFeedModal.addEventListener("click", () => {
       feedModal.classList.remove("active");
@@ -324,3 +347,4 @@ window.showFeedNotification = function (message, duration = 3000) {
   </script>
 </body>
 </html>
+
