@@ -1,10 +1,14 @@
 // === account.js ===
+// Version corrigée — Compatible Firebase v9 (modulaire)
+// =====================================================
+
 import { auth, db } from "./firebase-init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   sendEmailVerification,
+  sendPasswordResetEmail,
   updateProfile,
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
@@ -73,7 +77,6 @@ export async function signInWithUsernameOrEmail(login, password) {
 
   const userCred = await signInWithEmailAndPassword(auth, email, password);
   const user = userCred.user;
-
   await user.reload();
 
   const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -193,17 +196,13 @@ async function handleLogin(event) {
     const user = await signInWithUsernameOrEmail(login, password);
     const userDoc = await getDoc(doc(db, "users", user.uid));
     const username =
-      (user.displayName && user.displayName.trim() !== "")
-        ? user.displayName
-        : userDoc.exists()
-        ? userDoc.data().username
-        : "Anon";
+      user.displayName?.trim() ||
+      (userDoc.exists() ? userDoc.data().username : "Anon");
 
-    // ✅ Sauvegarde locale
     localStorage.setItem("username", username);
     localStorage.setItem("currentUser", user.uid);
 
-    // ✅ Attente que la fonction holographique soit dispo
+    // ✅ Notification visuelle
     const waitForNotif = () =>
       new Promise((resolve) => {
         const interval = setInterval(() => {
@@ -217,12 +216,10 @@ async function handleLogin(event) {
     const hologramNotif = await waitForNotif();
     hologramNotif(`Bienvenue ${username} dans le Core 💚`, "#00ff9c");
 
-    // ✅ Rafraîchit les accès du feed
     if (typeof window.refreshFeedWriteAccess === "function") {
       window.refreshFeedWriteAccess();
     }
 
-    // ✅ Ferme la modale proprement si elle existe
     if (typeof window.closeModal === "function") {
       window.closeModal("loginModal");
     } else {
@@ -249,7 +246,6 @@ async function handleRegister(event) {
 
   try {
     const user = await signUp(email, password, username);
-
     localStorage.setItem("username", username);
     localStorage.setItem("currentUser", user.uid);
 
@@ -280,7 +276,59 @@ async function handleRegister(event) {
 }
 
 // =============================================================
-// 7️⃣ — EXPORT GLOBAL POUR LE HTML
+// 7️⃣ — MOT DE PASSE OUBLIÉ (corrigé version modulaire & UI cohérente)
+// =============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const forgotLink = document.getElementById("forgotPasswordLink");
+  const forgotModal = document.getElementById("forgotPasswordModal");
+  const forgotForm = document.getElementById("forgotPasswordForm");
+  const closeForgot = document.getElementById("closeForgot");
+
+  if (forgotLink && forgotModal && forgotForm && closeForgot) {
+    // --- Ouvrir la modale ---
+    forgotLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      forgotModal.style.display = "block";
+    });
+
+    // --- Fermer la modale ---
+    closeForgot.addEventListener("click", () => {
+      forgotModal.style.display = "none";
+    });
+
+    // --- Soumission du formulaire ---
+    forgotForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("forgotEmail").value.trim();
+      if (!email) return alert("Entre ton e-mail.");
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+
+        const notify =
+          window.showHolographicNotification || window.showFeedNotification;
+        if (typeof notify === "function") {
+          notify(`📩 Email de réinitialisation envoyé à ${email}`, "#00ff9c");
+        } else {
+          console.log("📩 Email de réinitialisation envoyé à", email);
+        }
+
+        forgotModal.style.display = "none";
+      } catch (err) {
+        const notify =
+          window.showHolographicNotification || window.showFeedNotification;
+        if (typeof notify === "function") {
+          notify(`❌ Erreur lors de l’envoi du mail : ${err.message}`, "#ff4d6d");
+        } else {
+          console.error("Erreur reset password :", err);
+        }
+      }
+    });
+  }
+});
+
+// =============================================================
+// 8️⃣ — EXPORT GLOBAL POUR LE HTML
 // =============================================================
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;

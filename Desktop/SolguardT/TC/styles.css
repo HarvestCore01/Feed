@@ -1290,3 +1290,34 @@ button:hover {
   box-shadow: 0 0 15px #00ff9c;
   transform: translateY(-1px);
 }
+
+/* ===============================
+   CORE FEED — HOLOGRAM IA DISABLED
+   Ce bloc neutralise l'œuf holographique
+   sans impacter le layout ou les modules JS
+   =============================== */
+/* === TEMPORARY DISABLE: IA Hologram === */
+#ai-hologram,
+#ai-hologram .egg,
+#ai-hologram .core,
+#ai-hologram .scanline,
+#ai-hologram .crack,
+#ai-hologram .ia-entity,
+#ai-hologram .ia-final,
+#ai-hologram .ring,
+#ai-hologram .energy {
+  all: unset !important; /* Supprime TOUTES les propriétés héritées */
+  display: none !important;
+}
+
+/* Lien "Mot de passe oublié" */  
+.forgot-link {
+  display: block;
+  margin-top: 10px;
+  color: #00ff9c;
+  text-decoration: none;
+  font-size: 0.85rem;
+  text-align: right;
+  transition: color 0.2s ease;
+}
+.forgot-link:hover { color: #63ffd4; }

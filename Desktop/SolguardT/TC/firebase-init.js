@@ -1,47 +1,76 @@
-// firebase-init.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+// ===============================
+// 🔥 FIREBASE INIT — CORE FEED
+// Version corrigée et stable (ESM compatible)
+// ===============================
 
-// 🔹 Configuration de ton projet Firebase
+// Import des modules Firebase v9 (modular)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+// ===============================
+// 🔹 Configuration du projet Firebase
+// ===============================
 const firebaseConfig = {
   apiKey: "AIzaSyCDKeMtXSp34ewRCZlNCKjFotPVGIINHQw",
   authDomain: "feedcore-64023.firebaseapp.com",
-  databaseURL: "https://feedcore-64023-default-rtdb.europe-west1.firebasedatabase.app", // ✅ ajout essentiel
+  databaseURL:
+    "https://feedcore-64023-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "feedcore-64023",
-  storageBucket: "feedcore-64023.appspot.com", // ⚠️ ton URL avait une erreur (".app" en trop)
+  storageBucket: "feedcore-64023.appspot.com",
   messagingSenderId: "868675248253",
   appId: "1:868675248253:web:e395abb45fac24d0a71114",
   measurementId: "G-XLBSRMK02N"
 };
 
-// 🔹 Initialisation Firebase
+// ===============================
+// 🚀 Initialisation Firebase
+// ===============================
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-export { app };
+// ===============================
+// 🌐 Exportation centralisée
+// ===============================
+// Ces exports permettront à tous tes modules (account.js, leaderboard.js, etc.)
+// d’utiliser les mêmes instances Firebase sans erreur “firebase is not defined”.
+export { app, auth, db, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, doc, setDoc, getDoc };
 
-
-// 🔹 Exporte les services pour les autres fichiers
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-
-// 🔹 Test Firebase (optionnel, juste pour vérifier que ça marche)
+// ===============================
+// 🧪 Test optionnel (désactivable en prod)
+// ===============================
 async function testFirebase() {
-  console.log("✅ Firebase initialisé !");
+  console.log("✅ Firebase initialisé et connecté au projet FeedCore.");
 
   try {
     const testRef = doc(db, "test", "ping");
-    await setDoc(testRef, { message: "hello core feed", date: new Date().toISOString() });
+    await setDoc(testRef, {
+      message: "hello core feed",
+      date: new Date().toISOString()
+    });
 
     const snap = await getDoc(testRef);
     if (snap.exists()) {
-      console.log("🔥 Firestore fonctionne, document lu :", snap.data());
+      console.log("🔥 Firestore fonctionne :", snap.data());
     } else {
-      console.error("⚠️ Firestore ne renvoie rien !");
+      console.warn("⚠️ Firestore ne renvoie rien !");
     }
   } catch (err) {
     console.error("❌ Erreur Firestore :", err);
   }
 }
 
-testFirebase();
+// Désactiver ce test en production
+// testFirebase();
