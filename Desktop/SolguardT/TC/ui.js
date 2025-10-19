@@ -1,49 +1,49 @@
 // === ui.js ===
-import { marketCap } from './market.js';
+import { marketCap } from "./market.js";
 
+// =============================================================
+// 🔹 Mise à jour statique immédiate du MarketCap
+// =============================================================
 export function updateDisplay() {
-  const marketCapElement = document.getElementById('marketCap');
+  const marketCapElement = document.getElementById("marketCap");
   if (marketCapElement) {
-    marketCapElement.textContent = marketCap.toLocaleString();
+    marketCapElement.textContent = formatMarketCap(marketCap);
   }
 }
 
-
-// ===== Animation ultra rapide du MarketCap =====
+// =============================================================
+// 🔹 Animation fluide du MarketCap affiché
+// =============================================================
 let displayedMarketCap = 0;
 let marketCapInterval = null;
 
 export function smoothUpdateMarketCap(newMarketCap) {
-  // Si un interval existe déjà, on le supprime pour en recréer un nouveau
   if (marketCapInterval) clearInterval(marketCapInterval);
 
   marketCapInterval = setInterval(() => {
-    // Différence entre la valeur affichée et la cible
     const diff = newMarketCap - displayedMarketCap;
 
-    // Si la différence est faible, on termine l'animation
-    if (Math.abs(diff) <= 0) {
+    if (Math.abs(diff) <= 1) {
       displayedMarketCap = newMarketCap;
       clearInterval(marketCapInterval);
     } else {
-      // Animation fluide : on se rapproche de la cible
-      displayedMarketCap += Math.sign(diff) * Math.min(Math.abs(diff), 200);
+      // ⚡ Animation fluide
+      displayedMarketCap += diff * 0.1;
     }
 
-    // Mise à jour de l'affichage
     const marketCapEl = document.getElementById("marketCap");
     if (marketCapEl) {
-      marketCapEl.textContent = Math.floor(displayedMarketCap).toLocaleString();
+      marketCapEl.textContent = formatMarketCap(displayedMarketCap);
     }
-  }, 20); // 20ms = rapide mais fluide
+  }, 30);
 }
 
-
-
-
-// Format pour afficher 1k, 1M etc.
+// =============================================================
+// 🔹 Formatage lisible du MarketCap ($, K, M, B)
+// =============================================================
 function formatMarketCap(value) {
-  if (value >= 1000000) return (value / 1000000).toFixed(2) + " M";
-  if (value >= 1000) return (value / 1000).toFixed(2) + " K";
-  return value.toFixed(2);
+  if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}B`;
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
+  return `$${value.toFixed(2)}`;
 }

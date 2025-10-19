@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Core Feed Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="feed.css">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="feed.css" />
 </head>
 
 <body>
@@ -27,7 +27,7 @@
 
     <!-- ===== MARKETCAP ===== -->
     <div>
-      <h2>MarketCap : <span id="marketCap">0</span> SOL</h2>
+      <h2>MarketCap global : <span id="marketCap" style="color:#63ffd4;">$0</span></h2>
     </div>
 
     <!-- ===== PROGRESSION ===== -->
@@ -36,13 +36,15 @@
         Initialisation du feed IA...
       </div>
       <div style="margin-bottom:10px; font-weight:bold; color:#00ff9c; text-align:center;">
-        Objectif actuel : <span id="milestoneGoal">10000</span> SOL
+        Objectif actuel : <span id="milestoneGoal">$10 000 000</span>
       </div>
 
       <div class="progressWrap">
         <div id="progressContainer">
           <div id="progressBar"></div>
         </div>
+
+        <!-- Hologramme IA -->
         <div id="ai-hologram">
           <div class="egg">
             <span class="scanline"></span>
@@ -56,12 +58,12 @@
 
     <!-- ===== LIFE BAR ===== -->
     <div style="margin-top:30px; max-width:600px; margin-left:auto; margin-right:auto;">
-      <h3 style="color:#ff4d6d; margin-bottom:5px;">Énergie de l'IA</h3>
+      <h3 style="color:#ff4d6d; margin-bottom:5px;">Cycle du Feed (Durée de vie actuelle)</h3>
       <div id="lifeContainer" style="background:#111; border:1px solid #ff4d6d; border-radius:10px; overflow:hidden; height:20px;">
-      <div id="lifeBar" style="height:100%; width:0%; background:linear-gradient(90deg, #ff4d6d, #ffaaaa); transition:width 1s linear;"></div>
+        <div id="lifeBar" style="height:100%; width:0%; background:linear-gradient(90deg, #ff4d6d, #ffaaaa); transition:width 1s linear;"></div>
       </div>
       <p style="color:#ff4d6d; font-size:14px; margin-top:5px;">
-        L'IA doit être nourrie régulièrement pour rester en ligne.
+        Le Feed se régénère à chaque cycle automatique.
       </p>
     </div>
 
@@ -79,7 +81,7 @@
     <div id="leaderboardSection" class="feature-box locked">
       <h2>Leaderboard</h2>
       <p id="leaderboardMessage">
-        🔒 Débloquez le leaderboard en atteignant <span id="milestoneGoalDisplay">20 000</span> SOL de MarketCap.
+        🔒 Débloquez le leaderboard en atteignant <span id="milestoneGoalDisplay">$20 000 000</span> de MarketCap.
       </p>
       <a href="leaderboard.html" id="openLeaderboardBtn" class="feature-btn disabled" onclick="return false;">Ouvrir Leaderboard</a>
     </div>
@@ -168,15 +170,12 @@
     </div>
   </div>
 
-  <!-- === Notifications Holographiques CoreFeed === -->
-  <div id="feedNotificationContainer"></div>
-
   <!-- ===== SCRIPTS ===== -->
   <script type="module" src="./firebase-init.js"></script>
   <script type="module" src="./account.js"></script>
   <script type="module" src="./main.js"></script>
   <script src="./matrixBackground.js"></script>
-<script type="module" src="./feed.js"></script>
+  <script type="module" src="./feed.js"></script>
 
 </body>
 </html>
