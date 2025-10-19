@@ -27,6 +27,35 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("Main.js chargé ✅");
 
   // =============================================================
+  // 🔹 GESTION DES BOUTONS DE MODALES (login / register)
+  // =============================================================
+  const loginBtn = document.getElementById("login");
+  const createAccountBtn = document.getElementById("createAccount");
+
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => openModal("loginModal"));
+  }
+
+  if (createAccountBtn) {
+    createAccountBtn.addEventListener("click", () => openModal("registerModal"));
+  }
+
+  // Fonction d’ouverture modale universelle
+  window.openModal = function (id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.style.display = "flex";
+    modal.classList.add("active");
+  };
+
+  window.closeModal = function (id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove("active");
+    setTimeout(() => (modal.style.display = "none"), 250);
+  };
+
+  // =============================================================
   // 🔹 OBSERVATEUR D’AUTHENTIFICATION
   // =============================================================
   onAuthStateChanged(auth, async (user) => {
@@ -36,8 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         await updateUserInfo(currentUser);
 
-        document.getElementById("createAccount").style.display = "none";
-        document.getElementById("login").style.display = "none";
+        loginBtn.style.display = "none";
+        createAccountBtn.style.display = "none";
         document.getElementById("viewProfile").style.display = "inline-block";
         document.getElementById("logoutBtn").style.display = "inline-block";
 
@@ -53,8 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.removeItem("username");
       currentUser = null;
 
-      document.getElementById("createAccount").style.display = "inline-block";
-      document.getElementById("login").style.display = "inline-block";
+      loginBtn.style.display = "inline-block";
+      createAccountBtn.style.display = "inline-block";
       document.getElementById("viewProfile").style.display = "none";
       document.getElementById("logoutBtn").style.display = "none";
 
@@ -63,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // =============================================================
-  // 2️⃣ UTILITAIRES VISUELS / AUDIO
+  // 🔹 SON D’INTRO
   // =============================================================
   function playBootSound() {
     if (!bootPlayed) {
@@ -71,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .play()
         .then(() => {
           bootPlayed = true;
+          console.log("🔊 Son de boot joué !");
         })
         .catch(() => {
           document.body.addEventListener(
@@ -115,8 +145,8 @@ document.addEventListener("DOMContentLoaded", () => {
     logoutBtn.addEventListener("click", async () => {
       try {
         await signOutUser();
-        document.getElementById("createAccount").style.display = "inline-block";
-        document.getElementById("login").style.display = "inline-block";
+        loginBtn.style.display = "inline-block";
+        createAccountBtn.style.display = "inline-block";
         document.getElementById("viewProfile").style.display = "none";
         document.getElementById("logoutBtn").style.display = "none";
         showHolographicNotification("🚪 Déconnecté du Core Feed", "#ff4d6d");
@@ -191,8 +221,6 @@ function startFeedFactoryTimer(updateDisplay) {
 // =============================================================
 // 💹 DEXSCREENER LIVE MARKETCAP SYNC + ALERT SYSTEM
 // =============================================================
-
-// 🔹 Adresse du token
 const TOKEN_ADDRESS = "2VBDM27xPCiqWrFab5oREF4UWJVVXpxGCaTrBgb4bQcq";
 const DEX_API = `https://api.dexscreener.com/latest/dex/tokens/${TOKEN_ADDRESS}`;
 
@@ -202,36 +230,65 @@ const marketCapLabel = document.getElementById("marketCap");
 const milestoneGoal = document.getElementById("milestoneGoal");
 
 let lastMarketCap = 0;
-let currentScaleMax = 1_000_000; // 1M$ de base
+let currentScaleMax = 1_000_000; // 1M$ par défaut
 
-// === HOLOGRAPHIC NOTIFICATION SYSTEM ===
-function showHolographicNotification(message, color = "#00ff9c") {
-  const container = document.getElementById("feedNotificationContainer");
-  if (!container) return;
+// =============================================================
+// ✨ HOLOGRAPHIC NOTIFICATION SYSTEM (UNIFIÉ GLOBAL)
+// =============================================================
+function ensureNotifContainer() {
+  let container = document.getElementById("feedNotificationContainer");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "feedNotificationContainer";
+    document.body.appendChild(container);
+  }
+  return container;
+}
 
+export function showHolographicNotification(message, color = "#00ff9c") {
+  const container = ensureNotifContainer();
   const notif = document.createElement("div");
   notif.className = "holo-notif";
-  notif.textContent = message;
-  notif.style.borderColor = color;
-  notif.style.color = color;
+  notif.innerHTML = `<span>${message}</span>`;
 
-  // 🧠 Empilement fluide (pas de position fixed)
-  container.prepend(notif);
+  notif.style.border = `1px solid ${color}`;
+  notif.style.color = color;
+  notif.style.boxShadow = `0 0 12px ${color}, inset 0 0 8px ${color}`;
+
+  container.appendChild(notif);
 
   setTimeout(() => {
     notif.style.opacity = 1;
     notif.style.transform = "translateY(0)";
-  }, 30);
+  }, 50);
 
   setTimeout(() => {
     notif.style.opacity = 0;
     notif.style.transform = "translateY(-10px)";
-    setTimeout(() => notif.remove(), 600);
-  }, 6000);
+    setTimeout(() => notif.remove(), 700);
+  }, 5000);
 }
 
+window.showHolographicNotification = showHolographicNotification;
 
-// === Fonction principale ===
+
+// =============================================================
+// 🧩 TYPES DE NOTIFS PRÉDÉFINIS (accès global facile)
+// =============================================================
+window.notify = {
+  success: (msg) => showHolographicNotification(`✅ ${msg}`, "#00ff9c"),
+  warning: (msg) => showHolographicNotification(`⚠️ ${msg}`, "#ffb347"),
+  error: (msg) => showHolographicNotification(`❌ ${msg}`, "#ff4d6d"),
+  info: (msg) => showHolographicNotification(`💡 ${msg}`, "#00c8ff"),
+  whale: (msg) => showHolographicNotification(`🐋 ${msg}`, "#00bfff"),
+  pump: (msg) => showHolographicNotification(`📈 ${msg}`, "#00ffcc"),
+  dump: (msg) => showHolographicNotification(`📉 ${msg}`, "#ff5c8a"),
+};
+
+
+// =============================================================
+// 🧠 SYNC MARKETCAP + ALERTES
+// =============================================================
 async function syncMarketCap() {
   try {
     const res = await fetch(DEX_API);
@@ -242,7 +299,6 @@ async function syncMarketCap() {
     const marketCap = pair.fdv || 0;
     const volume = pair.volume?.h24 || 0;
 
-    // Détermine échelle
     let newScaleMax = currentScaleMax;
     if (marketCap < 1_000_000) newScaleMax = 1_000_000;
     else if (marketCap < 10_000_000) newScaleMax = 10_000_000;
@@ -251,7 +307,7 @@ async function syncMarketCap() {
 
     if (newScaleMax !== currentScaleMax) {
       currentScaleMax = newScaleMax;
-      showHolographicNotification(`⚙️ Échelle ajustée → ${formatUSD(currentScaleMax)}`, "#00ffff");
+      showHolographicNotification(`⚙️ Nouvelle échelle → ${formatUSD(currentScaleMax)}`, "#00ffff");
       if (milestoneGoal) milestoneGoal.textContent = formatUSD(currentScaleMax);
     }
 
@@ -267,7 +323,6 @@ async function syncMarketCap() {
     if (progressText) progressText.textContent = `💰 MarketCap: ${formattedCap} | Volume 24h: ${formattedVol}`;
     if (marketCapLabel) marketCapLabel.textContent = formattedCap;
 
-    // === 🧠 Détection Whale & Variation
     const tx = pair.txns || {};
     const m5 = tx.m5 || { buys: 0, sells: 0, volume: 0 };
     const priceChange5m = pair.priceChange?.m5 || 0;
@@ -288,90 +343,15 @@ async function syncMarketCap() {
   }
 }
 
-// === Helpers ===
+// =============================================================
+// 💲 HELPERS
+// =============================================================
 function formatUSD(num) {
   if (num >= 1_000_000_000) return `$${(num / 1_000_000_000).toFixed(2)}B`;
   if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(2)}M`;
   if (num >= 1_000) return `$${(num / 1_000).toFixed(1)}K`;
   return `$${num.toFixed(2)}`;
 }
-
-// =============================================================
-// 🧩 FIX — Activation des modales Login / Register
-// =============================================================
-document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("login");
-  const createBtn = document.getElementById("createAccount");
-
-  // ✅ Ouverture des modales
-  if (loginBtn) {
-    loginBtn.addEventListener("click", () => {
-      const modal = document.getElementById("loginModal");
-      if (modal) modal.style.display = "block";
-    });
-  }
-
-  if (createBtn) {
-    createBtn.addEventListener("click", () => {
-      const modal = document.getElementById("registerModal");
-      if (modal) modal.style.display = "block";
-    });
-  }
-
-  // ✅ Fermeture au clic sur la croix
-  document.querySelectorAll(".close").forEach((el) => {
-    el.addEventListener("click", () => {
-      const modal = el.closest(".feed-modal");
-      if (modal) modal.style.display = "none";
-    });
-  });
-});
-
-// =============================================================
-// 🌍 RENDRE LES MODALES ACCESSIBLES À TOUT LE CODE
-// =============================================================
-window.openModal = function (id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.style.display = "block";
-};
-
-window.closeModal = function (id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.style.display = "none";
-};
-
-// =============================================================
-// 🌌 NOTIFICATIONS HOLOGRAPHIQUES — VERSION UNIFIÉE
-// =============================================================
-window.showHolographicNotification = function (message, color = "#00ff9c") {
-  const container = document.getElementById("feedNotificationContainer");
-  if (!container) return;
-
-  // ✅ Crée la notification avec la bonne classe CSS
-  const notif = document.createElement("div");
-  notif.classList.add("feed-notif");
-  notif.innerHTML = `<span>${message}</span>`;
-
-  // ✅ Applique la couleur principale
-  notif.style.border = `1px solid ${color}`;
-  notif.style.color = color;
-  notif.style.boxShadow = `0 0 15px ${color}`;
-  notif.style.textShadow = `0 0 6px ${color}`;
-
-  // ✅ Ajout dans le container
-  container.appendChild(notif);
-
-  // ✅ Animation d'apparition fluide
-  setTimeout(() => notif.classList.add("active"), 50);
-
-  // ✅ Disparition automatique après 5 secondes
-  setTimeout(() => {
-    notif.classList.add("hide");
-    setTimeout(() => notif.remove(), 600);
-  }, 5000);
-};
-
-
 
 // 🔁 Rafraîchit toutes les 10s
 setInterval(syncMarketCap, 10000);
