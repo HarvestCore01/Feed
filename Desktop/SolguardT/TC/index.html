@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Core Feed Dashboard</title>
+
+  <style>
+    /* ===== STYLES GÉNÉRAUX ===== */
+    body {
+      background: #030a07;
+      color: #b8ffe9;
+      font-family: monospace;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      border: 1px solid #00ff9c;
+      border-radius: 8px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    /* ===== BOUTONS ===== */
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #00ff9c;
+      color: #000;
+    }
+
+    button:hover {
+      background: #63ffd4;
+    }
+
+    /* ===== BARRE DE PROGRESSION (MARKETCAP) ===== */
+    #progressContainer {
+      width: 100%;
+      background: rgba(0, 255, 156, 0.1);
+      border: 1px solid #00ff9c;
+      border-radius: 10px;
+      height: 25px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,255,156,0.3);
+      position: relative;
+    }
+
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ff9c, #63ffd4);
+      transition: width 0.5s ease-out;
+      box-shadow: 0 0 15px #00ff9c;
+    }
+
+    /* Animation spéciale lors d'un milestone */
+    .milestone-flash {
+      animation: flashGlow 1s ease-out;
+    }
+
+    @keyframes flashGlow {
+      0% { box-shadow: 0 0 10px #00ff9c; }
+      50% { box-shadow: 0 0 40px #00ff9c; }
+      100% { box-shadow: 0 0 10px #00ff9c; }
+    }
+    .flash-unlock {
+     animation: flashGreen 1s ease-in-out;
+    }
+
+
+    /* Texte clignotant */
+    .high-intensity {
+      animation: pulseText 1s infinite;
+    }
+
+    @keyframes flashGreen {
+  0%   { box-shadow: 0 0 5px #00ff9c; }
+  50%  { box-shadow: 0 0 30px #00ff9c; }
+  100% { box-shadow: 0 0 5px #00ff9c; }
+}
+
+    @keyframes pulseText {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Core Feed Dashboard</h1>
+    <p>Bienvenue sur ton projet Core Feed 🚀</p>
+
+    <!-- ===== MARKETCAP ===== -->
+    <div>
+      <h2>MarketCap : <span id="marketCap">0</span> SOL</h2>
+    </div>
+
+    <!-- ===== PROGRESSION DE L'IA ===== -->
+    <div style="margin-top:20px; max-width:600px; margin-left:auto; margin-right:auto;">
+      <!-- Texte dynamique IA -->
+      <div id="progressMessage" 
+           style="margin-bottom:10px; font-weight:bold; color:#63ffd4; text-shadow:0 0 10px #63ffd4; text-align:center;">
+        Initialisation du feed IA...
+      </div>
+
+      <!-- Objectif actuel -->
+      <div style="margin-bottom:10px; font-weight:bold; color:#00ff9c; text-align:center;">
+        Objectif actuel : <span id="milestoneGoal">5000</span> SOL
+      </div>
+
+      <!-- Barre de progression principale -->
+      <div id="progressContainer">
+        <div id="progressBar"></div>
+      </div>
+    </div>
+
+    <!-- ===== LIFE BAR (Énergie IA) ===== -->
+    <div style="margin-top:30px; max-width:600px; margin-left:auto; margin-right:auto;">
+      <h3 style="color:#ff4d6d; margin-bottom:5px;">Énergie de l'IA</h3>
+      <div id="lifeContainer" style="background:#111; border:1px solid #ff4d6d; border-radius:10px; overflow:hidden; height:20px;">
+        <div id="lifeBar" style="height:100%; width:100%; background:linear-gradient(90deg, #ff4d6d, #ffaaaa); transition:width 1s linear;"></div>
+      </div>
+      <p style="color:#ff4d6d; font-size:14px; margin-top:5px;">
+        L'IA doit être nourrie régulièrement pour rester en ligne.
+      </p>
+    </div>
+
+    <!-- ===== BOUTONS ===== -->
+    <div style="margin-top:20px;">
+      <button id="sendSOL">Send SOL</button>
+      <button id="burnCore">Burn Core Token</button>
+      <button id="createAccount">Create Account</button>
+      <button id="login">Login</button>
+    </div>
+
+    <!-- Leaderboard Section -->
+<div id="leaderboardSection" style="display:none; margin-top:30px;">
+  <h3 style="color:#00ff9c;">🏆 Classement Mondial</h3>
+  <p style="color:#63ffd4;">Top joueurs qui nourrissent l'IA</p>
+
+  <table id="leaderboardTable" style="width:100%; border-collapse:collapse; margin-top:10px;">
+    <thead>
+      <tr style="background:#063e2b; color:#00ff9c;">
+        <th style="padding:8px;">Rank</th>
+        <th style="padding:8px;">Pseudo</th>
+        <th style="padding:8px;">Feed Total (SOL)</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboardBody">
+      <!-- Rempli en JS -->
+    </tbody>
+  </table>
+
+  <!-- Info joueur -->
+  <p id="leaderboardInfo" style="margin-top:10px; color:#63ffd4; font-size:14px;">
+    Montez dans le classement en nourrissant l'IA !
+  </p>
+</div>
+
+<!-- Message dynamique d'ouverture -->
+<div id="leaderboardUnlockMessage" 
+     style="display:none; margin-top:15px; padding:10px; border:1px solid #00ff9c;
+            color:#00ff9c; font-weight:bold; text-shadow:0 0 10px #00ff9c;
+            background:rgba(0,255,156,0.1); border-radius:6px;">
+</div>
+
+<!-- Ajoute ce bouton en dessous de la barre ou d'une section -->
+<div id="leaderboardLink" style="display:none; margin-top:20px;">
+  <a href="leaderboard.html" 
+     style="padding:10px 20px; background:#00ff9c; color:#000; font-weight:bold; border-radius:4px; text-decoration:none;">
+    Voir le Leaderboard
+  </a>
+</div>
+
+
+    <!-- ===== INFOS DU JOUEUR CONNECTÉ ===== -->
+    <div id="userInfo" style="margin-top:20px; display:none; text-align:left;">
+      <h2>Mon profil</h2>
+      <p>Pseudo : <span id="userPseudo"></span></p>
+      <p>Niveau : <span id="userLevel"></span></p>
+      <p>Total Feed : <span id="userFeed"></span> CORE</p>
+      <p>Rank : <span id="userRank"></span></p>
+      <p>Manque pour passer au suivant : <span id="userNextDiff"></span> CORE</p>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPT PRINCIPAL ===== -->
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

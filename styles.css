@@ -1,0 +1,1323 @@
+/* === Arrière-plan Matrix === */
+#matrixBackground {
+  opacity: 0.4; /* 0.3 = très discret, 1 = intense */
+  /*filter: blur(1px); /* flou léger pour casser la netteté */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* derrière le dashboard */
+  will-change: transform, opacity;
+  background: black;
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
+}
+
+/* === Overlay sombre pour le centre === */
+#matrixOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%);
+  pointer-events: none; /* Ne bloque pas les clics */
+  z-index: 0;
+}
+
+/* ===== STYLES GÉNÉRAUX ===== */
+body {
+  background: #030a07;
+  color: #b8ffe9;
+  font-family: monospace;
+  text-align: center;
+  padding: 30px;
+}
+
+/* ===== Dashboard principal ===== */
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  border: 2px solid #00ff9c;
+  border-radius: 8px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(3px);
+
+  /* 🌟 Animation premium */
+  box-shadow: 0 0 10px rgba(0, 255, 156, 0.4);
+  animation: dashboardPulse 3.5s infinite ease-in-out;
+
+}
+
+@keyframes dashboardPulse {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 255, 156, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 255, 156, 0.7);
+    transform: scale(1.01); /* légère mise en avant */
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(0, 255, 156, 0.4);
+    transform: scale(1);
+  }
+}
+
+/* Dashboard bat plus vite si IA en danger */
+.container.danger {
+  animation: dashboardPulseFast 1.5s infinite ease-in-out;
+}
+
+@keyframes dashboardPulseFast {
+  0% { box-shadow: 0 0 10px rgba(255, 77, 109, 0.6); transform: scale(1); }
+  50% { box-shadow: 0 0 30px rgba(255, 77, 109, 1); transform: scale(1.02); }
+  100% { box-shadow: 0 0 10px rgba(255, 77, 109, 0.6); transform: scale(1); }
+}
+
+/* === Profil Card === */
+.profile-card {
+  margin: 30px auto;
+  padding: 20px;
+  max-width: 500px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff9c;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 255, 156, 0.3);
+  animation: profilePulse 4s infinite ease-in-out;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet Matrix : lignes animées en fond */
+.profile-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(0,255,156,0.15), transparent);
+  animation: shineEffect 5s infinite;
+  z-index: 0;
+}
+
+@keyframes shineEffect {
+  0% { transform: translateX(-50%); }
+  50% { transform: translateX(50%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* === Titre du profil === */
+.profile-title {
+  font-size: 1.8rem;
+  color: #00ff9c;
+  text-shadow: 0 0 10px #00ff9c;
+  margin-bottom: 20px;
+  z-index: 1;
+  position: relative;
+}
+
+/* === Stats container === */
+.profile-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1;
+  position: relative;
+}
+
+/* === Une stat individuelle === */
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: rgba(0, 255, 156, 0.05);
+  border: 1px solid rgba(0, 255, 156, 0.2);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.stat:hover {
+  background: rgba(0, 255, 156, 0.15);
+  box-shadow: 0 0 10px rgba(0, 255, 156, 0.4);
+}
+
+/* Label */
+.stat .label {
+  color: #63ffd4;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Value */
+.stat .value {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1rem;
+  text-shadow: 0 0 5px #00ff9c;
+}
+
+.unit {
+  font-size: 0.8rem;
+  color: #63ffd4;
+  margin-left: 5px;
+}
+
+/* Animation de pulsation subtile */
+@keyframes profilePulse {
+  0% { box-shadow: 0 0 15px rgba(0, 255, 156, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 255, 156, 0.6); }
+  100% { box-shadow: 0 0 15px rgba(0, 255, 156, 0.3); }
+}
+
+
+/* ===== BOUTONS ===== */
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #00ff9c;
+  color: #000;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #63ffd4;
+}
+
+/* ===== BARRE DE PROGRESSION ===== */
+#progressContainer {
+  width: 100%;
+  background: rgba(0, 255, 156, 0.1);
+  border: 1px solid #00ff9c;
+  border-radius: 10px;
+  height: 25px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,255,156,0.3);
+  position: relative;
+}
+
+
+/* Animation spéciale lors d'un milestone */
+.milestone-flash {
+  animation: flashGlow 1s ease-out;
+}
+
+@keyframes flashGlow {
+  0% { box-shadow: 0 0 10px #00ff9c; }
+  50% { box-shadow: 0 0 40px #00ff9c; }
+  100% { box-shadow: 0 0 10px #00ff9c; }
+}
+/* Animation de déverrouillage */
+.flash-unlock {
+  animation: flashGreen 1.5s ease-in-out;
+}
+@keyframes unlockFlash {
+  0% {
+    box-shadow: 0 0 5px #00ff9c;
+    transform: scale(0.95);
+  }
+  50% {
+    box-shadow: 0 0 30px #00ff9c;
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 15px #00ff9c;
+    transform: scale(1);
+  }
+}
+
+/* Texte clignotant */
+.high-intensity {
+  animation: pulseText 1s infinite;
+}
+
+/* ===== Leaderboard ===== */
+.feature-box {
+  margin: 30px auto;
+  padding: 20px;
+  max-width: 600px;
+  border: 2px solid #00ff9c;
+  border-radius: 10px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.feature-box h2 {
+  font-size: 1.5em;
+  color: #00ff9c;
+  margin-bottom: 10px;
+}
+
+.feature-box p {
+  color: #63ffd4;
+  font-size: 1em;
+  margin-bottom: 15px;
+}
+
+.feature-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+  background: #00ff9c;
+  color: #000;
+  transition: background 0.3s ease;
+}
+
+.feature-btn:hover {
+  background: #63ffd4;
+}
+
+/* État verrouillé */
+.locked {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.locked .feature-btn {
+  background: grey !important;
+  cursor: not-allowed;
+}
+
+/* ===== Animations ===== */
+@keyframes flashGreen {
+  0%   { box-shadow: 0 0 5px #00ff9c; }
+  50%  { box-shadow: 0 0 30px #00ff9c; }
+  100% { box-shadow: 0 0 5px #00ff9c; }
+}
+
+@keyframes pulseText {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* === MarketCap qui pulse === */
+#marketCap {
+  font-size: 2rem;
+  color: #00ff9c;
+  text-shadow: 0 0 10px #00ff9c, 0 0 20px #00ff9c;
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0% { text-shadow: 0 0 5px #00ff9c, 0 0 10px #00ff9c; transform: scale(1); }
+  50% { text-shadow: 0 0 20px #00ff9c, 0 0 40px #00ff9c; transform: scale(1.05); }
+  100% { text-shadow: 0 0 5px #00ff9c, 0 0 10px #00ff9c; transform: scale(1); }
+}
+
+/* Effet gradient animé sur la barre */
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(270deg, #00ff9c, #63ffd4, #00ff9c);
+  background-size: 200% 200%;
+  transition: width 0.5s ease-out;
+  box-shadow: 0 0 15px #00ff9c;
+  animation: energyFlow 3s infinite linear;
+}
+
+@keyframes energyFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+/* Effet pulsation rouge */
+#lifeBar {
+  background: linear-gradient(90deg, #ff1a1a, #ff4d4d); /* 🌋 Dégradé rouge permanent */
+  transition: width 0.3s ease;
+  animation: lifePulse 2s infinite ease-in-out;
+}
+
+@keyframes lifePulse {
+  0% { box-shadow: 0 0 5px #ff4d6d; }
+  50% { box-shadow: 0 0 15px #ff4d6d; }
+  100% { box-shadow: 0 0 5px #ff4d6d; }
+}
+
+/* Danger extrême → pulsation plus rapide */
+.low-life {
+    background: linear-gradient(90deg, #ff0000, #ff3333); /* rouge encore plus intense */
+  animation: lifePulseFast 0.8s infinite ease-in-out;
+}
+
+@keyframes lifePulseFast {
+  0% { box-shadow: 0 0 5px #ff0000; }
+  50% { box-shadow: 0 0 20px #ff0000; }
+  100% { box-shadow: 0 0 5px #ff0000; }
+}
+
+/* Leaderboard activation */
+.feature-box.unlocked {
+  animation: unlockPulse 1.5s ease-out forwards;
+}
+
+@keyframes unlockPulse {
+  0% { box-shadow: 0 0 5px #00ff9c; transform: scale(0.95); opacity: 0.7; }
+  50% { box-shadow: 0 0 25px #00ff9c; transform: scale(1.05); opacity: 1; }
+  100% { box-shadow: 0 0 10px #00ff9c; transform: scale(1); }
+}
+
+#progressMessage {
+  animation: flicker 3s infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  40% { opacity: 0.9; }
+  50% { opacity: 0.7; }
+  60% { opacity: 0.9; }
+}
+
+
+/* Animation pour le texte dynamique */
+#progressMessage {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#progressMessage.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+
+/* --- Effet Terminal Hacker --- */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+.typing-title {
+  font-family: 'VT323', monospace; /* Style rétro terminal */
+  color: #00ff9c;
+  font-size: 2rem;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #00ff9c;
+  width: 0;
+  margin-top: 20%;
+  text-align: center;
+  animation: typing 2s steps(30, end) forwards, blink 0.7s infinite;
+}
+
+#intro-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Animation de sortie en fondu */
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+}
+
+/* Dashboard Fondu + Slide*/
+#dashboard {
+  opacity: 0;
+  transform: translateY(20px); /* petit décalage vers le bas */
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+#dashboard.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Forme d’œuf : rayon différent haut/bas pour un look bio-mécanique */
+#ai-hologram .egg{
+  width: 100%; height: 100%;
+  position: relative;
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+  background:
+    /* micro circuits fantômes */
+    linear-gradient(180deg, rgba(0,255,156,.06), transparent 35% 65%, rgba(0,255,156,.06)) ,
+    radial-gradient(120% 90% at 50% 45%, rgba(0,255,156,.10), transparent 55%),
+    radial-gradient(80% 60% at 50% 25%, rgba(255,255,255,.14), transparent 40%),
+    linear-gradient(180deg, #0e1412, #0b1f1a 60%, #091412);
+  outline: 1px solid rgba(0,2217,255,.35);
+  box-shadow:
+    inset 0 0 10px rgba(0,255,156,.18),
+    inset 0 0 calc(15px + 20px * var(--intensity)) rgba(0,255,156,.10);
+  animation: egg-breathe 3.5s ease-in-out infinite;
+}
+
+/* Halo et reflets dynamiques */
+#ai-hologram .egg::before{
+  content:"";
+  position:absolute; inset:0;
+  border-radius: inherit;
+  background:
+    radial-gradient(60% 25% at 50% 18%, rgba(255,255,255,.22), transparent 70%),
+    radial-gradient(80% 55% at 50% 85%, rgba(0,217,255,.18), transparent 70%);
+  mix-blend-mode: screen;
+  filter: blur(0.6px);
+  opacity: calc(.5 + .4 * var(--intensity));
+}
+
+/* Liseré spéculaire */
+#ai-hologram .egg::after{
+  content:"";
+  position:absolute;
+  left: 18%; right: 18%;
+  top: 8%; bottom: 10%;
+  border-radius: 50%;
+  background: radial-gradient(80% 20% at 50% 10%, rgba(255,255,255,.25), transparent 70%);
+  opacity: .25;
+}
+
+/* “Œil”/noyau énergétique (fente elliptique lumineuse) */
+#ai-hologram .core{
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 46%; height: 16%;
+  transform: translate(-50%, -50%);
+  border-radius: 45% / 85%;
+  background:
+    radial-gradient(110% 90% at 50% 50%, rgba(0,0,0,.6), rgba(0,0,0,.2) 55%, transparent 60%),
+    radial-gradient(65% 120% at 50% 55%, rgba(0,217,255,.65), rgba(0,180,120,.45) 45%, rgba(0,255,156,.1) 80%, transparent 85%);
+  box-shadow:
+    0 0 calc(10px + 20px * var(--intensity)) rgba(0,217,255,.85),
+    inset 0 0 10px rgba(0,0,0,.8);
+  animation: core-pulse 2.2s ease-in-out infinite;
+}
+
+/* Ligne de scan holographique */
+#ai-hologram .scanline{
+  position: absolute;
+  left: 10%; right: 10%;
+  height: 2px; top: -8%;
+  background: linear-gradient(90deg, transparent, rgba(0,217,255,.65), transparent);
+  filter: blur(.2px);
+  opacity: .75;
+  animation: scan 3.2s linear infinite;
+}
+
+/* Glitch léger quand l’intensité monte */
+@keyframes egg-breathe{
+  0%,100%{ transform: translateY(0) scale(1); }
+  50%{    transform: translateY(-3px) scale(calc(1 + .015 + .05 * var(--intensity))); }
+}
+@keyframes core-pulse{
+  0%,100%{ transform: translate(-50%, -50%) scale(1); }
+  50%{    transform: translate(-50%, -50%) scale(calc(1 + .06 + .08 * var(--intensity))); }
+}
+@keyframes scan{
+  0%{ top: -8%; }
+  100%{ top: 108%; }
+}
+
+/* Respecte les préférences d’accessibilité */
+@media (prefers-reduced-motion: reduce){
+  #ai-hologram .egg,
+  #ai-hologram .core,
+  #ai-hologram .scanline{ animation: none; }
+}
+
+/* Le wrapper ne clippe pas l’œuf */
+.progressWrap {
+  position: relative;
+  display: inline-block;   /* garde une largeur serrée autour de la barre */
+  overflow: visible;       /* important : ne pas couper l’œuf */
+}
+
+/* Positionner l’œuf par rapport au wrapper, pas fixed */
+.progressWrap #ai-hologram {
+  --intensity: .2;
+
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 16px);   /* à droite de la barre */
+  transform: translateY(-50%);
+  width: 60px;
+  height: 80px;
+  pointer-events: none;
+  opacity: calc(.5 + .4 * var(--intensity));
+  filter: drop-shadow(0 0 calc(5px + 20px * var(--intensity)) #00ff9c);
+  z-index: 10;
+
+  /* Oscillation */
+  animation: egg-wiggle 2.5s ease-in-out infinite;
+}
+
+@keyframes egg-wiggle {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50%      { transform: translateY(-50%) translateX(6px); }
+}
+
+
+.progressWrap {
+  position: relative;
+  display: flex;           /* place l'œuf et la barre sur la même ligne */
+  align-items: center;     /* verticalement aligné */
+  justify-content: center; /* centre la barre */
+  width: 100%;             /* prend toute la largeur disponible */
+  max-width: 600px;        /* limite optionnelle */
+  margin: 0 auto;          /* centre dans le container global */
+  overflow: visible;       /* ne coupe pas l'œuf */
+}
+
+/* Fissure centrale */
+#ai-hologram .crack {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 0%;
+  background: radial-gradient(#00d9ff, transparent 70%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: all 0.5s ease-out;
+}
+
+/* IA naissante */
+#ai-hologram .ia-entity {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0px;
+  height: 0px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00d9ff 0%, #9d00ff 70%);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  box-shadow: 0 0 20px #00d9ff, 0 0 40px #9d00ff;
+  transition: all 1s ease-out;
+}
+
+/* 0) État de base des éléments de l'éclosion */
+#ai-hologram .crack {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 4px;
+  height: 0;                   /* invisible au départ */
+  background: #00d9ff;         /* change la couleur ici si besoin */
+  box-shadow: 0 0 10px #00d9ff;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: height 0.8s ease-in-out, opacity 0.4s ease-in-out;
+  z-index: 2;
+  will-change: height, opacity;
+}
+
+#ai-hologram .ia-entity {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00d9ff 0%, #9d00ff 70%); /* halo bleu-violet */
+  transform: translate(-50%, -50%) scale(.4);
+  opacity: 0;
+  filter: drop-shadow(0 0 20px #00d9ff) drop-shadow(0 0 35px #9d00ff);
+  transition: transform 1.0s ease-out, opacity 0.8s ease-out, width 0.6s, height 0.6s;
+  z-index: 3;
+  will-change: transform, opacity, width, height;
+}
+
+/* 1) Quand on ajoute .hatch sur #ai-hologram, on coupe les animations de repos */
+#ai-hologram.hatch .core,
+#ai-hologram.hatch .scanline {
+  animation: none !important;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+/* 2) La fissure devient visible et s’ouvre */
+#ai-hologram.hatch .crack {
+  opacity: 1;
+  height: 80%;
+}
+
+/* 3) L’œuf explose (remplace egg-breathe). On utilise l’ID + classe pour battre la spécificité. */
+#ai-hologram.hatch .egg {
+  animation: egg-explode 1.4s ease-out forwards;  /* remplace l'animation idle */
+  will-change: transform, opacity;
+}
+
+/* 4) L’entité IA apparaît après le début de l’explosion */
+#ai-hologram.hatch .ia-entity {
+  opacity: 1;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%) scale(1.15);
+  transition-delay: 0.4s; /* petit décalage pour que ça apparaisse après la fissure */
+}
+
+/* Keyframes d'explosion */
+@keyframes egg-explode {
+  0%   { opacity: 1; transform: scale(1); }
+  55%  { opacity: .9; transform: scale(1.25); }
+  100% { opacity: 0; transform: scale(2.1); }
+}
+
+/* === IA stable après l'éclosion === */
+.ia-final {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,217,255,0.7), rgba(0,0,0,0.1));
+  box-shadow: 0 0 25px rgba(0,217,255,0.9);
+  animation: ia-float 3s ease-in-out infinite;
+}
+
+/* L'IA "respire" légèrement */
+@keyframes ia-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.05); }
+}
+
+/* Aura d'énergie tournante */
+.ia-final .energy {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,217,255,0.3), transparent 70%);
+  animation: rotateEnergy 6s linear infinite;
+}
+
+@keyframes rotateEnergy {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ia-final::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30%;
+  height: 30%;
+  background: radial-gradient(circle, #00ffd5 0%, #004040 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: corePulse 2s infinite ease-in-out;
+}
+
+@keyframes corePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+}
+.ia-final .ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(0,217,255,0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ringRotate 10s linear infinite;
+}
+
+.ia-final .ring:nth-child(1) {
+  width: 90%;
+  height: 90%;
+  animation-duration: 12s;
+}
+.ia-final .ring:nth-child(2) {
+  width: 120%;
+  height: 120%;
+  animation-duration: 18s;
+}
+
+@keyframes ringRotate {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.ia-final {
+  animation: ia-float 3s ease-in-out infinite, colorShift 6s linear infinite;
+}
+
+@keyframes colorShift {
+  0% { box-shadow: 0 0 20px #00d9ff; background: radial-gradient(circle, #00d9ff, rgba(0,0,0,0.1)); }
+  50% { box-shadow: 0 0 25px #ff00d4; background: radial-gradient(circle, #ff00d4, rgba(0,0,0,0.1)); }
+  100% { box-shadow: 0 0 20px #00d9ff; background: radial-gradient(circle, #00d9ff, rgba(0,0,0,0.1)); }
+}
+
+
+
+/* Auréoles lumineuses */
+.top-avatar {
+  border-radius: 50%;
+  border: 2px solid #00ff9c;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 0 15px #00ff9c;
+  transition: transform 0.3s ease;
+}
+.top-avatar:hover {
+  transform: scale(1.2);
+}
+
+
+/* Rang prestigieux */
+.rank-title {
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.rank-architecte {
+  color: #ffd700;
+  text-shadow: 0 0 10px gold;
+}
+
+.rank-elu {
+  color: #63ffd4;
+  text-shadow: 0 0 8px #63ffd4;
+}
+
+.rank-feedeur {
+  color: #aaa;
+  text-shadow: 0 0 5px #555;
+}
+.leaderboard-link {
+  color: #00ff9c;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.leaderboard-link:hover {
+  color: #63ffd4;
+  text-shadow: 0 0 8px #00ff9c;
+}
+
+
+/* === Rang sous forme de badge élégant === */
+.rank-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  background: rgba(0, 255, 156, 0.1);
+  border: 1px solid rgba(0, 255, 156, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.rank-architecte {
+  animation: pulseRank 2s infinite ease-in-out;
+}
+
+@keyframes pulseRank {
+  0%, 100% { box-shadow: 0 0 5px gold; }
+  50% { box-shadow: 0 0 15px gold; }
+}
+
+
+
+/* ===== Ligne cliquable du leaderboard ===== */
+.leaderboard-row {
+  cursor: pointer;
+  transition: 
+    background 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+
+/* Bonus :*
+
+/* ======= DUAL LEADERBOARD ======= */
+.dual-leaderboard {
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  margin-top: 25px;
+}
+
+.leaderboard-column {
+  flex: 1;
+  padding: 15px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.leaderboard-column:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 25px rgba(0,255,156,0.5);
+}
+
+/* ===== Colonne Whales ===== */
+.leaderboard-column.whales {
+  border: 2px solid #FFD700;;
+  background: transparent;
+}
+
+.leaderboard-column.whales h2 {
+  color: #FFD700;;
+  text-shadow: 0 0 12px#FFD700;;
+}
+
+
+/* ===== Colonne Héros ===== */
+.leaderboard-column.heros {
+  border: 2px solid #9d00ff;
+  background: transparent;
+}
+
+.leaderboard-column.heros h2 {
+  color: #9d00ff;
+  text-shadow: 0 0 12px #9d00ff;
+}
+
+
+/* ===== Style des tableaux ===== */
+.leaderboard-column table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.leaderboard-column th,
+.leaderboard-column td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.leaderboard-column th {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Hover interactif ===== */
+.leaderboard-column tbody tr:hover {
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+  transform: scale(1.01);
+  transition: all 0.2s ease-in-out;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .dual-leaderboard {
+    flex-direction: column;
+  }
+}
+
+/* ===== POP-UP OVERLAY ===== */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.popup-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* ===== POP-UP BOX ===== */
+.popup-content {
+  background: linear-gradient(145deg, #000, #0a0f0c);
+  border: 2px solid #00ff9c;
+  border-radius: 12px;
+  padding: 30px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0, 255, 156, 0.5);
+  animation: popup-bounce 0.5s ease;
+}
+
+@keyframes popup-bounce {
+  0% { transform: scale(0.7); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ===== TITRE ===== */
+.popup-content h2 {
+  color: #00ff9c;
+  margin-bottom: 15px;
+  text-shadow: 0 0 8px #00ff9c;
+}
+
+/* ===== FERMETURE ===== */
+.popup-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.8rem;
+  color: #ff4d4d;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.popup-close:hover {
+  color: #ff0000;
+}
+
+/* ===== BOUTON ===== */
+.popup-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #00ff9c;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.popup-button:hover {
+  background: #63ffd4;
+}
+
+
+/* Hover Whale */
+.whales tbody tr:hover td {
+  background-color: rgba(255, 215, 0, 0.05);
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover Héros */
+.heros tbody tr:hover td {
+  background-color: rgba(157, 0, 255, 0.05);
+  box-shadow: 0 0 6px rgba(157, 0, 255, 0.5);
+  transition: all 0.2s ease-in-out;
+}
+
+/* ===== MODAL (LOGIN / CREATE ACCOUNT) ===== */
+.modal {
+  display: none; /* masqué par défaut */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.4s ease;
+}
+
+.modal.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* === Contenu de la fenêtre === */
+.modal-content {
+  position: relative;
+  background: linear-gradient(145deg, #000, #0a0f0c);
+  border: 2px solid #00ff9c;
+  border-radius: 12px;
+  padding: 35px 30px;
+  width: 380px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0, 255, 156, 0.5);
+  animation: popup-bounce 0.4s ease;
+}
+
+/* Animation d’apparition fluide */
+@keyframes popup-bounce {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* === Titre === */
+.modal-content h2 {
+  color: #00ff9c;
+  text-shadow: 0 0 12px #00ff9c;
+  margin-bottom: 15px;
+  font-family: "Orbitron", monospace;
+  letter-spacing: 1px;
+}
+
+/* === Sous-texte === */
+.modal-content p {
+  color: #63ffd4;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
+}
+
+/* === Bouton fermeture === */
+.modal-content .close,
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  font-size: 1.8rem;
+  color: #ff4d4d;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-content .close:hover,
+.modal-close:hover {
+  color: #ff0000;
+}
+
+/* === Champs de texte / email / mot de passe === */
+.modal-content label {
+  display: block;
+  text-align: left;
+  margin-top: 12px;
+  color: #00ffcc;
+  font-weight: 500;
+  font-family: "Orbitron", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* === Style premium des champs === */
+.modal-content input[type="text"],
+.modal-content input[type="email"],
+.modal-content input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 255, 156, 0.3);
+  border-radius: 4px;
+  background: rgba(0, 255, 156, 0.05);
+  color: #00ffcc;
+  font-family: "Orbitron", monospace;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.25s ease;
+  letter-spacing: 0.5px;
+}
+
+/* === Effet néon au focus === */
+.modal-content input:focus {
+  border-color: #00ff9c;
+  box-shadow: 0 0 8px #00ff9c, inset 0 0 6px rgba(0,255,156,0.3);
+  background: rgba(0, 255, 156, 0.08);
+  transform: scale(1.02);
+}
+
+/* === Conteneur mot de passe + œil === */
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-field input {
+  flex: 1;
+  padding-right: 35px;
+}
+
+.password-field .eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 16px;
+  color: #00ffcc;
+  user-select: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.password-field .eye:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* === Boutons === */
+.modal-content button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 20px;
+  background: #00ff9c;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Orbitron", monospace;
+  letter-spacing: 0.8px;
+}
+
+.modal-content button:hover {
+  background: #63ffd4;
+  box-shadow: 0 0 10px #63ffd4;
+}
+
+/* === Animation subtile du bouton quand on le clique === */
+.modal-content button:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 20px #00ff9c;
+}
+
+.feed-factory {
+  margin-top: 20px;
+  text-align: center;
+  color: #00ffcc;
+  font-family: 'Orbitron', monospace;
+}
+
+.feed-bar-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(0,255,156,0.1);
+  border: 1px solid #00ffcc;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.feed-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ff9c, #00d1ff);
+  transition: width 1s linear;
+}
+
+/* === Modales de connexion / inscription centrées === */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal.active,
+.modal[style*="display: block"] {
+  display: flex !important;
+}
+
+.modal-content {
+  background: radial-gradient(circle at top left, #001a12, #000);
+  border: 2px solid #00ff9c;
+  box-shadow: 0 0 35px rgba(0, 255, 156, 0.4);
+  border-radius: 16px;
+  padding: 25px;
+  color: #00ffcc;
+  font-family: "Orbitron", monospace;
+  width: 95%;
+  max-width: 420px;
+  animation: popIn 0.4s ease;
+}
+
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-content input {
+  background: rgba(0, 255, 156, 0.06);
+  border: 1px solid rgba(0, 255, 156, 0.3);
+  border-radius: 8px;
+  color: #00ffcc;
+  padding: 8px 10px;
+  font-family: "Orbitron", monospace;
+}
+
+.modal-content button {
+  background: #00ff9c;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: bold;
+  font-family: "Orbitron", monospace;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.modal-content button:hover {
+  box-shadow: 0 0 15px #00ff9c;
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   CORE FEED — HOLOGRAM IA DISABLED
+   Ce bloc neutralise l'œuf holographique
+   sans impacter le layout ou les modules JS
+   =============================== */
+/* === TEMPORARY DISABLE: IA Hologram === */
+#ai-hologram,
+#ai-hologram .egg,
+#ai-hologram .core,
+#ai-hologram .scanline,
+#ai-hologram .crack,
+#ai-hologram .ia-entity,
+#ai-hologram .ia-final,
+#ai-hologram .ring,
+#ai-hologram .energy {
+  all: unset !important; /* Supprime TOUTES les propriétés héritées */
+  display: none !important;
+}
+
+/* Lien "Mot de passe oublié" */  
+.forgot-link {
+  display: block;
+  margin-top: 10px;
+  color: #00ff9c;
+  text-decoration: none;
+  font-size: 0.85rem;
+  text-align: right;
+  transition: color 0.2s ease;
+}
+.forgot-link:hover { color: #63ffd4; }

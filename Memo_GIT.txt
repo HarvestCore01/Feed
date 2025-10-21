@@ -1,0 +1,48 @@
+
+# Mémo Git - Sauvegardes rapides pour ton projet
+
+## 1. Initialiser Git (à faire une seule fois au début du projet)
+git init
+
+## 2. Vérifier les fichiers modifiés
+git status
+
+## 3. Préparer les fichiers pour la sauvegarde
+# Ajouter TOUS les fichiers modifiés
+git add .
+
+# OU ajouter un fichier spécifique
+git add nom_du_fichier.py
+
+## 4. Créer une sauvegarde (commit)
+git commit -m "Message clair sur ce qui a changé"
+
+## 5. Voir l'historique des sauvegardes
+git log --oneline
+
+## 6. Revenir à une ancienne version
+git checkout ID
+
+# Exemple :
+# git checkout a3b24f5
+
+créer de nouvelles branches pour tester des features :
+git checkout -b test-feature 
+
+Verifier dans quel Branch je suis : 
+git branch
+
+
+- Fusionner dans master
+# git checkout master
+# git merge TEST-feature
+
+2. Revenir à ce commit
+Utilise git reset --hard pour remettre tout ton projet exactement comme au commit 7664abb :
+
+git checkout master → revenir au présent.
+---------------------------------------
+💡 Astuce :
+- Faire une sauvegarde après chaque gros changement.
+- Écrire un message clair pour chaque commit.
+- Pas besoin de copier des dossiers, Git gère tout l'historique !

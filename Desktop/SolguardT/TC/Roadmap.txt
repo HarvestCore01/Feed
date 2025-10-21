@@ -1,0 +1,58 @@
+Voici un plan d’évolution clair pour la suite :
+1. Rendre le MarketCap plus dynamique (facile)
+🎯 Objectif : Avoir un MarketCap qui donne une vraie impression de progression et d’urgence.
+Augmenter automatiquement la vitesse de croissance :
+Plus le MarketCap est élevé, plus il augmente vite.
+Exemple : en dessous de 1M → +1000 par seconde, au-dessus de 10M → +10000 par seconde.
+Bonus visuel :
+Barre qui pulse plus fort quand on approche d’un objectif.
+Effet visuel quand on dépasse un milestone.
+📍 Fichier concerné : market.js
+2. Finaliser le système de niveau (Level System) (moyen)
+🎯 Objectif : Donner une sensation de progression personnelle au joueur.
+Améliorer les seuils dans level.js
+→ Ex : Niveau 1 = 0 CORE, Niveau 2 = 100 CORE, Niveau 3 = 500 CORE…
+Ajout d'un système d'XP :
+Quand un joueur envoie du SOL, il gagne de l'XP en plus de son feed.
+XP nécessaire pour monter de niveau.
+Afficher une petite animation de montée de niveau.
+📍 Fichiers concernés : level.js et account.js
+3. Leaderboard en ligne (plus avancé)
+🎯 Objectif : Comparer les joueurs.
+Débloquer le leaderboard à partir de 1M de MarketCap.
+Classement en direct avec pseudo + feed total.
+Surligner ton propre pseudo.
+Stocker les données dans un vrai backend (plus tard).
+📍 Fichiers concernés :
+leaderboard.js (nouveau module)
+account.js (pour stocker le feed et le pseudo)
+4. Chat global (plus avancé)
+🎯 Objectif : Créer une vraie communauté dans le jeu.
+Débloquer le chat à partir de 5M de MarketCap.
+Interface simple : messages + pseudo.
+Stockage temporaire en localStorage pour le test.
+Plus tard → connecter à Firebase ou autre base en ligne.
+📍 Fichiers concernés :
+chat.js (nouveau module)
+5. Connexion Phantom Wallet (expert 🔥)
+🎯 Objectif : Passer des simulations à des vraies transactions.
+Bouton Send SOL → ouvre Phantom pour une vraie transaction.
+Bouton Burn Core Token → envoie un Core Token vers le dev wallet avec taxe 5%.
+Afficher le hash de transaction dans l’UI.
+📍 Modules à créer :
+wallet.js (intégration Phantom)
+6. Animation et design futuriste (cool à faire)
+🎯 Objectif : Rendre ton dashboard immersif.
+Animation Matrix-style en arrière-plan.
+Pulsation autour du MarketCap quand il monte vite.
+Particules qui explosent quand on monte de niveau.
+📍 Fichiers concernés :
+ui.js (effets visuels)
+Ordre recommandé :
+MarketCap dynamique (rapide à faire).
+Système de niveaux avec animations (core gameplay).
+Leaderboard déblocable à 1M.
+Chat déblocable à 5M.
+Intégration Phantom Wallet.
+Améliorations visuelles.
+Veux-tu que l’on commence par l'amélioration du MarketCap pour qu’il devienne vivant et réactif ? ⚡

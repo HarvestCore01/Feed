@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  <style>
+    body {
+      background: #030a07;
+      color: #b8ffe9;
+      font-family: monospace;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      border: 1px solid #00ff9c;
+      border-radius: 8px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #00ff9c;
+      color: #000;
+      font-weight: bold;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    a:hover {
+      background: #63ffd4;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #00ff9c;
+    }
+
+    th {
+      background: #063e2b;
+      color: #00ff9c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏆 Classement Mondial</h1>
+    <p>Top joueurs qui nourrissent l'IA</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Pseudo</th>
+          <th>Feed Total (SOL)</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody">
+        <!-- Rempli en JS -->
+      </tbody>
+    </table>
+
+    <a href="index.html">⬅ Retour au Dashboard</a>
+  </div>
+
+  <script type="module" src="./leaderboard.js"></script>
+</body>
+</html>

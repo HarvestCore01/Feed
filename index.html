@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core Feed Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="feed.css" />
+</head>
+
+<body>
+
+  <!-- === Intro terminal === -->
+  <div id="intro-screen">
+    <h1 class="typing-title" data-i18n="initializingCore">INITIALISATION DU CORE FEED...</h1>
+  </div>
+  <div id="flash-overlay"></div>
+
+  <!-- === Matrix Background === -->
+  <canvas id="matrixBackground"></canvas>
+  <div id="matrixOverlay"></div>
+
+  <!-- === Dashboard === -->
+  <div class="container" id="dashboard" style="display: none;">
+    <h1>Core Feed Dashboard</h1>
+    <p data-i18n="welcomeMessage">Bienvenue sur ton projet Core Feed 🚀</p>
+
+    <!-- ✅ Sélecteur de langue holographique -->
+    <div style="text-align:right; margin-bottom:10px;">
+      <select id="langSelect" style="
+        background:rgba(0,255,156,0.1);
+        border:1px solid #00ff9c;
+        color:#00ff9c;
+        border-radius:8px;
+        padding:4px 8px;
+        font-weight:bold;
+        text-shadow:0 0 5px #00ff9c;">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="en">🇬🇧 EN</option>
+      </select>
+    </div>
+
+    <!-- ===== MARKETCAP ===== -->
+    <div>
+      <h2 data-i18n="globalMarketCap">MarketCap global :</h2>
+      <span id="marketCap" style="color:#63ffd4;">$0</span>
+    </div>
+
+    <!-- ===== PROGRESSION ===== -->
+    <div style="margin-top:20px; max-width:600px; margin-left:auto; margin-right:auto;">
+      <div id="progressMessage"
+        style="margin-bottom:10px; font-weight:bold; color:#63ffd4; text-shadow:0 0 10px #63ffd4; text-align:center;"
+        data-i18n="feedInit">Initialisation du feed IA...</div>
+
+      <div style="margin-bottom:10px; font-weight:bold; color:#00ff9c; text-align:center;">
+        <span data-i18n="currentGoal">Objectif actuel :</span>
+        <span id="milestoneGoal">$10 000 000</span>
+      </div>
+
+      <div class="progressWrap">
+        <div id="progressContainer">
+          <div id="progressBar"></div>
+        </div>
+
+        <!-- Hologramme IA -->
+        <div id="ai-hologram">
+          <div class="egg">
+            <span class="scanline"></span>
+            <span class="core"></span>
+            <span class="crack"></span>
+            <div class="ia-entity"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LIFE BAR ===== -->
+    <div style="margin-top:30px; max-width:600px; margin-left:auto; margin-right:auto;">
+      <h3 style="color:#ff4d6d; margin-bottom:5px;" data-i18n="feedCycleTitle">
+        Cycle du Feed (Durée de vie actuelle)
+      </h3>
+      <div id="lifeContainer" style="background:#111; border:1px solid #ff4d6d; border-radius:10px; overflow:hidden; height:20px;">
+        <div id="lifeBar" style="height:100%; width:0%; background:linear-gradient(90deg, #ff4d6d, #ffaaaa); transition:width 1s linear;"></div>
+      </div>
+      <p style="color:#ff4d6d; font-size:14px; margin-top:5px;" data-i18n="feedCycleInfo">
+        Le Feed se régénère à chaque cycle automatique.
+      </p>
+    </div>
+
+    <!-- ===== BOUTONS ===== -->
+    <div style="margin-top:20px;">
+      <button id="feedPulseBtn" data-i18n="feedPulse">💬 Feed Pulse</button>
+      <button id="burnCore" data-i18n="burnCore">Burn Core Token</button>
+      <button id="logoutBtn" style="display:none;" data-i18n="logout">Se déconnecter</button>
+      <button id="createAccount" data-i18n="register">Créer un compte</button>
+      <a id="viewProfile" href="profile.html" class="feature-btn" style="display:none;" data-i18n="profile">Mon Profil</a>
+      <button id="login" data-i18n="login">Se connecter</button>
+    </div>
+
+    <!-- ===== LEADERBOARD ===== -->
+    <div id="leaderboardSection" class="feature-box locked">
+      <h2 data-i18n="leaderboardTitle">Leaderboard</h2>
+      <p id="leaderboardMessage">
+        🔒 <span data-i18n="unlockLeaderboard">Débloquez le leaderboard en atteignant</span>
+        <span id="milestoneGoalDisplay">$20 000 000</span>
+      </p>
+      <a href="leaderboard.html" id="openLeaderboardBtn" class="feature-btn disabled" onclick="return false;" data-i18n="openLeaderboard">
+        Ouvrir Leaderboard
+      </a>
+    </div>
+
+    <div id="leaderboardUnlockMessage" style="display:none; margin-top:15px; padding:10px; border:1px solid #00ff9c;
+                color:#00ff9c; font-weight:bold; text-shadow:0 0 10px #00ff9c;
+                background:rgba(0,255,156,0.1); border-radius:6px;">
+    </div>
+  </div>
+
+  <!-- 🔮 FEED PULSE — MODALE CHAT -->
+  <div id="feedModal" class="feed-modal" style="display:none;">
+    <span class="close" onclick="document.getElementById('feedModal').style.display='none'">&times;</span>
+    <h2>💬 Core Feed — Pulse</h2>
+    <p data-i18n="chatSubtitle">Échange direct avec le Flux</p>
+
+    <div id="feedChatContainer">
+      <div id="feedChatLog"></div>
+      <div id="feedInputBox">
+        <textarea id="feedMessage" data-i18n-placeholder="messagePlaceholder" placeholder="Pulse ton message..." rows="2"></textarea>
+        <button id="feedSendBtn" data-i18n="send">Envoyer</button>
+      </div>
+    </div>
+
+    <button id="openFeedPage" class="feature-btn" style="margin-top:15px;" data-i18n="openFullFeed">
+      🔎 Ouvrir le Feed en plein écran
+    </button>
+  </div>
+
+  <!-- === Notifications Holographiques CoreFeed === -->
+  <div id="feedNotificationContainer"></div>
+
+  <!-- ===== MODALES LOGIN & REGISTER ===== -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('loginModal')">&times;</span>
+      <h2 data-i18n="loginTitle">Connexion</h2>
+      <p data-i18n="loginSubtitle">Entre dans la Matrice Core Feed</p>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <label for="login-email" data-i18n="emailLabel">Adresse e-mail</label>
+        <input type="email" id="login-email" name="email" placeholder="exemple@corefeed.io" required>
+        <label for="login-password" data-i18n="passwordLabel">Mot de passe</label>
+        <div class="password-field">
+          <input type="password" id="login-password" name="password" placeholder="••••••••" required>
+          <span class="eye" onclick="togglePassword('login-password', this)">👁️</span>
+        </div>
+
+        <a href="#" id="forgotPasswordLink" class="forgot-link" data-i18n="forgotPassword">Mot de passe oublié ?</a>
+
+        <button type="submit" data-i18n="login">Se connecter</button>
+      </form>
+      <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
+        <span data-i18n="noAccount">Pas encore de compte ?</span> 
+        <a href="#" onclick="openModal('registerModal')" style="color:#00ff9c; text-decoration:none;" data-i18n="register">Créer un compte</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="modal" id="registerModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('registerModal')">&times;</span>
+      <h2 data-i18n="registerTitle">Créer un compte</h2>
+      <p data-i18n="registerSubtitle">Rejoins la Matrice et alimente le Core</p>
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <label for="register-username" data-i18n="usernameLabel">Pseudo</label>
+        <input type="text" id="register-username" name="username" placeholder="Neo_42" required>
+        <label for="register-email" data-i18n="emailLabel">Adresse e-mail</label>
+        <input type="email" id="register-email" name="email" placeholder="exemple@corefeed.io" required>
+        <label for="register-password" data-i18n="passwordLabel">Mot de passe</label>
+        <div class="password-field">
+          <input type="password" id="register-password" name="password" placeholder="••••••••" required>
+          <span class="eye" onclick="togglePassword('register-password', this)">👁️</span>
+        </div>
+        <button type="submit" data-i18n="register">Créer mon compte</button>
+      </form>
+      <p style="margin-top: 12px; font-size: 0.8rem; color: #63ffd4;">
+        <span data-i18n="alreadyMember">Déjà membre ?</span>
+        <a href="#" onclick="openModal('loginModal')" style="color:#00ff9c; text-decoration:none;" data-i18n="login">Se connecter</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Modale mot de passe oublié -->
+  <div class="modal" id="forgotPasswordModal">
+    <div class="modal-content">
+      <span class="close" id="closeForgot">&times;</span>
+      <h3 data-i18n="resetTitle">Réinitialiser ton mot de passe</h3>
+      <form id="forgotPasswordForm">
+        <label for="forgotEmail" data-i18n="emailLabel">Adresse e-mail</label>
+        <input type="email" id="forgotEmail" required placeholder="ton@email.com">
+        <button type="submit" class="feature-btn" data-i18n="send">Envoyer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script type="module" src="./feed-lang.js"></script> <!-- ✅ plugin de traduction -->
+  <script type="module" src="./firebase-init.js"></script>
+  <script type="module" src="./account.js"></script>
+  <script type="module" src="./main.js"></script>
+  <script type="module" src="./feed.js"></script>
+  <script type="module" src="./ui.js"></script> <!-- ✅ gère la langue et le marketcap -->
+</body>
+</html>
