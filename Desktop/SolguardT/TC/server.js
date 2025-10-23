@@ -2,25 +2,33 @@
 // === SERVER.JS — Feed Pulse WebSocket + Firestore Persistance ===
 // =============================================================
 
+import 'dotenv/config';
 import { WebSocketServer } from "ws";
 import admin from "firebase-admin";
-import { readFileSync } from "fs";
 import { getDatabase } from "firebase-admin/database";
 
 // =============================================================
-// === Initialisation Firebase Admin ===
+// === Initialisation Firebase Admin via Variables d’Environnement ===
+// =============================================================
 try {
-  const serviceAccount = JSON.parse(
-    readFileSync(new URL("./serviceAccountKey.json", import.meta.url))
-  );
-
   if (!admin.apps.length) {
     admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://feedcore-64023-default-rtdb.europe-west1.firebasedatabase.app"
-});
+      credential: admin.credential.cert({
+        type: "service_account",
+        project_id: process.env.FIREBASE_PROJECT_ID,
+        private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+        private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+        client_email: process.env.FIREBASE_CLIENT_EMAIL,
+        client_id: process.env.FIREBASE_CLIENT_ID,
+        auth_uri: "https://accounts.google.com/o/oauth2/auth",
+        token_uri: "https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+        client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+      }),
+      databaseURL: process.env.FIREBASE_DB_URL,
+    });
 
-    console.log("🔥 Firebase Admin initialisé avec Realtime Database");
+    console.log("🔥 Firebase Admin initialisé avec Realtime Database (env vars)");
   }
 } catch (err) {
   console.error("❌ Erreur initialisation Firebase Admin :", err);
@@ -31,8 +39,9 @@ const db = admin.firestore();
 // =============================================================
 // === Serveur WebSocket
 // =============================================================
-const wss = new WebSocketServer({ port: 8080 });
-console.log("🚀 Feed Pulse WebSocket en ligne sur port 8080");
+const PORT = process.env.PORT || 8080;
+const wss = new WebSocketServer({ port: PORT });
+console.log(`🚀 Feed Pulse WebSocket en ligne sur port ${PORT}`);
 
 // =============================================================
 // === Fonctions utilitaires
@@ -113,7 +122,6 @@ wss.on("connection", async (socket) => {
     try {
       const payload = JSON.parse(message);
 
-      // --- typing ---
       if (payload.type === "typing") {
         broadcast({ type: "user_typing", user: payload.user });
         return;
@@ -124,7 +132,6 @@ wss.on("connection", async (socket) => {
         return;
       }
 
-      // --- message standard ---
       if (payload.type === "new_message") {
         const { user, text } = payload;
         if (!text?.trim()) return;
@@ -143,25 +150,15 @@ wss.on("connection", async (socket) => {
 // =============================================================
 // 🧠 FEED FACTORY - PLANIFICATEUR AUTOMATIQUE
 // =============================================================
-// Crée ou met à jour le prochain Feed dans Firebase
 async function scheduleNextFeed() {
   try {
     const db = getDatabase();
 
-    // Durée de vie d’un cycle Feed (ex: 24h)
-    const duration = 5 * 60 * 1000; // 24h en millisecondes
-
-    // Timestamp de départ (vrai nombre, pas une expression)
+    const duration = 5 * 60 * 1000; // 5 minutes (test)
     const startsAt = Date.now() + duration;
-
-    // Nom unique du feed
     const name = `FEED_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
-    const nextFeed = {
-      name,
-      startsAt, // ✅ vrai timestamp numérique
-      duration
-    };
+    const nextFeed = { name, startsAt, duration };
 
     await db.ref("nextFeed").set(nextFeed);
     console.log(`✅ Nouveau cycle Feed créé :`, nextFeed);
@@ -171,11 +168,7 @@ async function scheduleNextFeed() {
 }
 
 // =============================================================
-// 🔁 CRON : relance la création d’un nouveau Feed toutes les 24h
+// 🔁 Relance automatique du Feed toutes les 24h
 // =============================================================
-
-// Lance un premier Feed au démarrage du serveur
 scheduleNextFeed();
-
-// Puis recrée un nouveau cycle toutes les 24h
 setInterval(scheduleNextFeed, 24 * 60 * 60 * 1000);
